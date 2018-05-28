@@ -111,7 +111,7 @@ Step 3: 在容器平台上部署gitlab服务
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/7562CBD3E1CC40F7AFB219FF0119A2C4/1486)  
 
 
-### 6.2	项目配置 ###
+### 6.3	项目配置 ###
 Step 1: 创建Gitlab项目dubbo，导入dubbo项目：  
 从github上将dubbo项目clone下来：git clone https://github.com/ylcao/dubbo.git  
 往创建的容器平台的gitlab上push dubbo项目：  
@@ -137,6 +137,20 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 （2）dubbo/dubbo-demo/dubbo-demo-provider/src/main/assembly/conf/dubbo.properties
 dubbo.registry.address=zookeeper://172.16.2.245:2181
+
+# 5	Jenkins Docker Build配置 #
+## 5.1	虚拟机上Docker安装(略) ##
+在虚拟机上安装Docker,并部署jenkins.
+## 5.2	虚拟机上DockerBuild启用 ##
+(用于jenkins的Docker插件调用)
+step 1:安装略 
+step 2:配置：
+       (1)docker daemon的DOCKER_OPTS中配置“--insecure-registry 172.16.0.176”参数.
+          修改/usr/lib/systemd/system/docker.service中的ExecStart=/usr/bin/dockerd --insecure-registry 172.16.0.176 $OPTIONS \
+       (2)修改/usr/lib/systemd/system/docker.service 为：
+          ExecStart=/usr/bin/dockerd-current -H tcp://0.0.0.0:4243 -H unix:///var/run/docker.sock \  
+step 3:重启docker服务
+
 
 
 

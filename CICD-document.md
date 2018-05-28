@@ -1,19 +1,23 @@
-# 1 引言 #
-CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。fdfsd-test--
-## 1.1	编写目的 ##
-本文档为CI/CD的安装部署手册。
-预期读者为：系统实施人员、系统管理人员、系统运行维护人员等。
-## 1.2	CI/CD说明 ##
-## 1.3	目标 ##
+# CI/CD场景实践操作指南 #
+CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。  
+
+## 1	编写目的 ##
+预期读者为：系统实施人员、系统管理人员、系统运行维护人员等。  
+
+## 2	CI/CD说明 ##
+## 3	目标 ##
+
 1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
 2.	JenKins 与 Maven集成，实现项目代码自动编译。
 3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。
 4.	Jenkins与 Spinnaker集成，实现Spinnaker管理CI等Jenkins流程
 5.	Spinnaker与kubernetes 进行集成，进行分布式构建任务，实现应用自动发布。
 基于以上工具链完成Dubbo的应用的编译、打包、部署这一整套CICD流程。
-## 1.4	场景描述 ##
-在该场景里面采用ECS里面的大数据组件来实现zookeeper集群或者容器的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署。
-# 2	环境说明 #
+
+## 4	场景描述 ##
+在该场景里面采用ECS里面的大数据组件来实现zookeeper集群或者容器的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署。  
+
+## 5	环境说明 ##
 1.	GItlab通过容器进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
 2.	Jenkins通过容器进行部署，采用Jenkins:2.46.2
 3.	Jenkins 中的Docker build地址通过虚拟机安装Docker服务配置暴露地址
@@ -73,13 +77,21 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
    <tr>
       <td></td>
    </tr>
-</table>
-# 3	Zookeeper安装部署 #
-# 4	Gitlab安装部署 #
-将gitlab镜像下载到本地，并上传到云平台的镜像仓库中：
- ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474)
+</table>  
 
-在容器镜像仓库中查看上传的gitlab镜像
+## 6 操作流程 ##  
+### 6.1	Zookeeper安装部署 ###  
+
+### 6.2 Gitlab安装部署 ###  
+Step 1: 将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中：
+
+<div align="center">
+<img src=https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474>
+</div>  
+
+
+
+在容器镜像仓库中查看上传的gitlab镜像：  
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/BAC9A60DB6854E539FFF001874963E1B/1477)
 
 2.在容器平台上部署gitlab服务：

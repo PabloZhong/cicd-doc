@@ -84,6 +84,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
  ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474)
 
 在容器镜像仓库中查看上传的gitlab镜像
+
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/BAC9A60DB6854E539FFF001874963E1B/1477)
 
 2.在容器平台上部署gitlab服务：

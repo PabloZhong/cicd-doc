@@ -129,4 +129,15 @@ git push -u origin master
 
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/DCE502B6E92642B98C6518110F30EB88/1488)
 
+Step 2：修改Dubbo配置文件
+
+（1）dubbo/dubbo-demo/dubbo-demo-consumer/src/main/assembly/conf/dubbo.properties
+
+dubbo.registry.address=zookeeper://172.16.2.245:2181
+
+（2）dubbo/dubbo-demo/dubbo-demo-provider/src/main/assembly/conf/dubbo.properties
+dubbo.registry.address=zookeeper://172.16.2.245:2181
+
+
+
 

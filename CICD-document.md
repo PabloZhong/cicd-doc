@@ -106,7 +106,8 @@ Step 3: 在容器平台上部署gitlab服务
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/278C5DF0E18546D091439B2A4EDB9D2D/1484)  
 
 
-注意需要配置持久化存储： 
+注意需要配置持久化存储：  
+
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/7562CBD3E1CC40F7AFB219FF0119A2C4/1486)  
 
 

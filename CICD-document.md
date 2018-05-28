@@ -93,7 +93,7 @@ Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。
 [root@docker-ce ~]# vi /usr/lib/systemd/system/docker.service
 ```
 配置如下：  
-![](images/docker-daemon.png)
+![](Images/docker-daemon.png)
 
 然后执行：  
 ```
@@ -108,7 +108,7 @@ GitLab镜像使用参考：
 https://docs.gitlab.com/omnibus/docker/#run-the-image
 
 Step 2: 在容器镜像仓库中查看上传的gitlab镜像
-![](images/check-gitlab-images.png)
+![](Images/check-gitlab-images.png)
 
 Step 3: 在容器平台上部署gitlab服务  
 

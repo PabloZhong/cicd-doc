@@ -1,5 +1,5 @@
 # 1 引言 #
-CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。哈哈
+CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。test
 ## 1.1	编写目的 ##
 本文档为CI/CD的安装部署手册。
 预期读者为：系统实施人员、系统管理人员、系统运行维护人员等。

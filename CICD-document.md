@@ -84,38 +84,30 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 
 ### 6.2 Gitlab安装部署 ###  
 Step 1: 将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中
+![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474)
 
-<div align="center">
-<img src=https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474>
-</div>  
 
 
 Step 2: 在容器镜像仓库中查看上传的gitlab镜像
-<div align="center">
-<img src=https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/BAC9A60DB6854E539FFF001874963E1B/1477>
-</div>  
+![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/BAC9A60DB6854E539FFF001874963E1B/1477)
+
 
 Step 3: 在容器平台上部署gitlab服务  
 
-点击创建应用：
-<div align="center">
-<img src=https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/4BC6450B6D49412783860873A1B00E60/1479>
-</div>  
+点击创建应用：  
+![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/4BC6450B6D49412783860873A1B00E60/1479)
+
 
 点击“镜像仓库”，开始通过界面创建：  
-<div align="center">
-<img src=https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/77BF8664344D4A258EB33B6269E9B36B/1481>
-</div>  
+![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/77BF8664344D4A258EB33B6269E9B36B/1481)  
+
 
 填写Gitlab应用的各项部署参数：  
-<div align="center">
-<img src=https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/278C5DF0E18546D091439B2A4EDB9D2D/1484>
-</div>  
+![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/278C5DF0E18546D091439B2A4EDB9D2D/1484)  
+
 
 注意需要配置持久化存储： 
-<div align="center">
-<img src=https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/7562CBD3E1CC40F7AFB219FF0119A2C4/1486>
-</div>  
+![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/7562CBD3E1CC40F7AFB219FF0119A2C4/1486)  
 
 
 ### 6.2	项目配置 ###
@@ -132,10 +124,8 @@ git push -u origin master
 
 注意：如果在git push过程中一直去寻找旧的https://github.com/ylcao/dubbo.git 地址，需要将.git下面的文件清空即可。
 
-最终文件包括： 
-<div align="center">
-<img src=https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/DCE502B6E92642B98C6518110F30EB88/1488>
-</div>  
+最终文件包括：  
+![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/DCE502B6E92642B98C6518110F30EB88/1488)  
 
 
 Step 2：修改Dubbo配置文件

@@ -74,9 +74,13 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
       <td></td>
    </tr>
 </table>
+
 # 3	Zookeeper安装部署 #
+
 # 4	Gitlab安装部署 #
+
 将gitlab镜像下载到本地，并上传到云平台的镜像仓库中：
+
  ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474)
 
 在容器镜像仓库中查看上传的gitlab镜像

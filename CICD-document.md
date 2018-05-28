@@ -122,7 +122,7 @@ Step 3: 在容器平台上部署gitlab服务
 
 填写Gitlab应用的各项部署参数：  
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/278C5DF0E18546D091439B2A4EDB9D2D/1484)  
-
+注意GitLab容器消耗计算资源比较多，因此图示中分配了4Cores/4096MiB计算资源。  
 
 注意需要配置持久化存储：  
 

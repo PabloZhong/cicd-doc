@@ -124,7 +124,6 @@ git commit -m "add README"
 git push -u origin master
 注意：如果在git push过程中一直去寻找旧的https://github.com/ylcao/dubbo.git
 地址，需要将.git下面的文件清空即可。
-1111
 
 最终文件包括
 

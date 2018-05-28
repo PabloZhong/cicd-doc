@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CI/CD场景实践操作指南 #
 CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。  
 
@@ -7,6 +8,15 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 ## 2	CI/CD说明 ##
 ## 3	目标 ##
 
+=======
+# 1 引言 #
+CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。
+## 1.1	编写目的 ##
+本文档为CI/CD的安装部署手册。
+预期读者为：系统实施人员、系统管理人员、系统运行维护人员等。
+## 1.2	CI/CD说明 ##
+## 1.3	目标 ##
+>>>>>>> 8125b92d9a477aaf5b091bbb73026d74219634dc
 1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
 2.	JenKins 与 Maven集成，实现项目代码自动编译。
 3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。
@@ -107,3 +117,19 @@ Step 1: 将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/7562CBD3E1CC40F7AFB219FF0119A2C4/1486)
 
 ## 4.2	项目配置 ##
+1.	创建Gitlab项目dubbo，导入dubbo项目：
+从github上将dubbo项目clone下来：git clone https://github.com/ylcao/dubbo.git
+往创建的容器平台的gitlab上push dubbo项目：
+git init
+git remote add origin http://172.16.4.117:31000/zhongyucheng/dubbo.git
+git add .
+touch README.md
+git add README.md
+git commit -m "add README"
+git push -u origin master
+注意：如果在git push过程中一直去寻找旧的https://github.com/ylcao/dubbo.git地址，需要将.git下面的文件清空即可。
+
+最终文件包括
+![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/DCE502B6E92642B98C6518110F30EB88/1488)
+
+

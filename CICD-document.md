@@ -91,9 +91,6 @@ Step 1: 将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中
 Step 2: 在容器镜像仓库中查看上传的gitlab镜像
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/BAC9A60DB6854E539FFF001874963E1B/1477)
 
-![]
-(https://github.com/PabloZhong/cicd-doc/blob/master/images/application%20configure1.png?raw=true)
-
 Step 3: 在容器平台上部署gitlab服务  
 
 点击创建应用：  

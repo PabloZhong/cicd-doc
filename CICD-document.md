@@ -113,7 +113,9 @@ Step 2: 在容器镜像仓库中查看上传的gitlab镜像
 Step 3: 在容器平台上部署gitlab服务  
 
 点击创建应用：  
-![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/4BC6450B6D49412783860873A1B00E60/1479)
+![](Images/gitlab-configuration.png)  
+![](Images/service-configuration.png)  
+![](Images/env-configuration.png)  
 
 
 点击“镜像仓库”，开始通过界面创建：  

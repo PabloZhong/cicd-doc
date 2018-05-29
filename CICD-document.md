@@ -18,7 +18,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 在该场景里面采用ECS里面的大数据组件来实现zookeeper集群或者容器的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署。  
 
 ## 5	环境说明 ##
-1.	GItlab通过容器进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
+1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
 2.	Jenkins通过容器进行部署，采用Jenkins:2.46.2
 3.	Jenkins 中的Docker build地址通过虚拟机安装Docker服务配置暴露地址
 4.	Zookeeper采用容器部署(最新)或者ECS中大数据组件中Zookeeper
@@ -83,18 +83,42 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 ### 6.1	Zookeeper安装部署 ###  
 
 ### 6.2 Gitlab安装部署 ###  
-Step 1: 将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中
+Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。   
+
+首先需要准备一个安装有单机版Docker CE软件的操作系统环境，可以是本地虚拟机，也可以是ECS平台中的云主机，注意需要能够与EKS镜像仓库的实现网络互通。  
+
+注意：需要配置Docker Daemon的DOCKER_OPTS参数，添加“--insecure-registry x.x.x.x”参数。  
+以本文档所采用的CentOS 7.2.1511为例，可参考以下配置方法：  
+```
+[root@docker-ce ~]# vi /usr/lib/systemd/system/docker.service
+```
+配置如下：  
+![](Images/docker-daemon.png)
+
+然后执行：  
+```
+[root@docker-ce ~]# systemctl daemon-reload  
+[root@docker-ce ~]# systemctl restart docker  
+```
+
+将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474)
 
-
+<<<<<<< HEAD
+=======
+GitLab镜像使用参考：  
+https://docs.gitlab.com/omnibus/docker/#run-the-image
 
 Step 2: 在容器镜像仓库中查看上传的gitlab镜像
-![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/BAC9A60DB6854E539FFF001874963E1B/1477)
+![](Images/check-gitlab-images.png)
 
+>>>>>>> 61ef0f8389fbcef631c9f5529177ed5db77921b3
 Step 3: 在容器平台上部署gitlab服务  
 
 点击创建应用：  
-![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/4BC6450B6D49412783860873A1B00E60/1479)
+![](Images/gitlab-configuration.png)  
+![](Images/service-configuration.png)  
+![](Images/env-configuration.png)  
 
 
 点击“镜像仓库”，开始通过界面创建：  
@@ -103,11 +127,11 @@ Step 3: 在容器平台上部署gitlab服务
 
 填写Gitlab应用的各项部署参数：  
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/278C5DF0E18546D091439B2A4EDB9D2D/1484)  
-
+注意GitLab容器消耗计算资源比较多，因此图示中分配了4Cores/4096MiB计算资源。  
 
 注意需要配置持久化存储：  
 
-![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/7562CBD3E1CC40F7AFB219FF0119A2C4/1486)  
+![](Images/add-storage.png)  
 
 
 ### 6.3	项目配置 ###

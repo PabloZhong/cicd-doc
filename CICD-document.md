@@ -1,13 +1,13 @@
-# CI/CD场景实践操作指南 #
-## 概述 ##
+# CI/CD场景实践操作指南
+## 概述
 阐述文档及设计场景的目的：  
 CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。  
 
-## 场景描述 ##
+## 场景描述
 在该场景里面采用ECS里面的大数据组件来实现zookeeper集群或者容器的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署。  
 
 
-## 目标 ##
+## 目标
 1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
 2.	JenKins 与 Maven集成，实现项目代码自动编译。
 3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。
@@ -16,7 +16,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 基于以上工具链完成Dubbo的应用的编译、打包、部署这一整套CICD流程。
 
 
-## 环境说明 ##
+## 环境说明
 1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
 2.	Jenkins通过容器进行部署，采用Jenkins:2.46.2
 3.	Jenkins 中的Docker build地址通过虚拟机安装Docker服务配置暴露地址
@@ -78,10 +78,11 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
    </tr>
 </table>  
 
-## 操作流程说明 ##  
+## 操作流程说明  
 
-### 1.在EKS中部署GitLab ###  
-Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。   
+### 1.在EKS中部署GitLab  
+
+**Step 1: 上传GitLab镜像至EKS平台的镜像仓库。**   
 
 首先需要准备一个安装有单机版Docker CE软件的操作系统环境，可以是本地虚拟机，也可以是ECS平台中的云主机，注意需要能够与EKS镜像仓库的实现网络互通。  
 
@@ -119,11 +120,11 @@ Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。
 
 注：GitLab镜像使用可参考 https://docs.gitlab.com/omnibus/docker/#run-the-image  
 
-Step 2: 查看已上传至镜像仓库的GitLab镜像，接下来会基于它来部署GitLab应用。   
+可以在EKS界面查看已上传至镜像仓库的GitLab镜像，接下来会基于它来部署GitLab应用。   
 
 ![](Images/check-gitlab-images.png)
 
-Step 3: 在EKS容器平台上部署GitLab服务。  
+**Step 2: 在EKS容器平台上部署GitLab服务。**  
 
 点击"创建应用"，并选择通过"镜像仓库"开始创建。  
 
@@ -162,7 +163,7 @@ Step 3: 在EKS容器平台上部署GitLab服务。
 
 
 ### 2.GitLab项目配置  
-Step 1: 创建Gitlab项目dubbo，导入dubbo项目：  
+**Step 1: 创建Gitlab项目dubbo，导入dubbo源代码。**  
 从github上将dubbo项目clone下来：git clone https://github.com/ylcao/dubbo.git  
 往创建的容器平台的gitlab上push dubbo项目：  
 

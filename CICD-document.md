@@ -202,7 +202,7 @@ step 1. 下载jenkins docker镜像：
 
 ```
 [root@docker-ce ~]#  docker pull jenkins:2.60.3
-[root@docker-ce ~]# docker pull jenkinsci/blueocean
+[root@docker-ce ~]# docker pull jenkinsci/blueocean：1.5.0
 ```
 ```
 [root@docker-ce /]# docker run -p 8080:8080 -u 0 -p 50000:50000 -v /your/home:/var/jenkins_home jenkins:2.60.3

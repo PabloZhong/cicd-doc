@@ -161,7 +161,7 @@ Step 3: 在EKS容器平台上部署GitLab服务。
 注册一个新的账号即可正常使用。  
 
 
-### 2.GitLab项目配置 ###
+### 2.GitLab项目配置  
 Step 1: 创建Gitlab项目dubbo，导入dubbo项目：  
 从github上将dubbo项目clone下来：git clone https://github.com/ylcao/dubbo.git  
 往创建的容器平台的gitlab上push dubbo项目：  
@@ -193,12 +193,14 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 （2）dubbo/dubbo-demo/dubbo-demo-provider/src/main/assembly/conf/dubbo.properties
 dubbo.registry.address=zookeeper://172.16.2.245:2181
 
-## 3.Jenkins Docker Build配置 ##
-### 7.1	虚拟机上Docker安装(略) ###
+
+### 3.Jenkins Docker Build配置 
+#### 3.1 安装jenkins 
 step 1. 下载jenkins docker镜像：
         docker pull jenkins:2.60.3
-step 2. 
-### 7.2	虚拟机上DockerBuild启用 ###
+step 2. 上传到私有仓库中去：
+        docker push 172.16.0.176/3dc70621b8504c98/jenkins
+#### 3.2	虚拟机上DockerBuild启用 
 (用于jenkins的Docker插件调用)
 step 1:安装略 
 step 2:配置：

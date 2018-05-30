@@ -112,7 +112,7 @@ Step 2: 查看已上传至镜像仓库的GitLab镜像，接下来会使用它来
 
 ![](Images/check-gitlab-images.png)
 
-Step 3: 在EKS容器平台上部署GitLab服务  
+Step 3: 在EKS容器平台上部署GitLab服务。  
 
 点击"创建应用"，并选择通过"镜像仓库"开始创建。  
 
@@ -157,6 +157,7 @@ Step 1: 创建Gitlab项目dubbo，导入dubbo项目：
 
 通过SSH key pair方式访问GitLab可参考：https://docs.gitlab.com/ee/ssh/README.html   
 
+```
 git init  
 git remote add origin ssh://git@gitlab.example.org:30022/easystack/dubbo.git  
 git add .  
@@ -164,6 +165,7 @@ touch README.md
 git add README.md  
 git commit -m "add README"  
 git push -u origin master  
+```
 
 注意：如果在git push过程中一直去寻找旧的https://github.com/ylcao/dubbo.git 地址，需要将.git下面的文件清空即可。
 

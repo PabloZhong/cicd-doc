@@ -104,34 +104,29 @@ Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。
 将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中
 ![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474)
 
-<<<<<<< HEAD
-=======
 GitLab镜像使用参考：  
-https://docs.gitlab.com/omnibus/docker/#run-the-image
+https://docs.gitlab.com/omnibus/docker/#run-the-image  
 
-Step 2: 在容器镜像仓库中查看上传的gitlab镜像
+Step 2: 在容器镜像仓库中查看上传的GitLab镜像  
+
 ![](Images/check-gitlab-images.png)
 
->>>>>>> 61ef0f8389fbcef631c9f5529177ed5db77921b3
-Step 3: 在容器平台上部署gitlab服务  
+Step 3: 在EKS容器平台上部署GitLab服务  
 
-点击创建应用：  
+点击"创建应用"，并选择通过"镜像仓库"开始创建。  
+填写“应用名称”，然后点击“添加服务”，在弹出框中填入服务的各项配置参数。  
+填写“服务名称”，选择上一步所上传的GitLab镜像，填入Pod的基本配置：  
 ![](Images/gitlab-configuration.png)  
+注意：  
+1）GitLab容器消耗计算资源比较多，因此图示中分配了4Cores/4096MiB计算资源；  
+2）需要配置持久化存储，将容器的3个目录/var/opt/gitlab （存储应用数据)、 /var/log/gitlab （存储log文件）、 /etc/gitlab（存储配置文件）挂载出来。  
+
+下一步，填写服务（即Kubernetes Service）访问设置，在这里我们选取NodePort方式，将GitLab容器的3个端口（80、22和443）暴露出来，映射服务端口也设为80、22和443，另外，指定对应的节点暴露端口30080、30022和30443，如图示例：
 ![](Images/service-configuration.png)  
+
+下一步，注入环境变量至GitLab容器中，参考下图：  
 ![](Images/env-configuration.png)  
 
-
-点击“镜像仓库”，开始通过界面创建：  
-![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/77BF8664344D4A258EB33B6269E9B36B/1481)  
-
-
-填写Gitlab应用的各项部署参数：  
-![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/278C5DF0E18546D091439B2A4EDB9D2D/1484)  
-注意GitLab容器消耗计算资源比较多，因此图示中分配了4Cores/4096MiB计算资源。  
-
-注意需要配置持久化存储：  
-
-![](Images/add-storage.png)  
 
 
 ### 6.3	项目配置 ###

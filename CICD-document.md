@@ -115,25 +115,45 @@ Step 2: 在容器镜像仓库中查看上传的GitLab镜像
 Step 3: 在EKS容器平台上部署GitLab服务  
 
 点击"创建应用"，并选择通过"镜像仓库"开始创建。  
+
+![](Images/create-gitlab-1.png)  
+![](Images/create-gitlab-2.png)  
+
 填写“应用名称”，然后点击“添加服务”，在弹出框中填入服务的各项配置参数。  
 填写“服务名称”，选择上一步所上传的GitLab镜像，填入Pod的基本配置：  
-![](Images/gitlab-configuration.png)  
+![](Images/gitlab-configuration-1.png)  
 注意：  
 1）GitLab容器消耗计算资源比较多，因此图示中分配了4Cores/4096MiB计算资源；  
 2）需要配置持久化存储，将容器的3个目录/var/opt/gitlab （存储应用数据)、 /var/log/gitlab （存储log文件）、 /etc/gitlab（存储配置文件）挂载出来。  
 
 下一步，填写服务（即Kubernetes Service）访问设置，在这里我们选取NodePort方式，将GitLab容器的3个端口（80、22和443）暴露出来，映射服务端口也设为80、22和443，另外，指定对应的节点暴露端口30080、30022和30443，如图示例：
-![](Images/service-configuration.png)  
+![](Images/gitlab-configuration-2.png)  
 
 下一步，注入环境变量至GitLab容器中，参考下图：  
-![](Images/env-configuration.png)  
+![](Images/gitlab-configuration-3.png)  
+图示中键填入为： GITLAB_OMNIBUS_CONFIG  
+值填入为：  external_url 'http://gitlab.example.org/'; gitlab_rails['gitlab_shell_ssh_port'] = 30022;  
+分别代表GitLab的外部访问域名和SSH连接端口，其中外部访问域名还需要在接下来的Ingress路由中设置。  
+
+设置路由(Ingress)，以便通过域名访问：  
+![](Images/gitlab-configuration-4.png)  
+![](Images/gitlab-configuration-5.png)  
+注意需要配置DNS域名解析，可采用以下两种方式：  
+1）配置内网DNS解析，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
+2）配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
+
+等待几分钟之后，即可通过浏览器访问GitLab：  
+![](Images/access-to-gitlab.png)  
+注册一个新的账号即可正常使用。  
 
 
-
-### 6.3	项目配置 ###
+### 6.3	GitLab项目配置 ###
 Step 1: 创建Gitlab项目dubbo，导入dubbo项目：  
 从github上将dubbo项目clone下来：git clone https://github.com/ylcao/dubbo.git  
 往创建的容器平台的gitlab上push dubbo项目：  
+
+通过SSH key pair方式访问GitLab可参考：https://docs.gitlab.com/ee/ssh/README.html   
+
 git init  
 git remote add origin ssh://git@gitlab.example.org:30022/easystack/dubbo.git  
 git add .  

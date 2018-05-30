@@ -134,7 +134,7 @@ Step 1: 创建Gitlab项目dubbo，导入dubbo项目：
 从github上将dubbo项目clone下来：git clone https://github.com/ylcao/dubbo.git  
 往创建的容器平台的gitlab上push dubbo项目：  
 git init  
-git remote add origin http://172.16.4.117:31000/zhongyucheng/dubbo.git  
+git remote add origin ssh://git@gitlab.example.org:30022/easystack/dubbo.git  
 git add .  
 touch README.md  
 git add README.md  
@@ -156,10 +156,10 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 （2）dubbo/dubbo-demo/dubbo-demo-provider/src/main/assembly/conf/dubbo.properties
 dubbo.registry.address=zookeeper://172.16.2.245:2181
 
-# 5	Jenkins Docker Build配置 #
-## 5.1	虚拟机上Docker安装(略) ##
+# 7	Jenkins Docker Build配置 #
+## 7.1	虚拟机上Docker安装(略) ##
 在虚拟机上安装Docker,并部署jenkins.
-## 5.2	虚拟机上DockerBuild启用 ##
+## 7.2	虚拟机上DockerBuild启用 ##
 (用于jenkins的Docker插件调用)
 step 1:安装略 
 step 2:配置：

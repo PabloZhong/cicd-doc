@@ -170,6 +170,7 @@ step 2:配置：
           ExecStart=/usr/bin/dockerd-current -H tcp://0.0.0.0:4243 -H unix:///var/run/docker.sock \  
 step 3:重启docker服务
 
+test
 
 
 

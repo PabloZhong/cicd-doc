@@ -144,14 +144,16 @@ Step 3: 在EKS容器平台上部署GitLab服务
 
 等待几分钟之后，即可通过浏览器访问GitLab：  
 ![](Images/access-to-gitlab.png)  
+注册一个新的账号即可正常使用。  
 
-通过SSH key pair方式访问GitLab可参考：https://docs.gitlab.com/ee/ssh/README.html  
 
-
-### 6.3	项目配置 ###
+### 6.3	GitLab项目配置 ###
 Step 1: 创建Gitlab项目dubbo，导入dubbo项目：  
 从github上将dubbo项目clone下来：git clone https://github.com/ylcao/dubbo.git  
 往创建的容器平台的gitlab上push dubbo项目：  
+
+通过SSH key pair方式访问GitLab可参考：https://docs.gitlab.com/ee/ssh/README.html   
+
 git init  
 git remote add origin ssh://git@gitlab.example.org:30022/easystack/dubbo.git  
 git add .  

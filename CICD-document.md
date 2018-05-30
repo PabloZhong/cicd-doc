@@ -83,7 +83,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 ## 6 操作流程 ##  
 ### 6.1	Zookeeper安装部署 ###  
 
-### 6.2 Gitlab安装部署 ###  
+### 6.2 在EKS中部署GitLab ###  
 Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。   
 
 首先需要准备一个安装有单机版Docker CE软件的操作系统环境，可以是本地虚拟机，也可以是ECS平台中的云主机，注意需要能够与EKS镜像仓库的实现网络互通。  
@@ -102,13 +102,26 @@ Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。
 [root@docker-ce ~]# systemctl restart docker  
 ```
 
-将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中
-![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474)
+尝试登陆镜像仓库，参考EKS界面“本地镜像仓库"-"上传镜像"的说明：  
+![](Images/login-registry.png)
 
-GitLab镜像使用参考：  
-https://docs.gitlab.com/omnibus/docker/#run-the-image  
 
-Step 2: 查看已上传至镜像仓库的GitLab镜像，接下来会使用它来构建GitLab应用。   
+提示“Login Succeed”之后，便可以将本地的镜像推送至镜像仓库。  
+将所需版本的GitLab镜像下载到本地（需能够访问外网从Dockerhub拉取镜像）：  
+```
+[root@docker-ce ~]# docker pull gitlab/gitlab-ce:10.7.4-ce.0
+```  
+
+上传镜像到EKS平台的镜像仓库中:  
+```
+[root@docker-ce ~]# docker images
+[root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.7.4-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
+[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
+```  
+
+注：GitLab镜像使用可参考 https://docs.gitlab.com/omnibus/docker/#run-the-image  
+
+Step 2: 查看已上传至镜像仓库的GitLab镜像，接下来会基于它来部署GitLab应用。   
 
 ![](Images/check-gitlab-images.png)
 

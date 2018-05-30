@@ -139,7 +139,7 @@ Step 1: 创建Gitlab项目dubbo，导入dubbo项目：
 从github上将dubbo项目clone下来：git clone https://github.com/ylcao/dubbo.git  
 往创建的容器平台的gitlab上push dubbo项目：  
 git init  
-git remote add origin http://172.16.4.117:31000/zhongyucheng/dubbo.git  
+git remote add origin ssh://git@gitlab.example.org:30022/easystack/dubbo.git  
 git add .  
 touch README.md  
 git add README.md  

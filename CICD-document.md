@@ -196,10 +196,20 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 ### 3.Jenkins Docker Build配置 
 #### 3.1 安装jenkins 
+
 step 1. 下载jenkins docker镜像：
-        docker pull jenkins:2.60.3
+
+```
+[root@docker-ce ~]#  docker pull jenkins:2.60.3
+```
+
 step 2. 上传到私有仓库中去：
-        docker push 172.16.0.176/3dc70621b8504c98/jenkins
+
+```
+[root@docker-ce ~]# docker tag jenkins:2.60.3 172.16.0.176/3dc70621b8504c98/jenkins
+[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkins
+```
+
 #### 3.2	虚拟机上DockerBuild启用 
 (用于jenkins的Docker插件调用)
 step 1:安装略 

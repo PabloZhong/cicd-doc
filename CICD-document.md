@@ -159,7 +159,9 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 # 7	Jenkins Docker Build配置 #
 ## 7.1	虚拟机上Docker安装(略) ##
-在虚拟机上安装Docker,并部署jenkins.
+step 1. 下载jenkins docker镜像：
+        docker pull jenkins:2.60.3
+step 2. 
 ## 7.2	虚拟机上DockerBuild启用 ##
 (用于jenkins的Docker插件调用)
 step 1:安装略 

@@ -102,7 +102,7 @@ Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。
 [root@docker-ce ~]# systemctl restart docker  
 ```
 
-尝试登陆镜像仓库，参考EKS界面“本地镜像仓库"-"上传镜像"的说明：  
+尝试登陆镜像仓库，参考EKS界面“本地镜像仓库"-"上传镜像"的步骤说明：  
 ![](Images/login-registry.png)
 
 
@@ -112,7 +112,7 @@ Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。
 [root@docker-ce ~]# docker pull gitlab/gitlab-ce:10.7.4-ce.0
 ```  
 
-上传镜像到EKS平台的镜像仓库中:  
+修改镜像的Tag，并上传镜像到EKS平台的镜像仓库中:  
 ```
 [root@docker-ce ~]# docker images
 [root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.7.4-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0

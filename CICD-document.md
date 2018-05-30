@@ -83,7 +83,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 ## 6 操作流程 ##  
 ### 6.1	Zookeeper安装部署 ###  
 
-### 6.2 Gitlab安装部署 ###  
+### 6.2 在EKS中部署GitLab ###  
 Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。   
 
 首先需要准备一个安装有单机版Docker CE软件的操作系统环境，可以是本地虚拟机，也可以是ECS平台中的云主机，注意需要能够与EKS镜像仓库的实现网络互通。  
@@ -102,17 +102,30 @@ Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。
 [root@docker-ce ~]# systemctl restart docker  
 ```
 
-将GitLab镜像下载到本地，并上传到EKS平台的镜像仓库中
-![](https://note.youdao.com/yws/public/resource/6f3a219a66cbaa0900ebd4ad5d7435e0/xmlnote/701D344AE5D74599ABA0F01747CACA83/1474)
+尝试登陆镜像仓库，参考EKS界面“本地镜像仓库"-"上传镜像"的步骤说明：  
+![](Images/login-registry.png)
 
-GitLab镜像使用参考：  
-https://docs.gitlab.com/omnibus/docker/#run-the-image  
 
-Step 2: 在容器镜像仓库中查看上传的GitLab镜像  
+提示“Login Succeed”之后，便可以将本地的镜像推送至镜像仓库。  
+将所需版本的GitLab镜像下载到本地（需能够访问外网从Dockerhub拉取镜像）：  
+```
+[root@docker-ce ~]# docker pull gitlab/gitlab-ce:10.7.4-ce.0
+```  
+
+修改镜像的Tag，并上传镜像到EKS平台的镜像仓库中:  
+```
+[root@docker-ce ~]# docker images
+[root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.7.4-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
+[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
+```  
+
+注：GitLab镜像使用可参考 https://docs.gitlab.com/omnibus/docker/#run-the-image  
+
+Step 2: 查看已上传至镜像仓库的GitLab镜像，接下来会基于它来部署GitLab应用。   
 
 ![](Images/check-gitlab-images.png)
 
-Step 3: 在EKS容器平台上部署GitLab服务  
+Step 3: 在EKS容器平台上部署GitLab服务。  
 
 点击"创建应用"，并选择通过"镜像仓库"开始创建。  
 
@@ -135,14 +148,17 @@ Step 3: 在EKS容器平台上部署GitLab服务
 值填入为：  external_url 'http://gitlab.example.org/'; gitlab_rails['gitlab_shell_ssh_port'] = 30022;  
 分别代表GitLab的外部访问域名和SSH连接端口，其中外部访问域名还需要在接下来的Ingress路由中设置。  
 
-设置路由(Ingress)，以便通过域名访问：  
+保存上述配置，便可以部署GitLab应用。可在EKS界面查看已经创建完成的GitLab应用。  
 ![](Images/gitlab-configuration-4.png)  
-![](Images/gitlab-configuration-5.png)  
-注意需要配置DNS域名解析，可采用以下两种方式：  
-1）配置内网DNS解析，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
-2）配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
 
-等待几分钟之后，即可通过浏览器访问GitLab：  
+此时已经可以通过NodePort方式访问GitLab，但是为了能够通过域名（本示例为gitlab.example.org）访问，我们可以设置路由(Ingress)，提供外部负载均衡访问。  
+![](Images/gitlab-configuration-5.png)  
+![](Images/gitlab-configuration-6.png)  
+注意需要配置DNS域名解析，可采用以下两种方式：  
+1）如果环境中有DNS服务器，则直接配置DNS解析即可，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
+2）如果环境中没有DNS服务器，则可以配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
+
+可通过浏览器访问GitLab：  
 ![](Images/access-to-gitlab.png)  
 注册一个新的账号即可正常使用。  
 
@@ -154,6 +170,7 @@ Step 1: 创建Gitlab项目dubbo，导入dubbo项目：
 
 通过SSH key pair方式访问GitLab可参考：https://docs.gitlab.com/ee/ssh/README.html   
 
+```
 git init  
 git remote add origin ssh://git@gitlab.example.org:30022/easystack/dubbo.git  
 git add .  
@@ -161,6 +178,7 @@ touch README.md
 git add README.md  
 git commit -m "add README"  
 git push -u origin master  
+```
 
 注意：如果在git push过程中一直去寻找旧的https://github.com/ylcao/dubbo.git 地址，需要将.git下面的文件清空即可。
 

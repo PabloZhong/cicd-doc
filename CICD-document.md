@@ -108,7 +108,7 @@ Step 1: 上传GitLab镜像至EKS平台的公共镜像仓库。
 GitLab镜像使用参考：  
 https://docs.gitlab.com/omnibus/docker/#run-the-image  
 
-Step 2: 在容器镜像仓库中查看上传的GitLab镜像  
+Step 2: 查看已上传至镜像仓库的GitLab镜像，接下来会使用它来构建GitLab应用。   
 
 ![](Images/check-gitlab-images.png)
 
@@ -135,14 +135,17 @@ Step 3: 在EKS容器平台上部署GitLab服务
 值填入为：  external_url 'http://gitlab.example.org/'; gitlab_rails['gitlab_shell_ssh_port'] = 30022;  
 分别代表GitLab的外部访问域名和SSH连接端口，其中外部访问域名还需要在接下来的Ingress路由中设置。  
 
-设置路由(Ingress)，以便通过域名访问：  
+保存上述配置，便可以部署GitLab应用。可在EKS界面查看已经创建完成的GitLab应用。  
 ![](Images/gitlab-configuration-4.png)  
-![](Images/gitlab-configuration-5.png)  
-注意需要配置DNS域名解析，可采用以下两种方式：  
-1）配置内网DNS解析，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
-2）配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
 
-等待几分钟之后，即可通过浏览器访问GitLab：  
+此时已经可以通过NodePort方式访问GitLab，但是为了能够通过域名（本示例为gitlab.example.org）访问，我们可以设置路由(Ingress)，提供外部负载均衡访问。  
+![](Images/gitlab-configuration-5.png)  
+![](Images/gitlab-configuration-6.png)  
+注意需要配置DNS域名解析，可采用以下两种方式：  
+1）如果环境中有DNS服务器，则直接配置DNS解析即可，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
+2）如果环境中没有DNS服务器，则可以配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
+
+可通过浏览器访问GitLab：  
 ![](Images/access-to-gitlab.png)  
 注册一个新的账号即可正常使用。  
 

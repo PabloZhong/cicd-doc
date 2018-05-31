@@ -215,6 +215,24 @@ step 2. 上传到私有仓库中去：
 [root@docker-ce ~]# docker tag jenkins:2.60.3 172.16.0.176/3dc70621b8504c98/jenkins
 [root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkins
 ```
+在页面查看镜像仓库中jenkins镜像：
+
+![](Images/check jenkins images.png)
+
+
+step 3. 在EKS平台上部署jenkins服务：
+
+点击右上角创建应用，选择镜像仓库，选择jenkins镜像
+
+![](Images)
+
+
+注意：jenkins镜像创建成功后，需要在部署的yaml中添加securityContext来修改访问/var/jenkins_home的用户为user 0，即root用户，具体修改如下：
+
+
+修改完成后，yaml文件会变为：
+
+
 
 #### 3.2	虚拟机上DockerBuild启用 
 (用于jenkins的Docker插件调用)

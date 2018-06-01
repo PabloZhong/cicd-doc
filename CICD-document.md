@@ -5,6 +5,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 
 ## 场景描述
 1.搭建CICD工具链：Git+Jenkins+Spinnaker+Harbor+Helm  
+  两种方式构建：1）EKS平台直接通过界面操作；2）EKS+Helm实现，为进入应用中心做准备。  
 2.Dubbo的编译、打包、部署成功  
 
 

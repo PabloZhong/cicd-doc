@@ -240,9 +240,10 @@ step 3. 在EKS平台上部署jenkins服务：
 修改完成后，yaml文件会变为：
 ![](Images/finished-yaml.png)
 部署yaml修改完成后，jenkins服务启动正常，在EKS平台查看创建成功的jenkins服务：
+![](Images/check-jenkins-service.png)
 
 访问http://172.16.4.190:30601/地址来访问jenkins，首次登陆jenkins，需要输入初始密码：
-
+![](Images/jenkins-initial-password.png)
 使用命令：
 ```
 [escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl get pod
@@ -255,14 +256,25 @@ bash-4.4# ls
 
 ```
 查看初始密码，并输入，进入jenkins页面：
+![](Images/jenkins-web1.png)
 
 首先修改admin的密码：
 
+![](Images/jenkins-change-password.png)
 
 
-#### 3.2	虚拟机上DockerBuild启用 
+#### 3.2	Jenkins插件安装
 (用于jenkins的Docker插件调用)
-step 1:安装略 
+step 1:安装以下jenkins插件：
+Docker build step plugin
+Git plugin
+Gitlab Hook Plugin
+Maven Integration plugin
+进入jenkins【系统管理】页面，选择【管理插件】中选择以上插件，并进行安装:
+![](Images/install-jenkinsplugin-1.png)
+
+![](Images/select-jenkinsplugin.png)
+
 step 2:配置：
        (1)docker daemon的DOCKER_OPTS中配置“--insecure-registry 172.16.0.176”参数.
           修改/usr/lib/systemd/system/docker.service中的ExecStart=/usr/bin/dockerd --insecure-registry 172.16.0.176 $OPTIONS \

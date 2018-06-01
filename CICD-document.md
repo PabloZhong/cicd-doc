@@ -234,11 +234,31 @@ step 3. 在EKS平台上部署jenkins服务：
 ![](Images\jenkins-conf2.png)
 
 
-注意：jenkins镜像创建成功后，需要在部署的yaml中添加securityContext来修改访问/var/jenkins_home的用户为user 0，即root用户，具体修改如下：
+注意：jenkins镜像部署成功后，需要在部署的yaml中添加securityContext来修改访问/var/jenkins_home的用户为user 0，即root用户，具体修改如下：
 ![](Images/rewrite-yaml.png)
 
 修改完成后，yaml文件会变为：
 ![](Images/finished-yaml.png)
+部署yaml修改完成后，jenkins服务启动正常，在EKS平台查看创建成功的jenkins服务：
+
+访问http://172.16.4.190:30601/地址来访问jenkins，首次登陆jenkins，需要输入初始密码：
+
+使用命令：
+```
+[escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl get pod
+NAME                                                READY     STATUS    RESTARTS   AGE
+gitlab-cicd-gitlab-cicd-pfcpzdqa-173637270-tm7cp    1/1       Running   0          1d
+gitlab-test-gitlab-test-t2oure6b-1164666112-lms0x   1/1       Running   0          20h
+jenkins-jenkins-bj3we2kn-1700231787-sq1l2           1/1       Running   0          12h
+[escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl exec -it jenkins-jenkins-bj3we2kn-1700231787-sq1l2 bash
+bash-4.4# ls
+
+```
+查看初始密码，并输入，进入jenkins页面：
+
+首先修改admin的密码：
+
+
 
 #### 3.2	虚拟机上DockerBuild启用 
 (用于jenkins的Docker插件调用)

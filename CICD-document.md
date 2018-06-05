@@ -5,8 +5,9 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 
 ## 场景描述
 1.搭建CICD工具链：Git+Jenkins+Spinnaker+Harbor+Helm  
-  两种方式构建：1）EKS平台直接通过界面操作；2）EKS+Helm实现，为进入应用中心做准备。  
-2.Dubbo的编译、打包、部署成功  
+  两种方式构建：1）EKS平台直接通过界面操作；  
+  2）EKS+Helm实现，为进入应用中心做准备。    
+2.Dubbo微服务Demo代码的编译、打包、并且在EKS上部署成功，能够CICD流程打通。   
 
 
 在该场景里面采用ECS里面的大数据组件来实现zookeeper集群或者容器的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署。  

@@ -22,7 +22,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 ## 目标  
 掌握cicd工具链的搭建，和基本的cicd操作流程。  
 
-## 环境说明
+## 环境说明（描述不准确）
 1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
 2.	Jenkins通过容器进行部署，采用Jenkins:2.46.2
 3.	Jenkins 中的Docker build地址通过虚拟机安装Docker服务配置暴露地址

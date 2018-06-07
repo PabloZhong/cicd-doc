@@ -242,6 +242,37 @@ step 3. 在EKS平台上部署jenkins服务：
 部署yaml修改完成后，jenkins服务启动正常，在EKS平台查看创建成功的jenkins服务：
 ![](Images/check-jenkins-service.png)
 
+jenkins Server要想能与k8s集群的apiserver通信，需要先通过权限认证。k8s里面有个Service Account的概念，配置使用Service Account来实现给Jenkins Server的授权。步骤如下：
+使用jenkins-rbac.yaml来创建service Account:
+```
+kubectl create -f jenkins-rbac.yaml
+```
+```
+jenkins-rbac.yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins-admin-new
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: jenkins-admin-new
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: jenkins-admin-new
+  namespace: default
+```
+将生成的名为“jenkins-admin-new”的serviceaccount加入jenkins的部署yaml中：
+![](Images/add-serviceaccount.png)
+部署yaml修改完成后，jenkins服务启动正常.
+
 访问http://172.16.4.190:30601/地址来访问jenkins，首次登陆jenkins，需要输入初始密码：
 ![](Images/jenkins-initial-password.png)
 使用命令：
@@ -275,12 +306,6 @@ Maven Integration plugin
 
 ![](Images/select-jenkinsplugin.png)
 
-step 2:配置：
-       (1)docker daemon的DOCKER_OPTS中配置“--insecure-registry 172.16.0.176”参数.
-          修改/usr/lib/systemd/system/docker.service中的ExecStart=/usr/bin/dockerd --insecure-registry 172.16.0.176 $OPTIONS \
-       (2)修改/usr/lib/systemd/system/docker.service 为：
-          ExecStart=/usr/bin/dockerd-current -H tcp://0.0.0.0:4243 -H unix:///var/run/docker.sock \  
-step 3:重启docker服务
 
 
 

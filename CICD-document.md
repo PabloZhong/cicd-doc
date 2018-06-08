@@ -270,8 +270,12 @@ subjects:
   name: jenkins-admin-new
   namespace: default
 ```
+查看生成的“service account”如下：
+![](Images/check-serviceaccount.png)
+
 将生成的名为“jenkins-admin-new”的serviceaccount加入jenkins的部署yaml中：
 ![](Images/add-serviceaccount.png)
+
 部署yaml修改完成后，jenkins服务启动正常.
 
 访问http://172.16.4.190:30601/地址来访问jenkins，首次登陆jenkins，需要输入初始密码：

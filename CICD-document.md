@@ -301,11 +301,17 @@ bash-4.4# ls
 
 #### 3.2	Jenkins插件安装
 (用于jenkins的Docker插件调用)
+
 step 1:安装以下jenkins插件：
+
 Docker build step plugin
+
 Git plugin
+
 Gitlab Hook Plugin
+
 Maven Integration plugin
+
 进入jenkins【系统管理】页面，选择【管理插件】中选择以上插件，并进行安装:
 ![](Images/install-jenkinsplugin-1.png)
 

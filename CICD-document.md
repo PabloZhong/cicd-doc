@@ -166,15 +166,15 @@ CI/CD流程描述：
 
 ### 2.GitLab项目配置  
 **Step 1: 设置通过SSH连接GitLab。**   
-通过SSH key pair方式访问GitLab可参考：https://docs.gitlab.com/ee/ssh/README.html   
-在Step1中所创建的虚拟机中，创建GitLab SSH密钥对：（需要设置私钥密码）
+考虑安全性，我们通过SSH Key Pair方式访问GitLab。(参考：https://docs.gitlab.com/ee/ssh/README.html)    
+在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（需要设置私钥密码）  
 ```
 [root@docker-ce .ssh]# ssh-keygen -t rsa -C "easystack@example.org" -b 4096
 ```
 随后将公钥“gitlab_key.pub”添加到GitLab中，在GitLab的“User Setting”-“SSH Keys”中进行添加：  
 ![](Images/gitlab-ssh-1.png)   
 
-验证虚拟机与GitLab的SSH连通性：  
+验证本地虚拟机与GitLab的SSH连通性：  
 ![](Images/gitlab-ssh-2.png)   
 
 **Step 2: 创建GitLab示例项目。**  
@@ -183,12 +183,12 @@ CI/CD流程描述：
 ![](Images/gitlab-create-project-2.png)  
 
 **Step 3: Push源代码至GitLab。**  
-首先需要确认所使用的虚拟机环境中已经安装了Git，并完成Git global setup配置。  
+首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git global setup配置。  
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
 [root@docker-ce ~]# git clone https://github.com/ylcao/dubbo.git
 ```
-可参考GitLab中界面提示，进行源代码Push操作：  
+可参考GitLab中界面提示，通过SSH方式进行源代码Push：  
 ```
 [root@docker-ce ~]# cd dubbo/
 [root@docker-ce dubbo]# rm -rf .git

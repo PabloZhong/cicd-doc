@@ -165,7 +165,7 @@ CI/CD流程描述：
 
 
 ### 2.GitLab项目配置  
-**Step 1: 设置通过SSH连接GitLab。**  
+**Step 1: 设置通过SSH连接GitLab。**   
 通过SSH key pair方式访问GitLab可参考：https://docs.gitlab.com/ee/ssh/README.html   
 在Step1中所创建的虚拟机中，创建GitLab SSH密钥对：（需要设置私钥密码）
 ```
@@ -177,12 +177,13 @@ CI/CD流程描述：
 验证虚拟机与GitLab的SSH连通性：  
 ![](Images/gitlab-ssh-2.png)   
 
-**Step 2: 创建GitLab示例项目。** 
-接下来我们在GitLab中创建一个示例项目“dubbo-demo”，并将示例项目的源代码Push到GitLab中。  
-首先我们在GitLab中创建项目：  
+**Step 2: 创建GitLab示例项目。**  
+我们在GitLab中创建一个示例项目“dubbo-demo”：  
 ![](Images/gitlab-create-project-1.png)  
 ![](Images/gitlab-create-project-2.png)  
 
+**Step 3: Push源代码至GitLab。**  
+首先需要确认所使用的虚拟机环境中已经安装了Git，并完成Git global setup配置。  
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
 [root@docker-ce ~]# git clone https://github.com/ylcao/dubbo.git
@@ -199,7 +200,7 @@ CI/CD流程描述：
 ```
 Push成功后即可在GitLab的“dubbo-demo”项目中看到源代码。  
 
-**Step 3: 修改Dubbo配置文件。** 
+**Step 4: 修改Dubbo配置文件。** 
 
 （1）dubbo/dubbo-demo/dubbo-demo-consumer/src/main/assembly/conf/dubbo.properties
 

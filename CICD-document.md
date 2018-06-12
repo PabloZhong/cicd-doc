@@ -343,6 +343,17 @@ podTemplate(label: 'testpod', cloud: 'kubernetes') {
 ```
 ![](Images/testpod.png)
 
+点击Jenkins任务构建，观察会自动生成作为slave节点的Pod：
+
+![](Images/pod-eks.png)
+
+![](Images/kongzhitai.png)
+
+等任务构建完成之后，会发现slave节点又动态的消失了： 
+
+![](Images/finish-pipeline.png)
+
+
 
 
 

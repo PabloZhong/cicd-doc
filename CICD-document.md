@@ -155,11 +155,11 @@ CI/CD流程描述：
 此时已经可以通过NodePort方式访问GitLab，但是为了能够通过域名（本示例为gitlab.example.org）访问，我们可以设置路由(Ingress)，提供外部负载均衡访问。  
 ![](Images/gitlab-configuration-5.png)  
 ![](Images/gitlab-configuration-6.png)  
-注意需要配置DNS域名解析，可采用以下两种方式：  
+注意需要配置DNS域名解析才可通过域名访问GitLab，可采用以下两种方式：  
 1）如果环境中有DNS服务器，则直接配置DNS解析即可，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
 2）如果环境中没有DNS服务器，则可以配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
 
-可通过浏览器访问GitLab：  
+通过浏览器访问GitLab：  
 ![](Images/access-to-gitlab.png)  
 注册一个新的账号即可正常使用。  
 

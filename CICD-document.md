@@ -17,7 +17,7 @@ CI/CD流程描述：
 5.	Spinnaker与kubernetes 进行集成，进行分布式构建任务，实现应用自动发布。
 基于以上工具链完成Dubbo的应用的编译、打包、部署这一整套CICD流程。  
 
-## 环境说明（描述不准确）
+## 环境说明（这段可删除）
 1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
 2.	Jenkins通过容器进行部署，采用Jenkins:2.46.2
 3.	Jenkins 中的Docker build地址通过虚拟机安装Docker服务配置暴露地址

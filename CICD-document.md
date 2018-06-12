@@ -341,6 +341,9 @@ podTemplate(label: 'testpod', cloud: 'kubernetes') {
 }
 
 ```
+![](Images/testpod.png)
+
+
 
 
 

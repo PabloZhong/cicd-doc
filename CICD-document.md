@@ -159,7 +159,7 @@ CI/CD流程描述：
 1）如果环境中有DNS服务器，则直接配置DNS解析即可，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
 2）如果环境中没有DNS服务器，则可以配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
 
-通过浏览器访问GitLab：  
+等待3~4分钟GitLab完成初始化之后，即可通过浏览器正常访问GitLab：  
 ![](Images/access-to-gitlab.png)  
 注册一个新的账号即可正常使用。  
 

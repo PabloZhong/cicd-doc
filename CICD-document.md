@@ -142,7 +142,7 @@ CI/CD流程描述：
 下一步，填写服务（即Kubernetes Service）访问设置，在这里我们选取NodePort方式，将GitLab容器的3个端口（80、22和443）暴露出来，映射服务端口也设为80、22和443，另外，指定对应的节点暴露端口30080、30022和30443，如图示例：
 ![](Images/gitlab-configuration-2.png)  
 
-下一步，注入环境变量至GitLab容器中，参考下图：  
+下一步，注入环境变量至GitLab容器中，在“高级配置”中进行设置，参考下图：  
 ![](Images/gitlab-configuration-3.png)  
 图示中键填入为： GITLAB_OMNIBUS_CONFIG  
 值填入为：  external_url 'http://gitlab.example.org/'; gitlab_rails['gitlab_shell_ssh_port'] = 30022;  

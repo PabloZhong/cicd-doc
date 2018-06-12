@@ -148,7 +148,8 @@ CI/CD流程描述：
 值填入为：  external_url 'http://gitlab.example.org/'; gitlab_rails['gitlab_shell_ssh_port'] = 30022;  
 分别代表GitLab的外部访问域名和SSH连接端口，其中外部访问域名还需要在接下来的Ingress路由中设置。  
 
-保存上述配置，便可以部署GitLab应用。可在EKS界面查看已经创建完成的GitLab应用。  
+保存上述配置，便可以部署GitLab应用。  
+可在EKS界面查看已经创建完成的GitLab应用。  
 ![](Images/gitlab-configuration-4.png)  
 
 此时已经可以通过NodePort方式访问GitLab，但是为了能够通过域名（本示例为gitlab.example.org）访问，我们可以设置路由(Ingress)，提供外部负载均衡访问。  

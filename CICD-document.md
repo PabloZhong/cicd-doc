@@ -329,7 +329,18 @@ Kubernetes plugin
 
 ![](Images/connection-test.png)
 
+配置完成后，用pipeline方式创建一个如下的Jenkins构建任务：
 
+```
+podTemplate(label: 'testpod', cloud: 'kubernetes') {
+    node('testpod') {
+        stage('Run shell') {
+            sh 'echo hello world'
+        }
+    }
+}
+
+```
 
 
 

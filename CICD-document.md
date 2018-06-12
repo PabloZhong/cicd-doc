@@ -232,6 +232,8 @@ step 3. 在EKS平台上部署jenkins服务：
 
 ![](Images/jenkins-conf1.png)
 
+Service配置暴露两个端口，一个是Jenkins Server的访问端口，这里nodePort方式指定的是31888；另一个是Jenkins Agent通信用的端口，默认是50000，如果不暴露的话，Jenkins slave节点是无法和Jenkins Server建了连接的。
+
 ![](Images\jenkins-conf2.png)
 
 
@@ -312,10 +314,22 @@ Gitlab Hook Plugin
 
 Maven Integration plugin
 
+Kubernetes plugin
+
 进入jenkins【系统管理】页面，选择【管理插件】中选择以上插件，并进行安装:
 ![](Images/install-jenkinsplugin-1.png)
 
 ![](Images/select-jenkinsplugin.png)
+
+插件安装完成以后，在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】配置k8s的插件。
+
+![](Images/k8s-configure-1.png)
+
+![](Images/k8s-configure-2.png)
+
+![](Images/configure-k8s-3.png)
+
+
 
 
 

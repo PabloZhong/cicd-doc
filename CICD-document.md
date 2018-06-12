@@ -1,17 +1,15 @@
-# CI/CD场景实践操作指南
+# CI/CD场景实践指南
 ## 概述
-阐述文档及设计场景的目的：  
-CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。  
+本文档的主要介绍如何在EKS容器云平台上部署CI/CD工具链，并通过Dubbo微服务示例进行CI/CD场景演示。  
 
-## 场景描述
-1.搭建CICD工具链：Git+Jenkins+Spinnaker+Harbor+Helm  
+## 场景描述（描述环境，以及cicd流程，并补充架构图）
+1.搭建CICD工具链：选用业界目前主流、通用的开源工具链GitLab+Jenkins+Spinnaker。  
   两种方式构建：1）EKS平台直接通过界面操作；  
-  2）EKS+Helm实现，为进入应用中心做准备。    
+  2）EKS+Helm实现，为进入应用中心做准备。 
+  底层基于ECS 4.0.2和EKS 4.0.2。
 2.Dubbo微服务Demo代码的编译、打包、并且在EKS上部署成功，能够CICD流程打通。   
 
-
-在该场景里面采用ECS里面的大数据组件来实现zookeeper集群或者容器的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署。  
-
+CI/CD流程描述：  
 1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
 2.	JenKins 与 Maven集成，实现项目代码自动编译。
 3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。
@@ -19,10 +17,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 5.	Spinnaker与kubernetes 进行集成，进行分布式构建任务，实现应用自动发布。
 基于以上工具链完成Dubbo的应用的编译、打包、部署这一整套CICD流程。  
 
-## 目标  
-掌握cicd工具链的搭建，和基本的cicd操作流程。  
-
-## 环境说明（描述不准确）
+## 环境说明（这段可删除）
 1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
 2.	Jenkins通过容器进行部署，采用Jenkins:2.46.2
 3.	Jenkins 中的Docker build地址通过虚拟机安装Docker服务配置暴露地址
@@ -90,7 +85,7 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 
 **Step 1: 上传GitLab镜像至EKS平台的镜像仓库。**   
 
-首先需要准备一个安装有单机版Docker CE软件的操作系统环境，可以是本地虚拟机，也可以是ECS平台中的云主机，注意需要能够与EKS镜像仓库的实现网络互通。  
+首先需要准备一个安装有单机版Docker CE软件的操作系统环境用于上传镜像，可以使用本地虚拟机，也可以使用ECS平台中的云主机，注意需要能够与EKS镜像仓库的实现网络互通。  
 
 注意：需要配置Docker Daemon的DOCKER_OPTS参数，添加“--insecure-registry x.x.x.x”参数。  
 不同操作系统的配置方式略有差异，请以Docker官方说明为准。  
@@ -147,23 +142,24 @@ CICD场景实践的开源技术工具链暂定业界比较主流通用、具备�
 下一步，填写服务（即Kubernetes Service）访问设置，在这里我们选取NodePort方式，将GitLab容器的3个端口（80、22和443）暴露出来，映射服务端口也设为80、22和443，另外，指定对应的节点暴露端口30080、30022和30443，如图示例：
 ![](Images/gitlab-configuration-2.png)  
 
-下一步，注入环境变量至GitLab容器中，参考下图：  
+下一步，注入环境变量至GitLab容器中，在“高级配置”中进行设置，参考下图：  
 ![](Images/gitlab-configuration-3.png)  
 图示中键填入为： GITLAB_OMNIBUS_CONFIG  
 值填入为：  external_url 'http://gitlab.example.org/'; gitlab_rails['gitlab_shell_ssh_port'] = 30022;  
 分别代表GitLab的外部访问域名和SSH连接端口，其中外部访问域名还需要在接下来的Ingress路由中设置。  
 
-保存上述配置，便可以部署GitLab应用。可在EKS界面查看已经创建完成的GitLab应用。  
+保存上述配置，便可以部署GitLab应用。  
+可在EKS界面查看已经创建完成的GitLab应用。  
 ![](Images/gitlab-configuration-4.png)  
 
 此时已经可以通过NodePort方式访问GitLab，但是为了能够通过域名（本示例为gitlab.example.org）访问，我们可以设置路由(Ingress)，提供外部负载均衡访问。  
 ![](Images/gitlab-configuration-5.png)  
 ![](Images/gitlab-configuration-6.png)  
-注意需要配置DNS域名解析，可采用以下两种方式：  
+注意需要配置DNS域名解析才可通过域名访问GitLab，可采用以下两种方式：  
 1）如果环境中有DNS服务器，则直接配置DNS解析即可，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
 2）如果环境中没有DNS服务器，则可以配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
 
-可通过浏览器访问GitLab：  
+等待3~4分钟GitLab完成初始化之后，即可通过浏览器正常访问GitLab：  
 ![](Images/access-to-gitlab.png)  
 注册一个新的账号即可正常使用。  
 

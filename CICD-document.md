@@ -1,26 +1,21 @@
-# CI/CD场景实践操作指南
+# CI/CD场景实践指南
 ## 概述
-阐述文档及设计场景的目的：  
-CICD场景实践的开源技术工具链暂定业界比较主流通用、具备代表性的Git+Jenkins+Spinnaker+Harbor+Helm，底层基于ECS 4.0.2和EKS 4.0.2。  
+本文档的主要介绍如何在EKS容器云平台上部署CI/CD工具链，并通过Dubbo微服务示例进行CI/CD场景演示。  
 
 ## 场景描述
-1.搭建CICD工具链：Git+Jenkins+Spinnaker+Harbor+Helm  
+1.搭建CICD工具链：选用业界目前主流、通用的开源工具链GitLab+Jenkins+Spinnaker。  
   两种方式构建：1）EKS平台直接通过界面操作；  
-  2）EKS+Helm实现，为进入应用中心做准备。    
+  2）EKS+Helm实现，为进入应用中心做准备。 
+  底层基于ECS 4.0.2和EKS 4.0.2。
 2.Dubbo微服务Demo代码的编译、打包、并且在EKS上部署成功，能够CICD流程打通。   
 
-
-在该场景里面采用ECS里面的大数据组件来实现zookeeper集群或者容器的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署。  
-
+CI/CD流程描述：  
 1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
 2.	JenKins 与 Maven集成，实现项目代码自动编译。
 3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。
 4.	Jenkins与 Spinnaker集成，实现Spinnaker管理CI等Jenkins流程
 5.	Spinnaker与kubernetes 进行集成，进行分布式构建任务，实现应用自动发布。
 基于以上工具链完成Dubbo的应用的编译、打包、部署这一整套CICD流程。  
-
-## 目标  
-掌握cicd工具链的搭建，和基本的cicd操作流程。  
 
 ## 环境说明（描述不准确）
 1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像

@@ -306,6 +306,8 @@ Docker build step plugin
 
 Git plugin
 
+Gitlab plugin
+
 Gitlab Hook Plugin
 
 Maven Integration plugin

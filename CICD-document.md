@@ -368,6 +368,85 @@ podTemplate(label: 'testpod', cloud: 'kubernetes') {
 
 ![](Images/finish-pipeline.png)
 
+为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：
+step 1:使用openshift参考镜像；
+
+
+
+jenkins slave镜像制作完成后，使用docker push命令将jenkins slave镜像上传到172.16.4.176 harbor中。
+镜像制作成功，并上传后，效果如下：
+![](Images/jenkins-slave-docker.png)
+
+在jenkins master中构建pipieline如下：
+```
+podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
+  containers: [
+        containerTemplate(
+            name: 'jnlp',
+            image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1',
+            command: '',
+            args: '${computer.jnlpmac} ${computer.name}',
+            privileged: true,
+            alwaysPullImage: false,
+            ttyEnabled: true, 
+        ),
+  ],
+  volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
+            hostPathVolume(hostPath: '/usr/bin/docker', mountPath: '/usr/bin/docker'),
+            hostPathVolume(hostPath: '/usr/bin/docker-current', mountPath: '/usr/bin/docker-current'),
+            hostPathVolume(hostPath: '/etc/sysconfig/docker', mountPath: '/etc/sysconfig/docker'),
+            hostPathVolume(hostPath: '/usr/bin/kubectl', mountPath: '/usr/bin/kubectl')]
+  ) {
+
+  node('jnlp') {
+    stage('devops for snake game') {
+        container('jnlp') {
+            stage("clone snake code") {
+                git 'https://github.com/luluwangwang1989/Snake.git'
+            }
+            
+            stage('unit test') {
+                sh 'echo "unit test command"'
+            }
+            
+            stage('build docker image') {
+                sh """
+                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} .
+                    docker push hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}
+                """
+            }
+            
+            stage('deploy to k8s') {
+                
+                sh """kubectl set image deployment/snake snake=hub.easystack.io/captain/snake:${BUILD_NUMBER}"""
+            }
+        }
+    }
+ }
+}
+```
+其中“  image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'”指明我们前面构建的jenkins slave镜像。
+“git 'https://github.com/luluwangwang1989/Snake.git'”将snake源码从github上拉取下来。
+使用
+```
+ stage('build docker image') {
+                sh """
+                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} .
+                    docker push hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}
+                """
+            }
+```
+这几步将snake build成docker 镜像，并push到我们的harbor中去。
+![](Images/snake-image.png)
+使用EKS将构建成功的snake镜像进行部署：
+![](Images/snake-service.png)
+
+snake部署成功，可以正常访问：
+![](Images/visit-snake.png)
+
+
 
 
 

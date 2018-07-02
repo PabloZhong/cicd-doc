@@ -376,7 +376,7 @@ step 1:使用openshift参考镜像；
 jenkins slave镜像制作完成后，使用docker push命令将jenkins slave镜像上传到172.16.4.176 harbor中。
 镜像制作成功，并上传后，效果如下：
 ![](Images/jenkins-slave-docker.png)
-
+3.2.1 pipeline1:构建snake镜像
 在jenkins master中构建pipieline如下：
 ```
 podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
@@ -445,6 +445,190 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 snake部署成功，可以正常访问：
 ![](Images/visit-snake.png)
+
+3.2.2 构建dubbo镜像
+使用以下pipeline script构建dubbo镜像：
+
+```
+podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernetes',
+  containers: [
+        containerTemplate(
+            name: 'jnlp',
+            image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:latest',
+            command: '',
+            args: '${computer.jnlpmac} ${computer.name}',
+            privileged: true,
+            alwaysPullImage: false,
+            ttyEnabled: true, 
+        ),
+  ],
+  volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
+            hostPathVolume(hostPath: '/usr/bin/docker', mountPath: '/usr/bin/docker'),
+            hostPathVolume(hostPath: '/usr/bin/docker-current', mountPath: '/usr/bin/docker-current'),
+            hostPathVolume(hostPath: '/etc/sysconfig/docker', mountPath: '/etc/sysconfig/docker'),
+            hostPathVolume(hostPath: '/usr/bin/kubectl', mountPath: '/usr/bin/kubectl')]
+  ) {
+
+  node('jnlp') {
+    stage('devops for dubbo') {
+        container('jnlp') {
+            stage("clone dubbo code") {
+                git 'https://github.com/PabloZhong/dubbo-1.git'
+            }
+            stage('compile') {
+                
+            
+                echo 'Hello, Maven'
+                sleep 10
+                sh 'java -version'
+                dir('/home/jenkins/workspace/dubbo-old/dubbo-demo')
+                {
+                
+                sh '/opt/rh/rh-maven33/root/usr/bin/mvn clean install'
+                }
+
+            }
+            
+            stage('build docker image') {
+                sh """
+                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
+                    
+                    docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v11 /home/jenkins/workspace/dubbo-old/dubbo-demo/dubbo-demo-consumer
+                    
+                    docker push hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v11
+                                
+                    docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-provider:v11 /home/jenkins/workspace/dubbo-old/dubbo-demo/dubbo-demo-provider
+                    
+                    docker push hub.easystack.io/3dc70621b8504c98/dubbo-provider:v11
+
+                    
+                """
+            }
+            
+        }
+    }
+ }
+}
+```
+使用“image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:latest'”镜像作为jenkins的slave镜像，使用“git 'https://github.com/PabloZhong/dubbo-1.git'”拉取dubbo源码，使用“mvn clean install”编译dubbo代码，生成jar包。
+使用“docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v11 /home/jenkins/workspace/dubbo-old/dubbo-demo/dubbo-demo-consumer”命令构建dubbo-consumer容器镜像，
+使用“docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-provider:v11 /home/jenkins/workspace/dubbo-old/dubbo-demo/dubbo-demo-provider”构建dubbo-provider容器镜像，并通过“docker push”命令推送到镜像仓库中去。其中dubbo-consumer的Dockefile文件如下：
+```
+FROM openjdk:8-jre
+ADD target/dubbo-demo-consumer-2.5.7-assembly.tar.gz /dubbo
+COPY start-docker.sh /dubbo/dubbo-demo-consumer-2.5.7/bin/
+
+CMD ["sh","-c","/dubbo/dubbo-demo-consumer-2.5.7/bin/start-docker.sh"]
+
+```
+dubbo-provider的Dockfile文件如下：
+```
+FROM openjdk:8-jre
+ADD target/dubbo-demo-provider-2.5.7-assembly.tar.gz /dubbo
+COPY start-docker.sh /dubbo/dubbo-demo-provider-2.5.7/bin/
+
+CMD ["sh","-c","/dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh"]
+
+```
+在此要注意，需要修改dubbo源码路径下的dubbo-demo-consumer.xml和dubbo-demo-provider.xml文件中的zookeeper地址
+![](Images/dubbo-consumer-xml.png)
+
+![](Images/dubbo-provider-xml.png)
+
+dubbo-consumer,dubbo-provider镜像成功构建并且推送到镜像仓库后，下一步要通过ECS和EKS部署使用dubbo。
+3.3 在ECS+EKS环境里面将dubbo应用落地
+
+
+在该场景里面采用ECS里面的大数据组件来实现zookeeper集群的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署，部署步骤如下：
+**Step 1 - 部署zookeeper集群作为dubbo应用中的注册中心**
+1.创建zookeeper网络
+
+![](Images/zk-network.png)
+
+2.创建zookeeper集群
+
+![](Images/create-zk.png)
+
+**Step 2 - 部署dubbo应用**
+
+1.创建应用依赖配置文件
+```
+dubbo.properties
+[escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r opt]$ cat dubbo.properties 
+dubbo.container=log4j,spring
+dubbo.application.name=demo-provider
+dubbo.application.owner=
+dubbo.registry.address=zookeeper://172.16.4.123:2181?backup=172.16.4.122:2181,172.16.4.124:2181
+dubbo.monitor.protocol=registry
+dubbo.protocol.name=dubbo
+dubbo.protocol.port=20880
+dubbo.service.loadbalance=roundrobin
+dubbo.log4j.file=logs/dubbo-demo-provider.log
+dubbo.log4j.level=WARN
+
+```
+2、创建应用依赖configmap
+
+```
+kubectl create configmap dubbo-config --from-file=dubbo.properties
+```
+3.在EKS环境里面部署dubbo-provider和dubbo-consumer应用
+
+![](Images/provider-service.png)
+
+![](Images/provider-service-2.png)
+
+部署成功后，查看应用运行情况：
+
+![](Images/check-service.png)
+
+**场景 1 - 查看服务调用效果**
+
+1.查看运行pod
+
+```
+[escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl get pod
+NAME                                                      READY     STATUS        RESTARTS   AGE
+dubbo-consumer-dubbo-consumer-mgud0ugs-1282421000-tx10d   1/1       Running       0          2m
+dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6   1/1       Running       0          3m
+gitlab-cicd-gitlab-cicd-leqlts0u-1514119021-vdl3p         1/1       Terminating   0          12d
+jenkins-master-jenkins-master-o9y1cstb-2641520653-bb40n   1/1       Running       0          1d
+
+```
+2.查看provider日志,consumer日志
+```
+Error from server (BadRequest): container dubbo-jdk is not valid for pod dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6
+[escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl logs dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6
+/dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh: line 15: 127.0.0.1: command not found
+/dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh: line 22: ps: command not found
+/dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh: line 30: netstat: command not found
+OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: UseCMSCompactAtFullCollection is deprecated and will likely be removed in a future release.
+Starting the demo-provider ...[02/07/18 06:12:41:041 UTC] main  INFO logger.LoggerFactory: using logger: com.alibaba.dubbo.common.logger.log4j.Log4jLoggerAdapter
+[02/07/18 06:12:41:041 UTC] main  INFO container.Main:  [DUBBO] Use container type([log4j, spring]) to run dubbo serivce., dubbo version: 2.5.7, current host: 127.0.0.1
+[2018-07-02 06:12:42] Dubbo service server started!
+[06:13:18] Hello world, request from consumer: /10.100.40.7:45502
+[06:13:20] Hello world, request from consumer: /10.100.40.7:45502
+[06:13:21] Hello world, request from consumer: /10.100.40.7:45502
+[06:13:23] Hello world, request from consumer: /10.100.40.7:45502
+[06:13:25] Hello world, request from consumer: /10.100.40.7:45502
+
+```
+
+3.查看服务注册情况
+登陆zookeeper集群：
+
+![](Images/login-zk.png)
+
+查看服务注册情况：
+
+![](Images/check1.png)
+
+从以上四步，我们可以看出provider服务在注册中心（zookeeper集群）注册成功，同时consumer调用成功，说明我们可以将dubbo场景下的微服务在ECS+EKS下落地。
+
+
+
+
 
 
 

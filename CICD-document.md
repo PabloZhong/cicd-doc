@@ -5,104 +5,48 @@
 2. 借助微服务应用示例，进行CI/CD场景演示。  
 
 ## 场景描述（描述环境，以及cicd流程，并补充架构图）
-1.搭建CICD工具链：选用业界目前主流、通用的开源工具链GitLab+Jenkins+Spinnaker。  
-
-
+1. CI/CD工具链基于业界目前主流、通用的开源软件构建，均在EKS平台中基于Kubernetes进行部署。  
 <table>
    <tr>
       <td>序号</td>
       <td>用途</td>
       <td>工具</td>
-      <td>镜像版本</td>
+      <td>Docker镜像版本</td>
+      <td>说明</td>
    </tr>
    <tr>
       <td>1</td>
       <td>代码版本管理</td>
       <td>GitLab</td>
-      <td>docker.io/library/gitlab:9.5.3-ce.0</td>
+      <td>gitlab/gitlab-ce:10.7.4-ce.0</td>
+      <td></td>
    </tr>
    <tr>
       <td>2</td>
       <td>CI/CD工具</td>
       <td>Jenkins</td>
       <td>jenkinsci/blueocean:1.5.0</td>
+      <td>Jenkins Slave节点的镜像需要自己制作</td>
    </tr>
 </table>  
 
-  两种方式构建：1）EKS平台直接通过界面操作；  
-  2）EKS+Helm实现，为进入应用中心做准备。 
-  底层基于ECS 4.0.2和EKS 4.0.2。
-2.Dubbo微服务Demo代码的编译、打包、并且在EKS上部署成功，能够CICD流程打通。   
+2. CI/CD工具链可通过以下两种方式在EKS平台上部署：  
+   1）通过EKS平台的UI界面直接完成部署，其中Jenkins Slave通过Jenkins Master调用EKS接口生成；    
+   2）通过Helm完成CI/CD工具链在EKS中的部署（待补充）。   
 
-## CI/CD流程描述：  
-1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
-2.	JenKins 与 Maven集成，实现项目代码自动编译。
-3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。
-4.	Jenkins与 Spinnaker集成，实现Spinnaker管理CI等Jenkins流程
-5.	Spinnaker与kubernetes 进行集成，进行分布式构建任务，实现应用自动发布。
-基于以上工具链完成Dubbo的应用的编译、打包、部署这一整套CICD流程。  
+3. 微服务应用示例基于Dubbo微服务框架实现，使用Java编程语言，采用Maven进行编译。CI/CD场景演示主要包括源代码上传、编译、镜像构建、推送镜像以及应用自动部署等。    
 
-## 环境说明（这段可删除）
-1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
-2.	Jenkins通过容器进行部署，采用Jenkins:2.46.2
-3.	Jenkins 中的Docker build地址通过虚拟机安装Docker服务配置暴露地址
-4.	Zookeeper采用容器部署(最新)或者ECS中大数据组件中Zookeeper
-5.	Dubbo Demo源代码地址：git@github.com:ylcao/dubbo.git
-6.	Spinnaker Helm部署程序地址：https://github.com/ylcao/spinnaker-k8s/tree/master/kubernetes-helm-spinnaker
-7.	ESCloud 4.0.2
-<table>
-   <tr>
-      <td>序号</td>
-      <td>软件环境</td>
-      <td>访问地址</td>
-      <td>说明</td>
-   </tr>
-   <tr>
-      <td>1</td>
-      <td>GItlab容器</td>
-      <td>http://172.16.3.4:31287/</td>
-      <td>容器中配置持久化存储和LB</td>
-   </tr>
-   <tr>
-      <td>2</td>
-      <td>Jenkins容器</td>
-      <td>http://172.16.3.3:32550</td>
-      <td>虚拟中安装Jenkins与Docker(用于jenkins的Docker插件调用)</td>
-   </tr>
-   <tr>
-      <td>3</td>
-      <td>Harbor</td>
-      <td>http://172.16.0.176</td>
-      <td></td>
-   </tr>
-   <tr>
-      <td>4</td>
-      <td>Kubernetes主节点</td>
-      <td>172.16.3.82</td>
-      <td>主节点地址或者VIP</td>
-   </tr>
-   <tr>
-      <td>5</td>
-      <td>Jenkins Docker build虚拟机</td>
-      <td>172.16.1.30</td>
-      <td>Jenkins 编译Docker镜像时采用</td>
-   </tr>
-   <tr>
-      <td>6</td>
-      <td>Zookeeper容器</td>
-      <td>172.16.2.245</td>
-      <td></td>
-   </tr>
-   <tr>
-      <td>7</td>
-      <td>Spinnaker</td>
-      <td>http://172.16.3.151:9000</td>
-      <td>地址随机生成</td>
-   </tr>
-   <tr>
-      <td></td>
-   </tr>
-</table>  
+## CI/CD流程描述  
+整体CI/CD场景流程图如下所示：  
+![流程图](Images/flow-chart-for-CICD.png)   
+1. 提交代码：开发人员通过Git工具提交代码至GitLab代码仓库的对应分支； 
+2. 触发CI/CD：GitLab与Jenkins集成，当检测到相应分支的代码更新时，自动触发CI/CD流水线，Jenkins Master将会在EKS中自动创建Jenkins Slave，并执行后续CI/CD流程；  
+3. 拉取代码：Jenkins Slave自动从GitLab中拉取更新的代码；  
+4. 代码编译：Jenkins Slave执行代码编译，生成应用包；  
+5. 镜像构建：Jenkins Slave执行Docker镜像构建；  
+6. 推送镜像：Jenkins Slave将生成的Docker镜像推送至EKS的镜像仓库中；  
+7. 自动部署：使用新版本镜像，Jenkins Slave将新版本应用部署至EKS平台中。  
+
 
 ## 操作流程说明  
 

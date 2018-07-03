@@ -192,7 +192,7 @@
 ### 2.GitLab项目配置  
 **Step 1: 设置通过SSH连接GitLab。**   
 考虑安全性，我们通过SSH Key Pair方式访问GitLab。(参考：https://docs.gitlab.com/ee/ssh/README.html)    
-在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（需要设置私钥密码）  
+在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（需要设置私钥密码,目前使用的密码是passw0rd）  
 ```
 [root@docker-ce .ssh]# ssh-keygen -t rsa -C "easystack@example.org" -b 4096
 ```

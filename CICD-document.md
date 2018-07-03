@@ -554,7 +554,7 @@ kubectl create configmap dubbo-config --from-file=dubbo.properties
 
 1.查看运行pod
 
-```
+
 [escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl get pod
 NAME                                                      READY     STATUS        RESTARTS   AGE
 dubbo-consumer-dubbo-consumer-mgud0ugs-1282421000-tx10d   1/1       Running       0          2m
@@ -562,9 +562,10 @@ dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6   1/1       Running     
 gitlab-cicd-gitlab-cicd-leqlts0u-1514119021-vdl3p         1/1       Terminating   0          12d
 jenkins-master-jenkins-master-o9y1cstb-2641520653-bb40n   1/1       Running       0          1d
 
-```
+
 2.查看provider日志,consumer日志
-```
+
+
 Error from server (BadRequest): container dubbo-jdk is not valid for pod dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6
 [escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl logs dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6
 /dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh: line 15: 127.0.0.1: command not found
@@ -581,7 +582,6 @@ Starting the demo-provider ...[02/07/18 06:12:41:041 UTC] main  INFO logger.Logg
 [06:13:23] Hello world, request from consumer: /10.100.40.7:45502
 [06:13:25] Hello world, request from consumer: /10.100.40.7:45502
 
-```
 
 3.查看服务注册情况
 登陆zookeeper集群：

@@ -252,9 +252,8 @@ step 1. 下载jenkins docker镜像：
 step 2. 上传到私有仓库中去：
 
 ```
-[root@docker-ce ~]# docker tag jenkins:2.60.3 172.16.0.176/3dc70621b8504c98/jenkins
-[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkins
-```
+[root@docker-ce ~]# docker tag jenkinsci/blueocean：1.5.0 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
+[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
 在页面查看镜像仓库中jenkins镜像：
 
 ![](Images/check-jenkins-images.png)

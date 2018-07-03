@@ -12,26 +12,29 @@
       <td>用途</td>
       <td>工具</td>
       <td>Docker镜像版本</td>
+      <td>说明</td>
    </tr>
    <tr>
       <td>1</td>
       <td>代码版本管理</td>
       <td>GitLab</td>
       <td>gitlab/gitlab-ce:10.7.4-ce.0</td>
+      <td></td>
    </tr>
    <tr>
       <td>2</td>
       <td>CI/CD工具</td>
       <td>Jenkins</td>
       <td>jenkinsci/blueocean:1.5.0</td>
+      <td>Jenkins Slave节点的镜像需要自己制作</td>
    </tr>
 </table>  
 
-2. CI/CD工具链可通过以下两种方式在EKS平台上部署：  
+1. CI/CD工具链可通过以下两种方式在EKS平台上部署：  
    1）通过EKS平台的UI界面直接完成部署；    
    2）通过Helm完成CI/CD工具链在EKS中的部署（待补充）。   
 
-3. 微服务应用实例基于Dubbo微服务框架实现，CI/CD场景演示包括源代码上传、编译、镜像构建、推送镜像以及应用部署。    
+2. 微服务应用实例基于Dubbo微服务框架实现，CI/CD场景演示包括源代码上传、编译、镜像构建、推送镜像以及应用部署。    
 
 ## CI/CD流程描述：  
 1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
@@ -39,7 +42,8 @@
 3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。
 4.	Jenkins与 Spinnaker集成，实现Spinnaker管理CI等Jenkins流程
 5.	Spinnaker与kubernetes 进行集成，进行分布式构建任务，实现应用自动发布。
-基于以上工具链完成Dubbo的应用的编译、打包、部署这一整套CICD流程。  
+整体CI/CD场景流程图如下所示：  
+![流程图](Images/flow-chart-for-CICD.png)   
 
 ## 环境说明（这段可删除）
 1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
@@ -49,59 +53,7 @@
 5.	Dubbo Demo源代码地址：git@github.com:ylcao/dubbo.git
 6.	Spinnaker Helm部署程序地址：https://github.com/ylcao/spinnaker-k8s/tree/master/kubernetes-helm-spinnaker
 7.	ESCloud 4.0.2
-<table>
-   <tr>
-      <td>序号</td>
-      <td>软件环境</td>
-      <td>访问地址</td>
-      <td>说明</td>
-   </tr>
-   <tr>
-      <td>1</td>
-      <td>GItlab容器</td>
-      <td>http://172.16.3.4:31287/</td>
-      <td>容器中配置持久化存储和LB</td>
-   </tr>
-   <tr>
-      <td>2</td>
-      <td>Jenkins容器</td>
-      <td>http://172.16.3.3:32550</td>
-      <td>虚拟中安装Jenkins与Docker(用于jenkins的Docker插件调用)</td>
-   </tr>
-   <tr>
-      <td>3</td>
-      <td>Harbor</td>
-      <td>http://172.16.0.176</td>
-      <td></td>
-   </tr>
-   <tr>
-      <td>4</td>
-      <td>Kubernetes主节点</td>
-      <td>172.16.3.82</td>
-      <td>主节点地址或者VIP</td>
-   </tr>
-   <tr>
-      <td>5</td>
-      <td>Jenkins Docker build虚拟机</td>
-      <td>172.16.1.30</td>
-      <td>Jenkins 编译Docker镜像时采用</td>
-   </tr>
-   <tr>
-      <td>6</td>
-      <td>Zookeeper容器</td>
-      <td>172.16.2.245</td>
-      <td></td>
-   </tr>
-   <tr>
-      <td>7</td>
-      <td>Spinnaker</td>
-      <td>http://172.16.3.151:9000</td>
-      <td>地址随机生成</td>
-   </tr>
-   <tr>
-      <td></td>
-   </tr>
-</table>  
+
 
 ## 操作流程说明  
 

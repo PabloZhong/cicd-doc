@@ -187,8 +187,6 @@ step 1. 下载jenkins docker镜像：
 ```
 [root@docker-ce ~]#  docker pull jenkins:2.60.3
 [root@docker-ce ~]# docker pull jenkinsci/blueocean：1.5.0
-```
-```
 [root@docker-ce /]# docker run -p 8080:8080 -u 0 -p 50000:50000 -v /your/home:/var/jenkins_home jenkins:2.60.3
 ```
 此命令中-u 0 参数是覆盖容器中内置的帐号，该用外部传入，这里传入0代表的是root帐号Id。
@@ -198,6 +196,7 @@ step 2. 上传到私有仓库中去：
 ```
 [root@docker-ce ~]# docker tag jenkinsci/blueocean：1.5.0 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
 [root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
+```
 在页面查看镜像仓库中jenkins镜像：
 
 ![](Images/check-jenkins-images.png)

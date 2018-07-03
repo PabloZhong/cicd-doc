@@ -1,15 +1,40 @@
 # CI/CD场景实践指南
 ## 概述
-本文档的主要介绍如何在EKS容器云平台上部署CI/CD工具链，并通过Dubbo微服务示例进行CI/CD场景演示。  
+本文档为基于EKS V4.0.2易捷行云容器云平台的CI/CD（持续集成/持续部署）场景实践指南，主要包含以下两部分：  
+1. 在EKS平台上部署CI/CD工具链；
+2. 借助微服务应用示例，进行CI/CD场景演示。  
 
 ## 场景描述（描述环境，以及cicd流程，并补充架构图）
 1.搭建CICD工具链：选用业界目前主流、通用的开源工具链GitLab+Jenkins+Spinnaker。  
+
+
+<table>
+   <tr>
+      <td>序号</td>
+      <td>用途</td>
+      <td>工具</td>
+      <td>镜像版本</td>
+   </tr>
+   <tr>
+      <td>1</td>
+      <td>代码版本管理</td>
+      <td>GitLab</td>
+      <td>docker.io/library/gitlab:9.5.3-ce.0</td>
+   </tr>
+   <tr>
+      <td>2</td>
+      <td>CI/CD工具</td>
+      <td>Jenkins</td>
+      <td>jenkinsci/blueocean:1.5.0</td>
+   </tr>
+</table>  
+
   两种方式构建：1）EKS平台直接通过界面操作；  
   2）EKS+Helm实现，为进入应用中心做准备。 
   底层基于ECS 4.0.2和EKS 4.0.2。
 2.Dubbo微服务Demo代码的编译、打包、并且在EKS上部署成功，能够CICD流程打通。   
 
-CI/CD流程描述：  
+## CI/CD流程描述：  
 1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
 2.	JenKins 与 Maven集成，实现项目代码自动编译。
 3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。

@@ -2,10 +2,10 @@
 ## 概述
 本文档为基于EKS V4.0.2易捷行云容器云平台的CI/CD（持续集成/持续部署）场景实践指南，主要包含以下两部分：  
 1. 在EKS平台上部署CI/CD工具链；
-2. 借助微服务应用实例，进行CI/CD场景演示。  
+2. 借助微服务应用示例，进行CI/CD场景演示。  
 
 ## 场景描述（描述环境，以及cicd流程，并补充架构图）
-1. CI/CD工具链基于业界目前主流、通用的开源软件构建。  
+1. CI/CD工具链基于业界目前主流、通用的开源软件构建，均在EKS平台中基于Kubernetes进行部署。  
 <table>
    <tr>
       <td>序号</td>
@@ -30,29 +30,22 @@
    </tr>
 </table>  
 
-1. CI/CD工具链可通过以下两种方式在EKS平台上部署：  
-   1）通过EKS平台的UI界面直接完成部署；    
+2. CI/CD工具链可通过以下两种方式在EKS平台上部署：  
+   1）通过EKS平台的UI界面直接完成部署，其中Jenkins Slave通过Jenkins Master调用EKS接口生成；    
    2）通过Helm完成CI/CD工具链在EKS中的部署（待补充）。   
 
-2. 微服务应用实例基于Dubbo微服务框架实现，CI/CD场景演示包括源代码上传、编译、镜像构建、推送镜像以及应用部署。    
+3. 微服务应用示例基于Dubbo微服务框架实现，使用Java编程语言，采用Maven进行编译。CI/CD场景演示主要包括源代码上传、编译、镜像构建、推送镜像以及应用自动部署等。    
 
-## CI/CD流程描述：  
-1.	Gitlab 与 Jenkins集成，实现 git push 提交代码，业务自动上线运行，无需人工干预安装过程。
-2.	JenKins 与 Maven集成，实现项目代码自动编译。
-3.	Jenkins与Docker进行集成，实现镜像自动编译、和发布到Harbor。
-4.	Jenkins与 Spinnaker集成，实现Spinnaker管理CI等Jenkins流程
-5.	Spinnaker与kubernetes 进行集成，进行分布式构建任务，实现应用自动发布。
+## CI/CD流程描述  
 整体CI/CD场景流程图如下所示：  
 ![流程图](Images/flow-chart-for-CICD.png)   
-
-## 环境说明（这段可删除）
-1.	GitLab在EKS中进行部署，采用docker.io/library/gitlab: 9.5.3-ce.0镜像
-2.	Jenkins通过容器进行部署，采用Jenkins:2.46.2
-3.	Jenkins 中的Docker build地址通过虚拟机安装Docker服务配置暴露地址
-4.	Zookeeper采用容器部署(最新)或者ECS中大数据组件中Zookeeper
-5.	Dubbo Demo源代码地址：git@github.com:ylcao/dubbo.git
-6.	Spinnaker Helm部署程序地址：https://github.com/ylcao/spinnaker-k8s/tree/master/kubernetes-helm-spinnaker
-7.	ESCloud 4.0.2
+1. 提交代码：开发人员通过Git工具提交代码至GitLab代码仓库的对应分支； 
+2. 触发CI/CD：GitLab与Jenkins集成，当检测到相应分支的代码更新时，自动触发CI/CD流水线，Jenkins Master将会在EKS中自动创建Jenkins Slave，并执行后续CI/CD流程；  
+3. 拉取代码：Jenkins Slave自动从GitLab中拉取更新的代码；  
+4. 代码编译：Jenkins Slave执行代码编译，生成应用包；  
+5. 镜像构建：Jenkins Slave执行Docker镜像构建；  
+6. 推送镜像：Jenkins Slave将生成的Docker镜像推送至EKS的镜像仓库中；  
+7. 自动部署：使用新版本镜像，Jenkins Slave将新版本应用部署至EKS平台中。  
 
 
 ## 操作流程说明  

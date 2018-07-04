@@ -136,7 +136,11 @@
 ### 2.GitLab项目配置  
 **Step 1: 设置通过SSH连接GitLab。**   
 考虑安全性，我们通过SSH Key Pair方式访问GitLab。(参考：https://docs.gitlab.com/ee/ssh/README.html)    
+<<<<<<< HEAD
 在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（提示：需要设置并牢记私钥密码。）   
+=======
+在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（需要设置私钥密码,目前使用的密码是passw0rd）  
+>>>>>>> 045bd6cbb51caec05a3b16d43412f13bf565196f
 ```
 [root@docker-ce .ssh]# ssh-keygen -t rsa -C "easystack@example.org" -b 4096
 ```
@@ -187,8 +191,6 @@ step 1. 下载jenkins docker镜像：
 ```
 [root@docker-ce ~]#  docker pull jenkins:2.60.3
 [root@docker-ce ~]# docker pull jenkinsci/blueocean：1.5.0
-```
-```
 [root@docker-ce /]# docker run -p 8080:8080 -u 0 -p 50000:50000 -v /your/home:/var/jenkins_home jenkins:2.60.3
 ```
 此命令中-u 0 参数是覆盖容器中内置的帐号，该用外部传入，这里传入0代表的是root帐号Id。
@@ -198,6 +200,7 @@ step 2. 上传到私有仓库中去：
 ```
 [root@docker-ce ~]# docker tag jenkinsci/blueocean：1.5.0 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
 [root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
+```
 在页面查看镜像仓库中jenkins镜像：
 
 ![](Images/check-jenkins-images.png)
@@ -478,9 +481,14 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
  }
 }
 ```
-使用“image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:latest'”镜像作为jenkins的slave镜像，使用“git 'https://github.com/PabloZhong/dubbo-1.git'”拉取dubbo源码，使用“mvn clean install”编译dubbo代码，生成jar包。
+使用“image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:latest'”镜像作为jenkins的slave镜像， 
+使用“git 'https://github.com/PabloZhong/dubbo-1.git'”拉取dubbo源码，使用“mvn clean install”编译dubbo代码，生成jar包。
+
 使用“docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v11 /home/jenkins/workspace/dubbo-old/dubbo-demo/dubbo-demo-consumer”命令构建dubbo-consumer容器镜像，
-使用“docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-provider:v11 /home/jenkins/workspace/dubbo-old/dubbo-demo/dubbo-demo-provider”构建dubbo-provider容器镜像，并通过“docker push”命令推送到镜像仓库中去。其中dubbo-consumer的Dockefile文件如下：
+
+使用“docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-provider:v11 /home/jenkins/workspace/dubbo-old/dubbo-demo/dubbo-demo-provider”构建dubbo-provider容器镜像，
+并通过“docker push”命令推送到镜像仓库中去。
+其中dubbo-consumer的Dockefile文件如下：
 ```
 FROM openjdk:8-jre
 ADD target/dubbo-demo-consumer-2.5.7-assembly.tar.gz /dubbo
@@ -554,41 +562,14 @@ kubectl create configmap dubbo-config --from-file=dubbo.properties
 
 1.查看运行pod
 
-```
-[escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl get pod
-NAME                                                      READY     STATUS        RESTARTS   AGE
-dubbo-consumer-dubbo-consumer-mgud0ugs-1282421000-tx10d   1/1       Running       0          2m
-dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6   1/1       Running       0          3m
-gitlab-cicd-gitlab-cicd-leqlts0u-1514119021-vdl3p         1/1       Terminating   0          12d
-jenkins-master-jenkins-master-o9y1cstb-2641520653-bb40n   1/1       Running       0          1d
+![](Images/get-pod.png)
 
-```
-2.查看provider日志,consumer日志
-```
-Error from server (BadRequest): container dubbo-jdk is not valid for pod dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6
-[escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl logs dubbo-provider-dubbo-provider-li72unzi-1447768201-6l8v6
-/dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh: line 15: 127.0.0.1: command not found
-/dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh: line 22: ps: command not found
-/dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh: line 30: netstat: command not found
-OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
-OpenJDK 64-Bit Server VM warning: UseCMSCompactAtFullCollection is deprecated and will likely be removed in a future release.
-Starting the demo-provider ...[02/07/18 06:12:41:041 UTC] main  INFO logger.LoggerFactory: using logger: com.alibaba.dubbo.common.logger.log4j.Log4jLoggerAdapter
-[02/07/18 06:12:41:041 UTC] main  INFO container.Main:  [DUBBO] Use container type([log4j, spring]) to run dubbo serivce., dubbo version: 2.5.7, current host: 127.0.0.1
-[2018-07-02 06:12:42] Dubbo service server started!
-[06:13:18] Hello world, request from consumer: /10.100.40.7:45502
-[06:13:20] Hello world, request from consumer: /10.100.40.7:45502
-[06:13:21] Hello world, request from consumer: /10.100.40.7:45502
-[06:13:23] Hello world, request from consumer: /10.100.40.7:45502
-[06:13:25] Hello world, request from consumer: /10.100.40.7:45502
-
-```
-
-3.查看服务注册情况
+2.查看服务注册情况
 登陆zookeeper集群：
 
 ![](Images/login-zk.png)
 
-查看服务注册情况：
+3.查看服务注册情况：
 
 ![](Images/check1.png)
 

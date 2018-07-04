@@ -198,7 +198,7 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 点击EKS界面"创建应用"，并选择通过"镜像仓库"开始创建，使用之前上传的Jenkins BlueOcean镜像作为Jenkins Master的基础镜像。  
 
 ![](Images/jenkins-master-configuration-1.png)  
-需要配置持久化存储，将容器的目录/var/jenkins_home挂载出来。  
+注意需要配置持久化存储，将容器的目录/var/jenkins_home挂载出来。  
 
 ![](Images/jenkins-master-configuration-2.png)  
 服务（Service）访问设置中需要配置暴露两个端口：  
@@ -208,66 +208,88 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 注意：按照前述步骤完成Jenkins Master部署之后，还需要对Master的部署（Deployment）Yaml模板进行编辑，修改**securityContext**来设置访问/var/jenkins_home的用户为root用户，添加配置**runAsUser: 0**，如下图所示：  
 ![](Images/jenkins-yaml-rewrite.png)
 
-界面提示部署Yaml更新成功后，Jenkins Master才能正常运行，在EKS平台可以查看处于正常Running状态的Jenkins Master：  
+编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，并正常运行，在EKS平台可以查看处于正常“运行中”状态的Jenkins Master：  
 ![](Images/jenkins-check-1.png)  
 ![](Images/jenkins-check-2.png)  
  
-jenkins Server要想能与k8s集群的apiserver通信，需要先通过权限认证。k8s里面有个Service Account的概念，配置使用Service Account来实现给Jenkins Server的授权。步骤如下：
-使用jenkins-rbac.yaml来创建service Account:
-```
-kubectl create -f jenkins-rbac.yaml
-```
-```
+另外，在本次场景设计中，Jenkins Slave需要在EKS的Kubernetes集群中动态生成/删除，因此需要Jenkins Master能够Kubernetes集群的ApiServer进行通信，并通过权限认证，从而后端动态创建Jenkins Slave。在这里我们使用Kubernetes的Service Account来实现授权功能。  
+
+>  Service Account:
+> 相对于kubectl访问apiserver时用的User Account，Service Account是为了给Pod中的Process访问Kubernetes API提供的一种身份标识。简而言之，通过Service Account可以实现给Pod中的进程授权访问Kubernetes API。
+
+具体步骤如下：
+通过私钥后台登陆EKS的Kubernetes Master节点，创建Service Account的Yaml文件，具体内容参考如下：  
 jenkins-rbac.yaml
+```
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: jenkins-admin-new
+  labels:
+    k8s-app: jenkins
+  name: jenkins-admin
   namespace: default
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: jenkins-admin-new
+  name: jenkins-admin
+  labels:
+    k8s-app: jenkins
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
 subjects:
 - kind: ServiceAccount
-  name: jenkins-admin-new
+  name: jenkins-admin
   namespace: default
 ```
-查看生成的“service account”如下：
-![](Images/check-serviceaccount.png)
+在Kubernetes Master节点中使用以上Yaml文件来创建ServiceAccount:   
+```
+[root@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r escore]# kubectl create -f jenkins-rbac.yaml 
+```
+说明：此处创建了一个名为**jenkins-admin**的ServiceAccount，直接继承了cluster-admin的权限。也可以根据自己实际情况，创建指定权限的ClusterRole。   
+![](Images/serviceaccount-create.png)  
 
-将生成的名为“jenkins-admin-new”的serviceaccount加入jenkins的部署yaml中：
-![](Images/add-serviceaccount.png)
+可以在Kubernetes Master节点查看已创建的Service Account和ClusterRoleBinding，参考下图所示：   
+![](Images/serviceaccount-check.png) 
 
-部署yaml修改完成后，jenkins服务启动正常.
+下一步，需要再次修改Jenkins Master的部署(Deployment)的Yaml文件，加入已创建的名为**jenkins-admin**的Service Account， Yaml文件修改可参考：  
+![](Images/jenkins-yaml-add-serviceaccount.png) 
 
-访问http://172.16.4.190:30601/地址来访问jenkins，首次登陆jenkins，需要输入初始密码：
+编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，并再次处于“运行中”状态。   
+
+接下来可以通过Web浏览器访问http://<EKS任意Node的公网IP>:<Nodeport>进入Jenkins界面，对于本文档示例即可访问http://172.16.4.191:31888/。   
+首次登陆Jenkins，需要输入初始密码：   
 ![](Images/jenkins-initial-password.png)
-使用命令：
+
+可以参考以下步骤获取初始密码： 
+在EKS的Master节点执行：    
 ```
 [escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl get pod
-NAME                                                READY     STATUS    RESTARTS   AGE
-gitlab-cicd-gitlab-cicd-pfcpzdqa-173637270-tm7cp    1/1       Running   0          1d
-gitlab-test-gitlab-test-t2oure6b-1164666112-lms0x   1/1       Running   0          20h
-jenkins-jenkins-bj3we2kn-1700231787-sq1l2           1/1       Running   0          12h
-[escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl exec -it jenkins-jenkins-bj3we2kn-1700231787-sq1l2 bash
-bash-4.4# ls
+```
+![](Images/jenkins-pod-check.png)
+进入相应的Jenkins Master Pod以便查看密码：    
+```
+[root@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r escore]# kubectl exec -it jenkins-master-jenkins-master-kjtre0ns-2246927953-qsmz2 bash
+bash-4.4# cat /var/jenkins_home/secrets/initialAdminPassword
+```
+![](Images/jenkins-pod-check-password.png) 
 
 ```
-查看初始密码，并输入，进入jenkins页面：
-![](Images/jenkins-web1.png)
+获取初始密码并输入后，即可进入Jenkins页面正常使用：   
+![](Images/jenkins-web.png)
 
-首先修改admin的密码：
+可以跳过第一次登陆Jenkins的“安装插件”步骤，直接开始使用Jenkins。    
+在“Jenkins”-“用户”-“admin”-“设置”中，修改Jenkins的admin密码：  
 
-![](Images/jenkins-change-password.png)
+![](Images/jenkins-change-password.png) 
 
-## ====================================================================
+**我目前走到这一步，前面文档已经修改好。  ** 
+**Step 3: 配置Jenkins。**   
+
+
 #### 3.2	Jenkins插件安装
 (用于jenkins的Docker插件调用)
 

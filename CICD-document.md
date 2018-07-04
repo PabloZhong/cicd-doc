@@ -286,7 +286,7 @@ bash-4.4# cat /var/jenkins_home/secrets/initialAdminPassword
 
 ![](Images/jenkins-change-password.png) 
 
-**我目前走到这一步，前面文档已经修改好。  ** 
+**我目前走到这一步，前面文档已经修改好，后面的你再check一遍。  **  
 **Step 3: 配置Jenkins。**   
 
 

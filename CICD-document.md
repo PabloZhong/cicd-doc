@@ -205,15 +205,13 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 1）Jenkins Server的访问端口，默认容器端口为8080，图示采用NodePort方式指定对外暴露节点端口为31888；  
 2）Jenkins Master与Slave之间通信所使用的端口，默认容器端口为50000。  
 
-注意：按照前述步骤完成Jenkins Master部署之后，还需要对Master的部署（Deployment）Yaml模板进行编辑，添加**securityContext**来修改访问/var/jenkins_home的用户为root用户，添加配置**runAsUser: 0**，如下图所示：  
-![](Images/rewrite-jenkins-yaml.png)
+注意：按照前述步骤完成Jenkins Master部署之后，还需要对Master的部署（Deployment）Yaml模板进行编辑，修改**securityContext**来设置访问/var/jenkins_home的用户为root用户，添加配置**runAsUser: 0**，如下图所示：  
+![](Images/jenkins-yaml-rewrite.png)
 
-修改完成后，可以查看部署的Yaml模板文件已经更新为：  
-![](Images/finished-yaml.png)
-
-部署Yaml修改完成后，jenkins服务启动正常，在EKS平台查看创建成功的jenkins服务：
-![](Images/check-jenkins-service.png)
-
+界面提示部署Yaml更新成功后，Jenkins Master才能正常运行，在EKS平台可以查看处于正常Running状态的Jenkins Master：  
+![](Images/jenkins-check-1.png)  
+![](Images/jenkins-check-2.png)  
+ 
 jenkins Server要想能与k8s集群的apiserver通信，需要先通过权限认证。k8s里面有个Service Account的概念，配置使用Service Account来实现给Jenkins Server的授权。步骤如下：
 使用jenkins-rbac.yaml来创建service Account:
 ```

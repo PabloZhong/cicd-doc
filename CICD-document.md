@@ -260,7 +260,7 @@ subjects:
 
 编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，并再次处于“运行中”状态。   
 
-接下来可以通过Web浏览器访问http://<EKS任意Node的公网IP>:<Nodeport>进入Jenkins界面，对于本文档示例即可访问http://172.16.4.191:31888/。   
+接下来可以通过Web浏览器访问http://<EKS任意Node的公网IP>:<Nodeport>进入Jenkins界面，对于本文档示例即可访问http://172.16.4.191:31888/   
 首次登陆Jenkins，需要输入初始密码：   
 ![](Images/jenkins-initial-password.png)
 

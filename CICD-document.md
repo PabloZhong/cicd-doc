@@ -356,7 +356,7 @@ step 1:使用openshift参考镜像；
 jenkins slave镜像制作完成后，使用docker push命令将jenkins slave镜像上传到172.16.4.176 harbor中。
 镜像制作成功，并上传后，效果如下：
 ![](Images/jenkins-slave-docker.png)
-3.2.1 pipeline1:构建snake镜像
+3.2.1 pipeline1:构建snake镜像 (本段删除掉，不需要了)
 在jenkins master中构建pipieline如下：
 ```
 podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',

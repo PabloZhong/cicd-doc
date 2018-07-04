@@ -96,7 +96,7 @@
 
 **Step 2: 在EKS容器平台中部署GitLab应用。**  
 
-点击"创建应用"，并选择通过"镜像仓库"开始创建。  
+点击EKS界面"创建应用"，并选择通过"镜像仓库"开始创建。  
 
 ![](Images/create-gitlab-1.png)  
 ![](Images/create-gitlab-2.png)  
@@ -179,10 +179,8 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 
 ### 2.在EKS中部署Jenkins
-### 2.Jenkins Docker Build配置 
-#### 3.1 安装jenkins 
 
-**Step 1: 上传Jenkins镜像至EKS平台的镜像仓库。**
+**Step 1: 上传Jenkins镜像至EKS平台的镜像仓库。**  
 采用与之前下载GitLab镜像类似的方式，首先需将所需版本的GitLab镜像下载到本地，然后推送至EKS平台的镜像仓库。 
 ```
 [root@docker-ce ~]# docker pull jenkinsci/blueocean：1.5.0
@@ -195,24 +193,25 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 ![](Images/check-jenkins-images.png) 
 
+**Step 2: 在EKS平台中部署Jenkins Master服务。**   
 
-step 3. 在EKS平台上部署jenkins服务：
+点击EKS界面"创建应用"，并选择通过"镜像仓库"开始创建，使用之前上传的Jenkins BlueOcean镜像作为Jenkins Master的基础镜像。  
 
-点击右上角创建应用，选择镜像仓库，选择jenkins镜像
+![](Images/jenkins-master-configuration-1.png)  
+需要配置持久化存储，将容器的目录/var/jenkins_home挂载出来。  
 
-![](Images/jenkins-conf1.png)
+![](Images/jenkins-master-configuration-2.png)  
+服务（Service）访问设置中需要配置暴露两个端口：  
+1）Jenkins Server的访问端口，默认容器端口为8080，图示采用NodePort方式指定对外暴露节点端口为31888；  
+2）Jenkins Master与Slave之间通信所使用的端口，默认容器端口为50000。  
 
-Service配置暴露两个端口，一个是Jenkins Server的访问端口，这里nodePort方式指定的是31888；另一个是Jenkins Agent通信用的端口，默认是50000，如果不暴露的话，Jenkins slave节点是无法和Jenkins Server建了连接的。
+注意：按照前述步骤完成Jenkins Master部署之后，还需要对Master的部署（Deployment）Yaml模板进行编辑，添加**securityContext**来修改访问/var/jenkins_home的用户为root用户，添加配置**runAsUser: 0**，如下图所示：  
+![](Images/rewrite-jenkins-yaml.png)
 
-![](Images\jenkins-conf2.png)
-
-
-注意：jenkins镜像部署成功后，需要在部署的yaml中添加securityContext来修改访问/var/jenkins_home的用户为user 0，即root用户，具体修改如下：
-![](Images/rewrite-yaml.png)
-
-修改完成后，yaml文件会变为：
+修改完成后，可以查看部署的Yaml模板文件已经更新为：  
 ![](Images/finished-yaml.png)
-部署yaml修改完成后，jenkins服务启动正常，在EKS平台查看创建成功的jenkins服务：
+
+部署Yaml修改完成后，jenkins服务启动正常，在EKS平台查看创建成功的jenkins服务：
 ![](Images/check-jenkins-service.png)
 
 jenkins Server要想能与k8s集群的apiserver通信，需要先通过权限认证。k8s里面有个Service Account的概念，配置使用Service Account来实现给Jenkins Server的授权。步骤如下：
@@ -270,7 +269,7 @@ bash-4.4# ls
 
 ![](Images/jenkins-change-password.png)
 
-
+## ====================================================================
 #### 3.2	Jenkins插件安装
 (用于jenkins的Docker插件调用)
 

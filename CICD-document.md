@@ -45,12 +45,12 @@
 4. 代码编译：Jenkins Slave执行代码编译，生成应用包；  
 5. 镜像构建：Jenkins Slave执行Docker镜像构建；  
 6. 推送镜像：Jenkins Slave将生成的Docker镜像推送至EKS的镜像仓库中；  
-7. 自动部署：使用新版本镜像，Jenkins Slave将新版本应用部署至EKS平台中。  
+7. 自动部署：Jenkins Slave将新版本应用部署至EKS平台中，此过程会从镜像仓库拉取新版本镜像。  
 
 
 ## 操作流程说明  
 
-### 1.在EKS中部署GitLab  
+### 1.在EKS中部署GitLab代码仓库   
 
 **Step 1: 上传GitLab镜像至EKS平台的镜像仓库。**   
 
@@ -76,7 +76,7 @@
 
 
 提示“Login Succeed”之后，便可以将本地的镜像推送至镜像仓库。  
-将所需版本的GitLab镜像下载到本地（需能够访问外网从Dockerhub拉取镜像）：  
+首先需将所需版本的GitLab镜像下载到本地（需能够访问外网从Dockerhub拉取镜像）：  
 ```
 [root@docker-ce ~]# docker pull gitlab/gitlab-ce:10.7.4-ce.0
 ```  
@@ -88,13 +88,13 @@
 [root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
 ```  
 
-注：GitLab镜像使用可参考 https://docs.gitlab.com/omnibus/docker/#run-the-image  
+注：GitLab镜像使用指南可参考 https://docs.gitlab.com/omnibus/docker/#run-the-image  
 
 可以在EKS界面查看已上传至镜像仓库的GitLab镜像，接下来会基于它来部署GitLab应用。   
 
 ![](Images/check-gitlab-images.png)
 
-**Step 2: 在EKS容器平台上部署GitLab服务。**  
+**Step 2: 在EKS容器平台中部署GitLab应用。**  
 
 点击"创建应用"，并选择通过"镜像仓库"开始创建。  
 
@@ -121,26 +121,20 @@
 可在EKS界面查看已经创建完成的GitLab应用。  
 ![](Images/gitlab-configuration-4.png)  
 
-此时已经可以通过NodePort方式访问GitLab，但是为了能够通过域名（本示例为gitlab.example.org）访问，我们可以设置路由(Ingress)，提供外部负载均衡访问。  
+此时已经可以通过NodePort方式访问GitLab，但是为了在Web浏览器中可直接通过域名（本示例为gitlab.example.org）访问GitLab，我们可以设置路由(Ingress)，提供外部负载均衡访问GitLab界面。  
 ![](Images/gitlab-configuration-5.png)  
 ![](Images/gitlab-configuration-6.png)  
 注意需要配置DNS域名解析才可通过域名访问GitLab，可采用以下两种方式：  
 1）如果环境中有DNS服务器，则直接配置DNS解析即可，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
-2）如果环境中没有DNS服务器，则可以配置本地hosts文件，对Windows而言为C:\Windows\System32\drivers\etc\hosts，对于上图中的示例需要添加一条： 172.16.4.191 gitlab.example.org  
+2）如果环境中没有DNS服务器，则可以配置本地hosts文件（对Windows而言为C:\Windows\System32\drivers\etc\hosts），添加任意一个Kubernetes Slave节点公网IP与域名的映射关系，对于上图中的示例则可添加一条： 172.16.4.191 gitlab.example.org  
 
 等待3~4分钟GitLab完成初始化之后，即可通过浏览器正常访问GitLab：  
 ![](Images/access-to-gitlab.png)  
 注册一个新的账号即可正常使用。  
 
-
-### 2.GitLab项目配置  
-**Step 1: 设置通过SSH连接GitLab。**   
+**Step 3: 设置通过SSH连接GitLab。**  
 考虑安全性，我们通过SSH Key Pair方式访问GitLab。(参考：https://docs.gitlab.com/ee/ssh/README.html)    
-<<<<<<< HEAD
-在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（提示：需要设置并牢记私钥密码。）   
-=======
-在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（需要设置私钥密码,目前使用的密码是passw0rd）  
->>>>>>> 045bd6cbb51caec05a3b16d43412f13bf565196f
+在Step1中所使用的本地虚拟机中，创建一个GitLab SSH密钥对：（提示：需要设置并牢记私钥密码。）   
 ```
 [root@docker-ce .ssh]# ssh-keygen -t rsa -C "easystack@example.org" -b 4096
 ```
@@ -150,12 +144,13 @@
 验证本地虚拟机与GitLab的SSH连通性：  
 ![](Images/gitlab-ssh-2.png)   
 
-**Step 2: 创建GitLab示例项目。**  
+
+**Step 4: 创建GitLab示例项目。（挪到后面去）**  
 我们在GitLab中创建一个示例项目“dubbo-demo”：  
 ![](Images/gitlab-create-project-1.png)  
 ![](Images/gitlab-create-project-2.png)  
 
-**Step 3: Push源代码至GitLab。**  
+**Step 5: Push源代码至GitLab。（挪到后面去）**  
 首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git global setup配置。  
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
@@ -173,7 +168,7 @@
 ```
 Push成功后即可在GitLab的“dubbo-demo”项目中看到源代码。  
 
-**Step 4: 修改Dubbo配置文件。** 
+**Step 6: 修改Dubbo配置文件。（挪到后面去）** 
 
 （1）dubbo/dubbo-demo/dubbo-demo-consumer/src/main/assembly/conf/dubbo.properties
 

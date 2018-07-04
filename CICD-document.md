@@ -245,12 +245,13 @@ subjects:
   name: jenkins-admin
   namespace: default
 ```
-在Kubernetes Master节点中使用以上Yaml文件来创建ServiceAccount:   
+在Kubernetes Master节点中使用以上Yaml文件来创建名为**jenkins-admin**的ServiceAccount:   
 ```
 [root@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r escore]# kubectl create -f jenkins-rbac.yaml 
 ```
-说明：此处创建了一个名为**jenkins-admin**的ServiceAccount，直接继承了cluster-admin的权限。也可以根据自己实际情况，创建指定权限的ClusterRole。   
 ![](Images/serviceaccount-create.png)  
+
+说明：此处创建的ServiceAccount，直接继承了cluster-admin的权限。也可以根据自己实际情况，创建指定权限的ClusterRole。   
 
 可以在Kubernetes Master节点查看已创建的Service Account和ClusterRoleBinding，参考下图所示：   
 ![](Images/serviceaccount-check.png) 
@@ -258,14 +259,14 @@ subjects:
 下一步，需要再次修改Jenkins Master的部署(Deployment)的Yaml文件，加入已创建的名为**jenkins-admin**的Service Account， Yaml文件修改可参考：  
 ![](Images/jenkins-yaml-add-serviceaccount.png) 
 
-编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，并再次处于“运行中”状态。   
+编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，随后再次处于“运行中”状态。   
 
-接下来可以通过Web浏览器访问http://<EKS任意Node的公网IP>:<Nodeport>进入Jenkins界面，对于本文档示例即可访问http://172.16.4.191:31888/   
+接下来可以通过Web浏览器访问http://<EKS任意Node的公网IP>:<Nodeport>，进入Jenkins界面，对于本文档示例即可访问http://172.16.4.191:31888/   
 首次登陆Jenkins，需要输入初始密码：   
 ![](Images/jenkins-initial-password.png)
 
-可以参考以下步骤获取初始密码： 
-在EKS的Master节点执行：    
+可以参考以下步骤获取初始密码：  
+在EKS的Master节点执行以下命令：    
 ```
 [escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl get pod
 ```
@@ -277,7 +278,6 @@ bash-4.4# cat /var/jenkins_home/secrets/initialAdminPassword
 ```
 ![](Images/jenkins-pod-check-password.png) 
 
-```
 获取初始密码并输入后，即可进入Jenkins页面正常使用：   
 ![](Images/jenkins-web.png)
 

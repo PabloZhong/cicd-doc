@@ -178,27 +178,22 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 
-### 3.Jenkins Docker Build配置 
+### 2.在EKS中部署Jenkins
+### 2.Jenkins Docker Build配置 
 #### 3.1 安装jenkins 
 
-step 1. 下载jenkins docker镜像：
-
+**Step 1: 上传Jenkins镜像至EKS平台的镜像仓库。**
+采用与之前下载GitLab镜像类似的方式，首先需将所需版本的GitLab镜像下载到本地，然后推送至EKS平台的镜像仓库。 
 ```
-[root@docker-ce ~]#  docker pull jenkins:2.60.3
 [root@docker-ce ~]# docker pull jenkinsci/blueocean：1.5.0
-[root@docker-ce /]# docker run -p 8080:8080 -u 0 -p 50000:50000 -v /your/home:/var/jenkins_home jenkins:2.60.3
-```
-此命令中-u 0 参数是覆盖容器中内置的帐号，该用外部传入，这里传入0代表的是root帐号Id。
-
-step 2. 上传到私有仓库中去：
-
-```
-[root@docker-ce ~]# docker tag jenkinsci/blueocean：1.5.0 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
+[root@docker-ce ~]# docker tag jenkinsci/blueocean：1.5.0  172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
 [root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
 ```
-在页面查看镜像仓库中jenkins镜像：
+注：Jenkins BlueOcean镜像使用指南可参考 https://jenkins.io/doc/book/installing/#downloading-and-running-jenkins-in-docker
 
-![](Images/check-jenkins-images.png)
+可以在EKS界面查看已上传至镜像仓库的Jenkins镜像，接下来会基于它来部署Jenkins Master：  
+
+![](Images/check-jenkins-images.png) 
 
 
 step 3. 在EKS平台上部署jenkins服务：

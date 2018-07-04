@@ -4,7 +4,7 @@
 1. 在EKS平台上部署CI/CD工具链；
 2. 借助微服务应用示例，进行CI/CD场景演示。  
 
-## 场景描述（描述环境，以及cicd流程，并补充架构图）
+## 场景描述  
 1. CI/CD工具链基于业界目前主流、通用的开源软件构建，均在EKS平台中基于Kubernetes进行部署。  
 <table>
    <tr>
@@ -37,7 +37,7 @@
 3. 微服务应用示例基于Dubbo微服务框架实现，使用Java编程语言，采用Maven进行编译。CI/CD场景演示主要包括源代码上传、编译、镜像构建、推送镜像以及应用自动部署等。    
 
 ## CI/CD流程描述  
-整体CI/CD场景流程图如下所示：  
+在完成CI/CD工具链部署之后，整体CI/CD场景流程图如下所示：  
 ![流程图](Images/flow-chart-for-CICD.png)   
 1. 提交代码：开发人员通过Git工具提交代码至GitLab代码仓库的对应分支； 
 2. 触发CI/CD：GitLab与Jenkins集成，当检测到相应分支的代码更新时，自动触发CI/CD流水线，Jenkins Master将会在EKS中自动创建Jenkins Slave，并执行后续CI/CD流程；  
@@ -54,7 +54,7 @@
 
 **Step 1: 上传GitLab镜像至EKS平台的镜像仓库。**   
 
-首先需要准备一个安装有单机版Docker CE软件的操作系统环境用于上传镜像，可以使用本地虚拟机，也可以使用ECS平台中的云主机，注意需要能够与EKS镜像仓库的实现网络互通。  
+首先需要准备一个安装有单机版Docker CE软件的操作系统环境用于上传Docker镜像，可以使用本地虚拟机，也可以使用ECS平台中的云主机，注意需要能够与EKS镜像仓库实现网络互通。  
 
 注意：需要配置Docker Daemon的DOCKER_OPTS参数，添加“--insecure-registry x.x.x.x”参数。  
 不同操作系统的配置方式略有差异，请以Docker官方说明为准。  
@@ -136,7 +136,7 @@
 ### 2.GitLab项目配置  
 **Step 1: 设置通过SSH连接GitLab。**   
 考虑安全性，我们通过SSH Key Pair方式访问GitLab。(参考：https://docs.gitlab.com/ee/ssh/README.html)    
-在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（需要设置私钥密码）  
+在Step1中所使用的本地虚拟机中，创建GitLab SSH密钥对：（提示：需要设置并牢记私钥密码。）   
 ```
 [root@docker-ce .ssh]# ssh-keygen -t rsa -C "easystack@example.org" -b 4096
 ```

@@ -290,7 +290,7 @@ bash-4.4# cat /var/jenkins_home/secrets/initialAdminPassword
 **Step 3: 配置Jenkins。**   
 
 
-#### 3.2	Jenkins插件安装
+#### 3.1	Jenkins插件安装
 (用于jenkins的Docker插件调用)
 
 step 1:安装以下jenkins插件：
@@ -314,11 +314,7 @@ Kubernetes plugin
 
 插件安装完成以后，在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】配置k8s的插件。
 
-![](Images/k8s-configure-1.png)
-
-![](Images/k8s-configure-2.png)
-
-![](Images/configure-k8s-3.png)
+![](Images/jenkinsyun-configure.png)
 
 参考以上说明，进行配置。标记到的地方，是需要配置的必须信息，可以根据自己的情况进行配置。要注意的是，这里的Name字段配的名字，后面在配置pipeline的Jenkins任务时，是需要用到的（默认名字叫kubernetes）。然后点【Test Connection】，如果前面的Service Account配置的没问题的话，就会提示“Connection successful”，否则，会有访问apiserver的403权限报错。
 

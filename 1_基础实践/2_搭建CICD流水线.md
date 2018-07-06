@@ -273,7 +273,16 @@ Kubernetes plugin
 
 ![](Images/select-jenkinsplugin.png)
 
-插件安装完成以后，在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】配置k8s的插件。
+插件安装完成以后，可以选择重启Jenkins:
+
+![](Images/reboot-jenkins.png)
+
+安装完的插件列表如下：
+
+![](Images/installed-pluginin.png)
+
+
+在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】配置k8s的插件。
 
 ![](Images/jenkinsyun-configure.png)
 

@@ -235,7 +235,7 @@ subjects:
 ```
 ![](Images/jenkins-pod-check-password.png) 
 
-获取初始密码并输入后，可以选择第一次登陆Jenkins系统建议的“安装推荐插件”步骤：   
+获取初始密码并输入后，可以选择第一次登陆Jenkins系统建议的“安装推荐的插件”步骤：   
 ![](Images/jenkins-init-plugin.png)  
 (注：本步骤需要访问Internet，您也可以跳过本步骤，后续可按需添加插件。)    
 
@@ -253,57 +253,64 @@ subjects:
 本次实践中，需要使用以下Jenkins插件：  
 <table>
    <tr>
-      <td>序号</td>
-      <td>用途</td>
-   </tr>
-   <tr>
       <td>1</td>
-      <td>Docker build step plugin</td>
+      <td>docker-build-step</td>
    </tr>
    <tr>
       <td>2</td>
-      <td>Git plugin</td>
+      <td>Git</td>
    <tr>
       <td>3</td>
-      <td>Gitlab plugin</td>
+      <td>GitLab</td>
    <tr>
       <td>4</td>
-      <td>Gitlab Hook Plugin</td>
+      <td>GitLab Hook</td>
    <tr>
       <td>5</td>
-      <td>Kubernetes plugin</td>
+      <td>Kubernetes</td>
    </tr>
 </table>  
 
-进入Jenkins-【系统管理】页面，选择【管理插件】中选择以上插件，并进行安装:  
-![](Images/install-jenkinsplugin-1.png)
+进入Jenkins-【系统管理】-【管理插件】界面：   
+![](Images/jenkins-install-plugin-1.png)
 
-![](Images/select-jenkinsplugin.png)
+在【可选插件】中选择找到所需的插件，并依次进行安装：  
+![](Images/jenkins-install-plugin-2.png)
+注： 如果上一步在初始化Jenkins过程中选择了“安装推荐的插件”，则此处只需要安装之前未安装的插件。  
 
-插件安装完成以后，可以选择重启Jenkins:  
+插件安装过程中需要选择“安装完成后重启Jenkins”:    
 
-![](Images/reboot-jenkins.png)
+![](Images/jenkins-reboot.png) 
 
-安装完的插件列表如下：  
+可在【已安装】中查看已安装插件列表：   
 
-![](Images/installed-pluginin.png)
+![](Images/jenkins-installed-plugins.png)
+
+> 备注:  
+> 以上Jenkins插件安装过程均需要访问Internet，如果在数据中心内网环境进行操作，则无法正常安装插件。解决方法：离线下载Jenkins插件，并将插件与Jenkins Master镜像（jenkinsci/blueocean:1.5.0）一起打包生成新的镜像。  
 
 **Step 3: 配置Jenkins。**   
-在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】配置k8s的插件。    
+在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】中，完成Jenkins与Kubernetes相关的配置，下图为示例配置：     
 
-![](Images/jenkinsyun-configure.png)  
+![](Images/jenkins-k8s-configure.png)  
 
-Kubernetes URL查看方法：  
-![](Images/k8surl.png)  
+其中Kubernetes URL和Jenkins tunnel地址需要按照实际情况进行调整，具体方法如下：  
+1）Kubernetes URL查看方法，在ECS云平台UI界面-【网络资源】-【负载均衡】，找到Kubernetes集群ApiServer对应的LB的公网IP，并使用默认的6443端口：    
+![](Images/jenkins-check-k8s-url-1.png)  
+![](Images/jenkins-check-k8s-url-2.png)  
 
-Jenkins tunnel查看方法：  
-![](Images/check-jenkins-tunnel.png)
-参考以上说明，进行配置。标记到的地方，是需要配置的必须信息，可以根据自己的情况进行配置。要注意的是，这里的Name字段配的名字，后面在配置pipeline的Jenkins任务时，是需要用到的（默认名字叫kubernetes）。然后点【Test Connection】，如果前面的Service Account配置的没问题的话，就会提示“Connection successful”，否则，会有访问apiserver的403权限报错。
+点击“Test Connection”进行Jenkins与EKS Kubernetes集群ApiServer的连通性测试，如果配置正确则会提示“Connection test successful”：  
 
-![](Images/connection-test.png)
+![](Images/jenkins-k8s-connection-test.png)
+
+2）Jenkins tunnel地址：IP地址使用Jenkins Master对应的服务（Kubernetes Service）的集群服务地址（ClusterIP），并使用50000端口。   
+![](Images/jenkins-check-jenkins-tunnel.png)
+
+以上两项是必须配置项，您也可以根据实际情况进行更多的配置，例如修改Kubernetes-Name字段，不使用默认的“kubernetes”作为Name。  
+
 
 **Step 4: 验证Jenkins Pipeline。**   
-配置完成后，创建一个最简单的“hello world” Pipeline进行验证： 
+完成以上配置后，您可以创建一个最简单的“hello world” Pipeline进行验证： 
 
 ```
 podTemplate(label: 'testpod', cloud: 'kubernetes') {
@@ -315,7 +322,7 @@ podTemplate(label: 'testpod', cloud: 'kubernetes') {
 }
 
 ```
-![](Images/testpod.png)
+![](Images/jenkins-hello-world-test.png)
 注：在这个Pipeline过程中，Jenkins后台将会自动从Dockerhub镜像仓库中拉取默认的Jenkins Slave镜像jenkins-slave:alpine。 
 
 点击Jenkins任务构建，可以在EKS界面中观察到后端自动创建的作为Jenkins Slave的Pod： 

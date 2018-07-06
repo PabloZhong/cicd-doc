@@ -3,8 +3,6 @@
 
 ## 1. GitLab代码仓库部署与配置  
 
-### 在EKS中部署GitLab代码仓库   
-
 **Step 1: 上传GitLab镜像至EKS平台的镜像仓库。**   
 
 首先需要准备一个安装有单机版Docker CE软件的操作系统环境用于上传Docker镜像，可以使用本地虚拟机，也可以使用ECS平台中的云主机，注意需要能够与EKS镜像仓库实现网络互通。  
@@ -133,15 +131,14 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 （2）dubbo/dubbo-demo/dubbo-demo-provider/src/main/assembly/conf/dubbo.properties
 dubbo.registry.address=zookeeper://172.16.2.245:2181
 
-
-### 2.在EKS中部署Jenkins
+## 2. Jenkins部署与配置  
 
 **Step 1: 上传Jenkins镜像至EKS平台的镜像仓库。**  
 采用与之前下载GitLab镜像类似的方式，首先需将所需版本的GitLab镜像下载到本地，然后推送至EKS平台的镜像仓库。 
 ```
-[root@docker-ce ~]# docker pull jenkinsci/blueocean：1.5.0
-[root@docker-ce ~]# docker tag jenkinsci/blueocean：1.5.0  172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
-[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean：1.5.0
+[root@docker-ce ~]# docker pull jenkinsci/blueocean:1.5.0
+[root@docker-ce ~]# docker tag jenkinsci/blueocean:1.5.0  172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean:1.5.0
+[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean:1.5.0
 ```
 注：Jenkins BlueOcean镜像使用指南可参考 https://jenkins.io/doc/book/installing/#downloading-and-running-jenkins-in-docker
 
@@ -149,7 +146,7 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 ![](Images/check-jenkins-images.png) 
 
-**Step 2: 在EKS平台中部署Jenkins Master服务。**   
+**Step 2: 在EKS平台中部署Jenkins Master。**   
 
 点击EKS界面"创建应用"，并选择通过"镜像仓库"开始创建，使用之前上传的Jenkins BlueOcean镜像作为Jenkins Master的基础镜像。  
 
@@ -164,7 +161,7 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 注意：按照前述步骤完成Jenkins Master部署之后，还需要对Master的部署（Deployment）Yaml模板进行编辑，修改**securityContext**来设置访问/var/jenkins_home的用户为root用户，添加配置**runAsUser: 0**，如下图所示：  
 ![](Images/jenkins-yaml-rewrite.png)
 
-编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，并正常运行，在EKS平台可以查看处于正常“运行中”状态的Jenkins Master：  
+编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新创建，随后变为正常“运行中”状态，在EKS平台可以查看处于正常“运行中”状态的Jenkins Master：  
 ![](Images/jenkins-check-1.png)  
 ![](Images/jenkins-check-2.png)  
  
@@ -212,7 +209,7 @@ subjects:
 可以在Kubernetes Master节点查看已创建的Service Account和ClusterRoleBinding，参考下图所示：   
 ![](Images/serviceaccount-check.png) 
 
-下一步，需要再次修改Jenkins Master的部署(Deployment)的Yaml文件，加入已创建的名为**jenkins-admin**的Service Account，即：  
+下一步，需要再次修改Jenkins Master的部署(Deployment)的Yaml文件，添加已创建的名为**jenkins-admin**的Service Account，即：  
 ```
       serviceAccount: jenkins-admin
       serviceAccountName: jenkins-admin
@@ -222,36 +219,39 @@ subjects:
 
 编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，随后再次处于“运行中”状态。   
 
-接下来可以通过Web浏览器访问http://<EKS任意Node的公网IP>:<Nodeport>，进入Jenkins界面，对于本文档示例即可访问http://172.16.4.191:31888/   
+接下来可以通过Web浏览器访问http://<EKS任意Node的公网IP:Nodeport>，进入Jenkins界面，对于本文档示例即可访问http://172.16.6.28:31888/   
 首次登陆Jenkins，需要输入初始密码：   
 ![](Images/jenkins-initial-password.png)
 
 可以参考以下步骤获取初始密码：  
-在EKS的Master节点执行以下命令：    
+在EKS的Master节点执行以下命令，获取Jenkins Master的Pod名称：    
 ```
 [escore@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r ~]$ kubectl get pod
 ```
 ![](Images/jenkins-pod-check.png)
-进入相应的Jenkins Master Pod以便查看密码：    
+然后参考以下命令行打印Jenkins初始密码：    
 ```
-[root@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r escore]# kubectl exec -it jenkins-master-jenkins-master-kjtre0ns-2246927953-qsmz2 bash
-bash-4.4# cat /var/jenkins_home/secrets/initialAdminPassword
+[root@ci-akyzklrim5-0-vsx3xunzxan2-kube-master-gko2lwdxza5r escore]# kubectl exec -it jenkins-master-jenkins-master-5vbl59kr-4292895683-0zj7j cat /var/jenkins_home/secrets/initialAdminPassword
 ```
 ![](Images/jenkins-pod-check-password.png) 
 
-获取初始密码并输入后，即可进入Jenkins页面正常使用：   
-![](Images/jenkins-web.png)
+获取初始密码并输入后，可以选择第一次登陆Jenkins系统建议的“安装推荐插件”步骤： 
+注：也可以跳过本步骤，后续您可以自己按需安装插件。  
+![](Images/jenkins-init-plugin.png)  
 
-可以跳过第一次登陆Jenkins的“安装插件”步骤，直接开始使用Jenkins。    
-在“Jenkins”-“用户”-“admin”-“设置”中，修改Jenkins的admin密码：  
+随后“创建第一个管理员用户”：   
 
-![](Images/jenkins-change-password.png) 
+![](Images/jenkins-create-admin.png) 
 
-**我目前走到这一步，前面文档已经修改好，后面的你再check一遍。  **  
-**Step 3: 配置Jenkins。**   
+重启Jenkins之后即可重新登陆并正常使用：  
+![](Images/jenkins-ready-1.png) 
+![](Images/jenkins-ready-2.png) 
 
 
-#### 3.1	Jenkins插件安装
+
+
+**Step 2: 安装Jenkins插件。**   
+
 (用于jenkins的Docker插件调用)
 
 step 1:安装以下jenkins插件：
@@ -281,7 +281,7 @@ Kubernetes plugin
 
 ![](Images/installed-pluginin.png)
 
-
+**Step 3: 配置Jenkins。**   
 在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】配置k8s的插件。
 
 ![](Images/jenkinsyun-configure.png)
@@ -294,6 +294,7 @@ Jenkins tunnel查看方法：
 
 ![](Images/connection-test.png)
 
+**Step 4: 验证Jenkins Pipeline。**   
 配置完成后，创建一个最简单的“hello world” Pipeline进行验证：
 
 ```

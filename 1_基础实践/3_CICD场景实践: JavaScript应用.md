@@ -1,5 +1,7 @@
 # CI/CD场景实践：JavaScript应用
 
+## 需要补充GitLab中的操作  
+
 为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：
 
 step 1:使用openshift参考镜像；

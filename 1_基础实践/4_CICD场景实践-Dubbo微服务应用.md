@@ -1,4 +1,4 @@
-# CI/CD场景实践：Dubbo微服务应用  
+# CI/CD场景实践-Dubbo微服务应用  
 
 **Step 4: 在GitLab中创建示例项目。**  
 我们在GitLab中创建一个示例项目“dubbo-demo”：  

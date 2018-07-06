@@ -235,67 +235,75 @@ subjects:
 ```
 ![](Images/jenkins-pod-check-password.png) 
 
-获取初始密码并输入后，可以选择第一次登陆Jenkins系统建议的“安装推荐插件”步骤： 
-注：也可以跳过本步骤，后续您可以自己按需安装插件。  
+获取初始密码并输入后，可以选择第一次登陆Jenkins系统建议的“安装推荐插件”步骤：   
 ![](Images/jenkins-init-plugin.png)  
+(注：本步骤需要访问Internet，您也可以跳过本步骤，后续可按需添加插件。)    
 
 随后“创建第一个管理员用户”：   
 
 ![](Images/jenkins-create-admin.png) 
 
-重启Jenkins之后即可重新登陆并正常使用：  
+按照提示“重启”Jenkins之后，即可重新登陆并正常使用：  
 ![](Images/jenkins-ready-1.png) 
 ![](Images/jenkins-ready-2.png) 
 
 
-
-
 **Step 2: 安装Jenkins插件。**   
 
-(用于jenkins的Docker插件调用)
+本次实践中，需要使用以下Jenkins插件：  
+<table>
+   <tr>
+      <td>序号</td>
+      <td>用途</td>
+   </tr>
+   <tr>
+      <td>1</td>
+      <td>Docker build step plugin</td>
+   </tr>
+   <tr>
+      <td>2</td>
+      <td>Git plugin</td>
+   <tr>
+      <td>3</td>
+      <td>Gitlab plugin</td>
+   <tr>
+      <td>4</td>
+      <td>Gitlab Hook Plugin</td>
+   <tr>
+      <td>5</td>
+      <td>Kubernetes plugin</td>
+   </tr>
+</table>  
 
-step 1:安装以下jenkins插件：
-
-Docker build step plugin
-
-Git plugin
-
-Gitlab plugin
-
-Gitlab Hook Plugin
-
-Maven Integration plugin
-
-Kubernetes plugin
-
-进入jenkins【系统管理】页面，选择【管理插件】中选择以上插件，并进行安装:
+进入Jenkins-【系统管理】页面，选择【管理插件】中选择以上插件，并进行安装:  
 ![](Images/install-jenkinsplugin-1.png)
 
 ![](Images/select-jenkinsplugin.png)
 
-插件安装完成以后，可以选择重启Jenkins:
+插件安装完成以后，可以选择重启Jenkins:  
 
 ![](Images/reboot-jenkins.png)
 
-安装完的插件列表如下：
+安装完的插件列表如下：  
 
 ![](Images/installed-pluginin.png)
 
 **Step 3: 配置Jenkins。**   
-在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】配置k8s的插件。
+在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】配置k8s的插件。    
 
-![](Images/jenkinsyun-configure.png)
+![](Images/jenkinsyun-configure.png)  
 
-Kubernetes URL查看方法：
-![](Images/k8surl.png)
-Jenkins tunnel查看方法：
+Kubernetes URL查看方法：  
+![](Images/k8surl.png)  
+
+Jenkins tunnel查看方法：  
 ![](Images/check-jenkins-tunnel.png)
 参考以上说明，进行配置。标记到的地方，是需要配置的必须信息，可以根据自己的情况进行配置。要注意的是，这里的Name字段配的名字，后面在配置pipeline的Jenkins任务时，是需要用到的（默认名字叫kubernetes）。然后点【Test Connection】，如果前面的Service Account配置的没问题的话，就会提示“Connection successful”，否则，会有访问apiserver的403权限报错。
 
 ![](Images/connection-test.png)
 
 **Step 4: 验证Jenkins Pipeline。**   
-配置完成后，创建一个最简单的“hello world” Pipeline进行验证：
+配置完成后，创建一个最简单的“hello world” Pipeline进行验证： 
 
 ```
 podTemplate(label: 'testpod', cloud: 'kubernetes') {
@@ -310,7 +318,7 @@ podTemplate(label: 'testpod', cloud: 'kubernetes') {
 ![](Images/testpod.png)
 注：在这个Pipeline过程中，Jenkins后台将会自动从Dockerhub镜像仓库中拉取默认的Jenkins Slave镜像jenkins-slave:alpine。 
 
-点击Jenkins任务构建，可以在EKS界面中观察到后端自动创建的作为Jenkins Slave的Pod：
+点击Jenkins任务构建，可以在EKS界面中观察到后端自动创建的作为Jenkins Slave的Pod： 
 
 ![](Images/pod-eks.png)
 

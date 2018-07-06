@@ -311,26 +311,33 @@ subjects:
 
 **Step 4: 验证Jenkins Pipeline。**   
 完成以上配置后，您可以创建一个最简单的“hello world” Pipeline进行验证： 
+![](Images/jenkins-helloworld-test-1.png)  
 
+在流水线中填入“hello world”测试脚本：   
+![](Images/jenkins-helloworld-test-2.png)  
+脚本如下：  
 ```
-podTemplate(label: 'testpod', cloud: 'kubernetes') {
-    node('testpod') {
+podTemplate(label: 'test', cloud: 'kubernetes') {
+    node('test') {
         stage('Run shell') {
             sh 'echo hello world'
         }
     }
 }
-
 ```
-![](Images/jenkins-hello-world-test.png)
-注：在这个Pipeline过程中，Jenkins后台将会自动从Dockerhub镜像仓库中拉取默认的Jenkins Slave镜像jenkins-slave:alpine。 
 
-点击Jenkins任务构建，可以在EKS界面中观察到后端自动创建的作为Jenkins Slave的Pod： 
+保存流水线配置，随后点击“立即构建”开始执行任务构建：  
+![](Images/jenkins-helloworld-test-3.png)  
 
-![](Images/pod-eks.png)
+注：在这个Pipeline过程中，Jenkins后台将会自动从Dockerhub镜像仓库中拉取默认的Jenkins Slave镜像jenkins-slave:alpine，因此第一次构建过程需要耗费一定时间，请耐心等待。 
 
-![](Images/kongzhitai.png)
+可以在EKS界面中观察到后端自动创建的作为Jenkins Slave的Pod： 
 
-等待Pipeline构建完成之后，可以发现Jenkins Slave Pod被自动删除：   
+![](Images/jenkins-helloworld-test-4.png)
+![](Images/jenkins-helloworld-test-5.png)
 
-![](Images/finish-pipeline.png)
+查看Jenkins正在执行构建过程的任务的控制台输出：  
+
+![](Images/jenkins-helloworld-test-6.png)
+
+等待任务构建完成之后，可以发现Jenkins Slave Pod被自动删除。    

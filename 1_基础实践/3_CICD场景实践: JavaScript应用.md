@@ -1,4 +1,4 @@
-# 场景实践1: JavaScript应用 
+# CICD场景实践: JavaScript应用 
 
 为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：
 

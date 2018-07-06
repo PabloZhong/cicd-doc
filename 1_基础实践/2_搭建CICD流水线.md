@@ -107,7 +107,7 @@
 首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git global setup配置。  
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
-[root@docker-ce ~]# git clone https://github.com/ylcao/dubbo.git
+[root@docker-ce ~]# git clone https://github.com/PabloZhong/dubbo-demo.git
 ```
 可参考GitLab中界面提示，通过SSH方式进行源代码Push：  
 ```
@@ -119,9 +119,13 @@
 [root@docker-ce dubbo]# git commit -m "Initial commit"  
 [root@docker-ce dubbo]# git push -u origin master  
 ```
+<<<<<<< HEAD:1_基础实践/2_CICD工具链搭建.md
 ```
 备注：需要在运行git命令的本机上修改hosts文件，加入IP gitlab.example.org这行
 ```
+=======
+改/etc/hosts
+>>>>>>> 469026a5786519f2ec62cce1a422e5acee4aa464:1_基础实践/2_搭建CICD流水线.md
 Push成功后即可在GitLab的“dubbo-demo”项目中看到源代码。  
 
 **Step 6: 修改Dubbo配置文件。（挪到后面去）** 
@@ -212,7 +216,12 @@ subjects:
 可以在Kubernetes Master节点查看已创建的Service Account和ClusterRoleBinding，参考下图所示：   
 ![](Images/serviceaccount-check.png) 
 
-下一步，需要再次修改Jenkins Master的部署(Deployment)的Yaml文件，加入已创建的名为**jenkins-admin**的Service Account， Yaml文件修改可参考：  
+下一步，需要再次修改Jenkins Master的部署(Deployment)的Yaml文件，加入已创建的名为**jenkins-admin**的Service Account，即：  
+```
+      serviceAccount: jenkins-admin
+      serviceAccountName: jenkins-admin
+```
+可参考下图所示：    
 ![](Images/jenkins-yaml-add-serviceaccount.png) 
 
 编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，随后再次处于“运行中”状态。   

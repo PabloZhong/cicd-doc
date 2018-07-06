@@ -119,13 +119,9 @@
 [root@docker-ce dubbo]# git commit -m "Initial commit"  
 [root@docker-ce dubbo]# git push -u origin master  
 ```
-<<<<<<< HEAD:1_基础实践/2_CICD工具链搭建.md
 ```
 备注：需要在运行git命令的本机上修改hosts文件，加入IP gitlab.example.org这行
 ```
-=======
-改/etc/hosts
->>>>>>> 469026a5786519f2ec62cce1a422e5acee4aa464:1_基础实践/2_搭建CICD流水线.md
 Push成功后即可在GitLab的“dubbo-demo”项目中看到源代码。  
 
 **Step 6: 修改Dubbo配置文件。（挪到后面去）** 

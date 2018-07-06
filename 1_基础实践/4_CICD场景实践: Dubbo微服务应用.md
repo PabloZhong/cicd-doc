@@ -1,11 +1,11 @@
 # CI/CD场景实践：Dubbo微服务应用  
 
-**Step 4: 创建GitLab示例项目。（挪到后面去）**  
+**Step 4: 在GitLab中创建示例项目。**  
 我们在GitLab中创建一个示例项目“dubbo-demo”：  
 ![](Images/gitlab-create-project-1.png)  
 ![](Images/gitlab-create-project-2.png)  
 
-**Step 5: Push源代码至GitLab。（挪到后面去）**  
+**Step 5: 推送Dubbo示例源代码至GitLab。**  
 首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git global setup配置。  
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
@@ -23,7 +23,7 @@
 ```
 Push成功后即可在GitLab的“dubbo-demo”项目中看到源代码。  
 
-**Step 6: 修改Dubbo配置文件。（挪到后面去）** 
+**Step 6: 修改Dubbo源代码配置文件。** 
 
 （1）dubbo/dubbo-demo/dubbo-demo-consumer/src/main/assembly/conf/dubbo.properties
 

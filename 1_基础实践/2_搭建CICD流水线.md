@@ -286,6 +286,10 @@ Kubernetes plugin
 
 ![](Images/jenkinsyun-configure.png)
 
+Kubernetes URL查看方法：
+![](Images/k8surl.png)
+Jenkins tunnel查看方法：
+![](Images/check-jenkins-tunnel.png)
 参考以上说明，进行配置。标记到的地方，是需要配置的必须信息，可以根据自己的情况进行配置。要注意的是，这里的Name字段配的名字，后面在配置pipeline的Jenkins任务时，是需要用到的（默认名字叫kubernetes）。然后点【Test Connection】，如果前面的Service Account配置的没问题的话，就会提示“Connection successful”，否则，会有访问apiserver的403权限报错。
 
 ![](Images/connection-test.png)

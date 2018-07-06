@@ -1,4 +1,4 @@
-# CI/CD场景实践：JavaScript应用
+# CI/CD场景实践-JavaScript应用
 
 ## 需要补充GitLab中的操作  
 

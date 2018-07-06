@@ -3,7 +3,7 @@
 
 ## 1. GitLab代码仓库部署与配置  
 
-**Step 1: 上传GitLab镜像至EKS平台的镜像仓库。**   
+### Step 1: 上传GitLab镜像至EKS平台的镜像仓库  
 
 首先需要准备一个安装有单机版Docker CE软件的操作系统环境用于上传Docker镜像，可以使用本地虚拟机，也可以使用ECS平台中的云主机，注意需要能够与EKS镜像仓库实现网络互通。  
 
@@ -45,7 +45,7 @@
 
 ![](Images/check-gitlab-images.png)
 
-**Step 2: 在EKS容器平台中部署GitLab应用。**  
+### Step 2: 在EKS容器平台中部署GitLab应用  
 
 点击EKS界面"创建应用"，并选择通过"镜像仓库"开始创建。  
 
@@ -83,7 +83,7 @@
 ![](Images/access-to-gitlab.png)  
 注册一个新的账号即可正常使用。  
 
-**Step 3: 设置通过SSH连接GitLab。**  
+### Step 3: 设置通过SSH连接GitLab  
 考虑安全性，我们通过SSH Key Pair方式访问GitLab。(参考：https://docs.gitlab.com/ee/ssh/README.html)    
 在Step1中所使用的本地虚拟机中，创建一个GitLab SSH密钥对：（提示：需要设置并牢记私钥密码。）   
 ```
@@ -96,12 +96,12 @@
 ![](Images/gitlab-ssh-2.png)   
 
 
-**Step 4: 创建GitLab示例项目。（挪到后面去）**  
+###  Step 4: 创建GitLab示例项目。（挪到后面去）   
 我们在GitLab中创建一个示例项目“dubbo-demo”：  
 ![](Images/gitlab-create-project-1.png)  
 ![](Images/gitlab-create-project-2.png)  
 
-**Step 5: Push源代码至GitLab。（挪到后面去）**  
+###  Step 5: Push源代码至GitLab。（挪到后面去）   
 首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git global setup配置。  
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
@@ -122,7 +122,7 @@
 ```
 Push成功后即可在GitLab的“dubbo-demo”项目中看到源代码。  
 
-**Step 6: 修改Dubbo配置文件。（挪到后面去）** 
+###  Step 6: 修改Dubbo配置文件。（挪到后面去）  
 
 （1）dubbo/dubbo-demo/dubbo-demo-consumer/src/main/assembly/conf/dubbo.properties
 
@@ -133,7 +133,7 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 ## 2. Jenkins部署与配置  
 
-**Step 1: 上传Jenkins镜像至EKS平台的镜像仓库。**  
+### Step 1: 上传Jenkins镜像至EKS平台的镜像仓库   
 采用与之前下载GitLab镜像类似的方式，首先需将所需版本的GitLab镜像下载到本地，然后推送至EKS平台的镜像仓库。 
 ```
 [root@docker-ce ~]# docker pull jenkinsci/blueocean:1.5.0
@@ -146,7 +146,7 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 ![](Images/check-jenkins-images.png) 
 
-**Step 2: 在EKS平台中部署Jenkins Master。**   
+###  Step 2: 在EKS平台中部署Jenkins Master   
 
 点击EKS界面"创建应用"，并选择通过"镜像仓库"开始创建，使用之前上传的Jenkins BlueOcean镜像作为Jenkins Master的基础镜像。  
 
@@ -248,7 +248,7 @@ subjects:
 ![](Images/jenkins-ready-2.png) 
 
 
-**Step 2: 安装Jenkins插件。**   
+### Step 3: 安装Jenkins插件    
 
 本次实践中，需要使用以下Jenkins插件：  
 <table>
@@ -289,7 +289,7 @@ subjects:
 > 备注:  
 > 以上Jenkins插件安装过程均需要访问Internet，如果在数据中心内网环境进行操作，则无法正常安装插件。解决方法：离线下载Jenkins插件，并将插件与Jenkins Master镜像（jenkinsci/blueocean:1.5.0）一起打包生成新的镜像。  
 
-**Step 3: 配置Jenkins。**   
+### Step 4: 配置Jenkins   
 在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】中，完成Jenkins与Kubernetes相关的配置，下图为示例配置：     
 
 ![](Images/jenkins-k8s-configure.png)  
@@ -309,7 +309,7 @@ subjects:
 以上两项是必须配置项，您也可以根据实际情况进行更多的配置，例如修改Kubernetes-Name字段，不使用默认的“kubernetes”作为Name。  
 
 
-**Step 4: 验证Jenkins Pipeline。**   
+### Step 5: 验证Jenkins Pipeline（未成功)   
 完成以上配置后，您可以创建一个最简单的“hello world” Pipeline进行验证： 
 ![](Images/jenkins-helloworld-test-1.png)  
 

@@ -11,10 +11,11 @@
 ![](Images/gitlab-create-project-2.png)  
 
 **Step 5: 推送Dubbo示例源代码至GitLab。**  
-首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git global setup配置。  
+
+首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git Global Config配置。   
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
-[root@docker-ce ~]# git clone https://github.com/ylcao/dubbo.git
+[root@docker-ce ~]# git clone https://github.com/PabloZhong/dubbo-demo.git
 ```
 可参考GitLab中界面提示，通过SSH方式进行源代码Push：  
 ```
@@ -26,7 +27,10 @@
 [root@docker-ce dubbo]# git commit -m "Initial commit"  
 [root@docker-ce dubbo]# git push -u origin master  
 ```
-Push成功后即可在GitLab的“dubbo-demo”项目中看到源代码。  
+
+备注：需要在运行git命令的本机上修改hosts文件，加入IP gitlab.example.org这行
+
+Push成功后即可在GitLab的“dubbo-demo”项目中看到已上传的源代码。  
 
 **Step 6: 修改Dubbo源代码配置文件。** 
 

@@ -1,9 +1,10 @@
 # CI/CD场景实践-JavaScript应用
 
-## 分以下几部分写本部分文档： 1）GitLab中创建项目，并上传代码。 
+## 需要分以下几部分，来写本部分文档： 1）GitLab中创建项目，并上传代码。 
 ## 2）Jenkins中的配置；
 ## 3）GitLab自动触发Jenkins的CI构建的配置。
 ## 4）CICD结果演示。  
+## 待解决问题： 1. 如何触发自动CI，2：如何使用jenkins做自动部署。  
 
 为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：
 

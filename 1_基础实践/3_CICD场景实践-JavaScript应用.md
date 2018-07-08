@@ -8,8 +8,9 @@
 
 为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：
 
-step 1:使用openshift参考镜像；
-step 2:编写Dockefile如下：
+使用openshift参考镜像；  
+
+编写Dockefile如下：
 ```
 FROM openshift/jenkins-slave-base-centos7
 
@@ -51,13 +52,15 @@ RUN chown -R 1001:0 $HOME && \
 
 USER 1001
 ```
-step 3: 使用docker build 构建jenkins slave镜像
+
+## step 3: 使用docker build 构建jenkins slave镜像  
 
 
-jenkins slave镜像制作完成后，使用docker push命令将jenkins slave镜像上传到172.16.4.176 harbor中。
-镜像制作成功，并上传后，效果如下：
-![](Images/3/jenkins-slave-docker.png)
-3.2.1 pipeline1:构建snake镜像 (本段删除掉，不需要了)
+Jenkins slave镜像制作完成后，使用docker push命令将jenkins slave镜像上传到172.16.4.176镜像仓库中。 
+镜像制作成功，并上传后，效果如下： 
+![](Images/3/jenkins-slave-docker.png) 
+
+3.2.1 pipeline1:构建snake镜像  
 在jenkins master中构建pipieline如下：
 ```
 podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
@@ -120,7 +123,8 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
             }
 ```
 这几步将snake build成docker 镜像，并push到我们的harbor中去。
-![](Images/3/snake-image.png)
+![](Images/3/snake-image.png) 
+
 使用EKS将构建成功的snake镜像进行部署：
 ![](Images/3/snake-service.png)
 

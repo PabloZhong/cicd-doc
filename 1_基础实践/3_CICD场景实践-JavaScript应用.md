@@ -56,7 +56,7 @@ step 3: 使用docker build 构建jenkins slave镜像
 
 jenkins slave镜像制作完成后，使用docker push命令将jenkins slave镜像上传到172.16.4.176 harbor中。
 镜像制作成功，并上传后，效果如下：
-![](Images/jenkins-slave-docker.png)
+![](Images/3/jenkins-slave-docker.png)
 3.2.1 pipeline1:构建snake镜像 (本段删除掉，不需要了)
 在jenkins master中构建pipieline如下：
 ```
@@ -120,9 +120,9 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
             }
 ```
 这几步将snake build成docker 镜像，并push到我们的harbor中去。
-![](Images/snake-image.png)
+![](Images/3/snake-image.png)
 使用EKS将构建成功的snake镜像进行部署：
-![](Images/snake-service.png)
+![](Images/3/snake-service.png)
 
 snake部署成功，可以正常访问：
-![](Images/visit-snake.png)
+![](Images/3/visit-snake.png)

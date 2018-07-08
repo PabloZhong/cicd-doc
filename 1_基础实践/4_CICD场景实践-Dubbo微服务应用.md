@@ -7,8 +7,8 @@
 
 **Step 4: 在GitLab中创建示例项目。**  
 我们在GitLab中创建一个示例项目“dubbo-demo”：  
-![](Images/gitlab-create-project-1.png)  
-![](Images/gitlab-create-project-2.png)  
+![](Images/4/gitlab-create-project-1.png)  
+![](Images/4/gitlab-create-project-2.png)  
 
 **Step 5: 推送Dubbo示例源代码至GitLab。**  
 
@@ -131,9 +131,9 @@ CMD ["sh","-c","/dubbo/dubbo-demo-provider-2.5.7/bin/start-docker.sh"]
 
 ```
 在此要注意，需要修改dubbo源码路径下的dubbo-demo-consumer.xml和dubbo-demo-provider.xml文件中的zookeeper地址
-![](Images/dubbo-consumer-xml.png)
+![](Images/4/dubbo-consumer-xml.png)
 
-![](Images/dubbo-provider-xml.png)
+![](Images/4/dubbo-provider-xml.png)
 
 dubbo-consumer,dubbo-provider镜像成功构建并且推送到镜像仓库后，下一步要通过ECS和EKS部署使用dubbo。
 3.3 在ECS+EKS环境里面将dubbo应用落地
@@ -143,11 +143,11 @@ dubbo-consumer,dubbo-provider镜像成功构建并且推送到镜像仓库后，
 **Step 1 - 部署zookeeper集群作为dubbo应用中的注册中心**
 1.创建zookeeper网络
 
-![](Images/zk-network.png)
+![](Images/4/zk-network.png)
 
 2.创建zookeeper集群
 
-![](Images/create-zk.png)
+![](Images/4/create-zk.png)
 
 **Step 2 - 部署dubbo应用**
 
@@ -174,28 +174,28 @@ kubectl create configmap dubbo-config --from-file=dubbo.properties
 ```
 3.在EKS环境里面部署dubbo-provider和dubbo-consumer应用
 
-![](Images/provider-service.png)
+![](Images/4/provider-service.png)
 
-![](Images/provider-service-2.png)
+![](Images/4/provider-service-2.png)
 
 部署成功后，查看应用运行情况：
 
-![](Images/check-service.png)
+![](Images/4/check-service.png)
 
 **场景 1 - 查看服务调用效果**
 
 1.查看运行pod
 
-![](Images/get-pod.png)
+![](Images/4/get-pod.png)
 
 2.查看服务注册情况
 登陆zookeeper集群：
 
-![](Images/login-zk.png)
+![](Images/4/login-zk.png)
 
 3.查看服务注册情况：
 
-![](Images/check1.png)
+![](Images/4/check1.png)
 
 从以上四步，我们可以看出provider服务在注册中心（zookeeper集群）注册成功，同时consumer调用成功，说明我们可以将dubbo场景下的微服务在ECS+EKS下落地。
 

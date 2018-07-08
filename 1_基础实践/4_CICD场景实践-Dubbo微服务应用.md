@@ -1,4 +1,8 @@
 # CI/CD场景实践-Dubbo微服务应用  
+## 分以下几部分写本部分文档： 1）GitLab中创建项目，并上传代码。 
+## 2）Jenkins中的配置；
+## 3）GitLab自动触发Jenkins的CI构建的配置。
+## 4）CICD结果演示。  
 
 **Step 4: 在GitLab中创建示例项目。**  
 我们在GitLab中创建一个示例项目“dubbo-demo”：  

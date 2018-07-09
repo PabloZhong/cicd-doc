@@ -268,17 +268,17 @@ subjects:
 
 ![](Images/2/jenkins-k8s-connection-test.png)
 
-2）Jenkins tunnel地址：IP地址使用Jenkins Master对应的服务（Kubernetes Service）的集群服务地址（ClusterIP），并使用50000端口。   
+2）Jenkins tunnel地址：IP地址使用Jenkins Master对应的服务（Kubernetes Service）的集群服务地址（ClusterIP），对于本示例即为10.254.250.54，并使用50000端口。   
 ![](Images/2/jenkins-check-jenkins-tunnel.png)
 
 以上两项是必须配置项，您也可以根据实际情况进行更多的配置，例如修改Kubernetes-Name字段，不使用默认的“kubernetes”作为Name。  
 
 
-### Step 5: 验证Jenkins Pipeline（未成功)   
-完成以上配置后，您可以创建一个最简单的“hello world” Pipeline进行验证： 
+### Step 5: 验证Jenkins Pipeline   
+完成以上配置后，您可以在Jenkins中创建一个最简单的“hello world” Pipeline进行验证： 
 ![](Images/2/jenkins-helloworld-test-1.png)  
 
-在流水线中填入“hello world”测试脚本：   
+在流水线编辑框中填入如下所示的“hello world”测试脚本：   
 ![](Images/2/jenkins-helloworld-test-2.png)  
 脚本如下：  
 ```
@@ -294,7 +294,7 @@ podTemplate(label: 'test', cloud: 'kubernetes') {
 保存流水线配置，随后点击“立即构建”开始执行任务构建：  
 ![](Images/2/jenkins-helloworld-test-3.png)  
 
-注：在这个Pipeline过程中，Jenkins后台将会自动从Dockerhub镜像仓库中拉取默认的Jenkins Slave镜像jenkins-slave:alpine，因此第一次构建过程需要耗费一定时间，请耐心等待。 
+> 注：在“hello world”这个Pipeline过程中，Jenkins后台将会自动从Dockerhub镜像仓库中拉取默认的Jenkins Slave镜像jenkins-slave:alpine，拉取镜像过程需要耗费一定时间，且容易由于网络问题拉取失败，建议保持耐心多尝试几次。 
 
 可以在EKS界面中观察到后端自动创建的作为Jenkins Slave的Pod： 
 

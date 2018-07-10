@@ -109,7 +109,9 @@ step 3:添加credential:
 
 ![](Images/addcrenditen-2.png)
 在Jenkins中将credential添加完后，需要将credential中的公钥添加到gitlab中去。
+
 step 3:查看jenkin生成回调地址。在任务重构建触发器下获取回调URL。
+
 ![](Images/goujianchufaqi.png)
 
 3.2.1 pipeline1:构建snake镜像  

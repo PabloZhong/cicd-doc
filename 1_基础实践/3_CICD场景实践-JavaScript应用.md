@@ -85,6 +85,33 @@ Jenkins slave镜像制作完成后，使用docker push命令将jenkins slave镜�
 镜像制作成功，并上传后，效果如下： 
 ![](Images/3/jenkins-slave-docker.png) 
 
+## Gitlab创建project,并配置webhook
+step 1:在gitlab的项目中选择[setting]->[Integrations]，构建webhook
+![](Images/gitlabintegration.png)
+![](Images/gitlabchufa.png)
+添加成功后，点击此webhook后面的test进行测试
+![](Images/test-1.png)
+如果返回Hook successfully executed.表示配置成功。
+
+![](Images/test-success.png)
+
+这样，下次push代码后，就会自动触发jenkins上相关的构建工程进行自动发布了！无需人工干预~
+
+![](Images/test-success-2.png)
+
+## 创建Jenkins Job，并配置gitlab自动触发
+step 1:设置Jenkins 自由风格的项目：
+![](Images/ziyoufengge.png)
+step 2:选择源码管理：先设置代码的git下载路径，这里通过ssh方式（需要提前将Jenkins本机的key添加到Gitlab上）
+![](Images/yuanmaguanli.png)
+step 3:添加credential:
+![](Images/addcrenditen.png)
+
+![](Images/addcrenditen-2.png)
+在Jenkins中将credential添加完后，需要将credential中的公钥添加到gitlab中去。
+step 3:查看jenkin生成回调地址。在任务重构建触发器下获取回调URL。
+![](Images/goujianchufaqi.png)
+
 3.2.1 pipeline1:构建snake镜像  
 在jenkins master中构建pipieline如下：
 ```

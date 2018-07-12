@@ -263,5 +263,6 @@ step 2:
 step 3:
 
 在gitlab中修改snake中的文件均会触发Jenkins自动构建snake项目：
+
 ![](Images/zidonggoujian.png)
 

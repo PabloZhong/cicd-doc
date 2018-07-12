@@ -35,7 +35,7 @@
 修改镜像的Tag，并上传镜像到EKS平台的镜像仓库中:  
 ```
 [root@docker-ce ~]# docker images
-[root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.7.4-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.3.7-ce.0
+[root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.3.7-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.3.7-ce.0
 [root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/gitlab-ce:10.3.7-ce.0
 ```  
 

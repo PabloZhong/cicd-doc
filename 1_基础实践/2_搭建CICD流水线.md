@@ -1,5 +1,5 @@
-# 搭建CI/CD流水线  
-本文档主要介绍如何在EKS容器云平台中部署GitLab与Jenkins，并完成必要的配置。  
+# 搭建CI/CD流水线 （Ready）   
+本文档主要介绍如何在EKS容器云平台中搭建由GitLab和Jenkins组成的CI/CD流水线，并完成必要的配置。  
 
 ## 1. GitLab代码仓库部署与配置  
 
@@ -29,14 +29,14 @@
 提示“Login Succeed”之后，便可以将本地的镜像推送至镜像仓库。  
 首先需将所需版本的GitLab镜像下载到本地（需能够访问外网从Dockerhub拉取镜像）：  
 ```
-[root@docker-ce ~]# docker pull gitlab/gitlab-ce:10.7.4-ce.0
+[root@docker-ce ~]# docker pull gitlab/gitlab-ce:10.3.7-ce.0
 ```  
 
 修改镜像的Tag，并上传镜像到EKS平台的镜像仓库中:  
 ```
 [root@docker-ce ~]# docker images
-[root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.7.4-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
-[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
+[root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.3.7-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.3.7-ce.0
+[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/gitlab-ce:10.3.7-ce.0
 ```  
 
 注：GitLab镜像使用指南可参考 https://docs.gitlab.com/omnibus/docker/#run-the-image  
@@ -77,7 +77,7 @@
 ![](Images/2/gitlab-configuration-6.png)  
 注意需要配置DNS域名解析才可通过域名访问GitLab，可采用以下两种方式：  
 1）如果环境中有DNS服务器，则直接配置DNS解析即可，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
-2）如果环境中没有DNS服务器，则可以配置本地hosts文件（对Windows而言为C:\Windows\System32\drivers\etc\hosts），添加任意一个Kubernetes Slave节点公网IP与域名的映射关系，对于本文档中的示例则可添加一条： 172.16.4.191 gitlab.example.org  
+2）如果环境中没有DNS服务器，则可以配置本地hosts文件（对Windows而言为C:\Windows\System32\drivers\etc\hosts），添加任意一个Kubernetes Slave节点公网IP与域名的映射关系，对于本文档中的示例则可添加一条： 172.16.6.30 gitlab.example.org  
 
 等待3~4分钟GitLab完成初始化之后，即可通过浏览器正常访问GitLab：  
 ![](Images/2/access-to-gitlab.png)  

@@ -1,4 +1,4 @@
-# CI/CD场景实践-JavaScript应用
+# CI/CD场景实践-JavaScript应用 （待修改） 
 
 ## 需要分以下几部分，来修改本部分文档：  
 ## 1）GitLab中创建项目，并上传代码。 

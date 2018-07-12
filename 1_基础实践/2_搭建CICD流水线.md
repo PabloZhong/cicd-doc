@@ -43,7 +43,7 @@
 
 可以在EKS界面查看已上传至镜像仓库的GitLab镜像，接下来会基于它来部署GitLab应用。   
 
-![](Images/2/check-gitlab-image.png)
+![](Images/2/gitlab-check-image.png)  
 
 ### Step 2: 在EKS容器平台中部署GitLab应用  
 

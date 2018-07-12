@@ -1,4 +1,4 @@
-# 搭建CI/CD流水线  
+# 搭建CI/CD流水线 （Ready）   
 本文档主要介绍如何在EKS容器云平台中搭建由GitLab和Jenkins组成的CI/CD流水线，并完成必要的配置。  
 
 ## 1. GitLab代码仓库部署与配置  

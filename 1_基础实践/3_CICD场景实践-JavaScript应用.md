@@ -1,10 +1,10 @@
 # CI/CD场景实践-JavaScript应用
 
-## 需要分以下几部分，来写本部分文档： 1）GitLab中创建项目，并上传代码。 
-## 2）Jenkins中的配置；
-## 3）GitLab自动触发Jenkins的CI构建的配置。
-## 4）CICD结果演示。  
-## 待解决问题： 1. 如何触发自动CI，2：如何使用jenkins做自动部署。  
+## 需要分以下几部分，来修改本部分文档：  
+## 1）GitLab中创建项目，并上传代码。 
+## 2）Jenkins中的流水线配置，包括GitLab自动触发Jenkins的CI构建的配置。
+## 3）CICD场景如何进行演示。  
+  
 
 ## 1. 制作用来编译snake源码的jenkins slave镜像：
 为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：

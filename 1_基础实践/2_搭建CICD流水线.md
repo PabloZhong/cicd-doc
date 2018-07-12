@@ -99,7 +99,7 @@
 ## 2. Jenkins部署与配置  
 
 ### Step 1: 上传Jenkins镜像至EKS平台的镜像仓库   
-采用与之前下载GitLab镜像类似的方式，首先需将所需版本的GitLab镜像下载到本地，然后推送至EKS平台的镜像仓库。 
+采用与之前下载GitLab镜像类似的方式，首先需将所需版本的GitLab镜像下载到本地，然后推送至EKS平台的镜像仓库。  
 ```
 [root@docker-ce ~]# docker pull jenkinsci/blueocean:1.5.0
 [root@docker-ce ~]# docker tag jenkinsci/blueocean:1.5.0  172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean:1.5.0
@@ -215,7 +215,7 @@ subjects:
 
 ### Step 3: 安装Jenkins插件    
 
-本次实践中，需要使用以下Jenkins插件：  
+本次实践中，我们使用的Jenkins镜像默认已经预装了BlueOcean插件。另外，我们还需要使用以下Jenkins插件：  
 <table>
    <tr>
       <td>1</td>

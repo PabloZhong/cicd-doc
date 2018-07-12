@@ -184,3 +184,82 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 snake部署成功，可以正常访问：
 ![](Images/3/visit-snake.png)
+
+## 使用jenkinsfile来构建jenkins pipeline自动构建：
+
+step 1:
+在gitlab中创建project:snake,并拉取源码
+
+![](Images/pushsnake.png)
+
+![](Images/pushsnake-2.png)
+
+其中snake目录结构以及jenkinsfile如下：
+```
+[root@docker-ce ~]# cd Snake
+[root@docker-ce Snake]# ls
+css  Dockerfile  index.html  Jenkinsfile  js  LICENSE  README.md
+[root@docker-ce Snake]# cat Jenkinsfile
+podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
+  containers: [
+        containerTemplate(
+            name: 'jnlp',
+            image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1',
+            command: '',
+            args: '${computer.jnlpmac} ${computer.name}',
+            privileged: true,
+            alwaysPullImage: false,
+            ttyEnabled: true, 
+        ),
+  ],
+  volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
+            hostPathVolume(hostPath: '/usr/bin/docker', mountPath: '/usr/bin/docker'),
+            hostPathVolume(hostPath: '/usr/bin/docker-current', mountPath: '/usr/bin/docker-current'),
+            hostPathVolume(hostPath: '/etc/sysconfig/docker', mountPath: '/etc/sysconfig/docker'),
+            hostPathVolume(hostPath: '/usr/bin/kubectl', mountPath: '/usr/bin/kubectl')]
+  ) {
+
+  node('jnlp') {
+    stage('devops for snake game') {
+        container('jnlp') {
+            stage("clone snake code") {
+                git 'https://github.com/luluwangwang1989/Snake.git'
+            }
+            
+            stage('unit test') {
+                sh 'echo "unit test command"'
+            }
+            
+            stage('build docker image') {
+                sh """
+                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} .
+                    docker push hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}
+                """
+            }
+            
+            stage('deploy to k8s') {
+                
+                sh """kubectl set image deployment/snake snake=hub.easystack.io/captain/snake:${BUILD_NUMBER}"""
+            }
+        }
+    }
+ }
+}
+```
+在gitlab中设置webhook:
+
+
+step 2:
+
+在Jenkins创建流水线项目，并设置如下：
+1.创建一个pipeline项目
+![](Images/general.png)
+2.对此项目构建触发器
+![](Images/trigger.png)
+3.在流水线选项中设置git源
+![](Images/gaojixuanxiang.png)
+
+step 3:
+
+

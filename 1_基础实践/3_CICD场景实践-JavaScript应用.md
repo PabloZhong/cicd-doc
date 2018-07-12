@@ -6,6 +6,8 @@
 ## 4）CICD结果演示。  
 ## 待解决问题： 1. 如何触发自动CI，2：如何使用jenkins做自动部署。  
 
+
+
 为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：
 
 使用openshift参考镜像；  

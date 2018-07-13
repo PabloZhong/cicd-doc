@@ -264,7 +264,7 @@ step 3:
 
 在gitlab中修改snake中的文件均会触发Jenkins自动构建snake项目：
 
-![](Images/zidonggoujian.png)
+![](Images/tihuan.png)
 
 构建中控制台输出如下：
 ![](Images/1.png)

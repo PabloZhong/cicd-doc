@@ -223,7 +223,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
     stage('devops for snake game') {
         container('jnlp') {
             stage("clone snake code") {
-                git 'https://github.com/luluwangwang1989/Snake.git'
+                 git 'http://172.16.6.30:30080/easystack/snack-demo.git'
             }
             
             stage('unit test') {
@@ -265,4 +265,12 @@ step 3:
 在gitlab中修改snake中的文件均会触发Jenkins自动构建snake项目：
 
 ![](Images/zidonggoujian.png)
+
+构建中控制台输出如下：
+![](Images/1.png)
+![](Images/2.png)
+![](Images/3.png)
+![](Images/4.png)
+snake镜像构建完成后，在EKS平台部署snake应用：
+![](Images/snake-1.png)
 

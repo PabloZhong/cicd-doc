@@ -29,21 +29,21 @@
 提示“Login Succeed”之后，便可以将本地的镜像推送至镜像仓库。  
 首先需将所需版本的GitLab镜像下载到本地（需能够访问外网从Dockerhub拉取镜像）：  
 ```
-[root@docker-ce ~]# docker pull gitlab/gitlab-ce:10.7.4-ce.0
+[root@docker-ce ~]# docker pull gitlab/gitlab-ce:10.3.7-ce.0
 ```  
 
 修改镜像的Tag，并上传镜像到EKS平台的镜像仓库中:  
 ```
 [root@docker-ce ~]# docker images
-[root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.7.4-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
-[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/gitlab-ce:10.7.4-ce.0
+[root@docker-ce ~]# docker tag gitlab/gitlab-ce:10.3.7-ce.0  172.16.0.176/3dc70621b8504c98/gitlab-ce:10.3.7-ce.0
+[root@docker-ce ~]# docker push 172.16.0.176/3dc70621b8504c98/gitlab-ce:10.3.7-ce.0
 ```  
 
 注：GitLab镜像使用指南可参考 https://docs.gitlab.com/omnibus/docker/#run-the-image  
 
 可以在EKS界面查看已上传至镜像仓库的GitLab镜像，接下来会基于它来部署GitLab应用。   
 
-![](Images/2/check-gitlab-image.png)
+![](Images/2/gitlab-check-image.png)  
 
 ### Step 2: 在EKS容器平台中部署GitLab应用  
 
@@ -77,7 +77,7 @@
 ![](Images/2/gitlab-configuration-6.png)  
 注意需要配置DNS域名解析才可通过域名访问GitLab，可采用以下两种方式：  
 1）如果环境中有DNS服务器，则直接配置DNS解析即可，例如将上图中的gitlab.example.org映射到Kubernetes集群的某一个Slave节点的公网IP（注意不能为Master节点）；  
-2）如果环境中没有DNS服务器，则可以配置本地hosts文件（对Windows而言为C:\Windows\System32\drivers\etc\hosts），添加任意一个Kubernetes Slave节点公网IP与域名的映射关系，对于本文档中的示例则可添加一条： 172.16.4.191 gitlab.example.org  
+2）如果环境中没有DNS服务器，则可以配置本地hosts文件（对Windows而言为C:\Windows\System32\drivers\etc\hosts），添加任意一个Kubernetes Slave节点公网IP与域名的映射关系，对于本文档中的示例则可添加一条： 172.16.6.30 gitlab.example.org  
 
 等待3~4分钟GitLab完成初始化之后，即可通过浏览器正常访问GitLab：  
 ![](Images/2/access-to-gitlab.png)  
@@ -99,7 +99,7 @@
 ## 2. Jenkins部署与配置  
 
 ### Step 1: 上传Jenkins镜像至EKS平台的镜像仓库   
-采用与之前下载GitLab镜像类似的方式，首先需将所需版本的GitLab镜像下载到本地，然后推送至EKS平台的镜像仓库。 
+采用与之前下载GitLab镜像类似的方式，首先需将所需版本的GitLab镜像下载到本地，然后推送至EKS平台的镜像仓库。  
 ```
 [root@docker-ce ~]# docker pull jenkinsci/blueocean:1.5.0
 [root@docker-ce ~]# docker tag jenkinsci/blueocean:1.5.0  172.16.0.176/3dc70621b8504c98/jenkinsci/blueocean:1.5.0
@@ -215,7 +215,7 @@ subjects:
 
 ### Step 3: 安装Jenkins插件    
 
-本次实践中，需要使用以下Jenkins插件：  
+本次实践中，我们使用的Jenkins镜像默认已经预装了BlueOcean插件。另外，我们还需要使用以下Jenkins插件：  
 <table>
    <tr>
       <td>1</td>

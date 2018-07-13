@@ -264,13 +264,26 @@ step 3:
 
 在gitlab中修改snake中的文件均会触发Jenkins自动构建snake项目：
 
-![](Images/tihuan.png)
+![](Images/tihuan1.png)
 
 构建中控制台输出如下：
 ![](Images/1.png)
 ![](Images/2.png)
 ![](Images/3.png)
 ![](Images/4.png)
+
+在Jenkins的blueocean中查看pipeline
+
+![](Images/blueoceanbuild.png)
+
+![](Images/blueoceansuccess.png)
+
 snake镜像构建完成后，在EKS平台部署snake应用：
 ![](Images/snake-1.png)
+
+部署成功后，就可以玩snake游戏啦
+
+![](Images/snakegame.png)
+
+
 

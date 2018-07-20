@@ -89,7 +89,7 @@
 ```
 [root@docker-ce .ssh]# ssh-keygen -t rsa -C "easystack@example.org" -b 4096
 ```
-随后将公钥“gitlab_key.pub”添加到GitLab中，在GitLab的“User Setting”-“SSH Keys”中进行添加：  
+随后将公钥（默认文件名为id_rsa.pub）添加到GitLab中，在GitLab的“User Setting”-“SSH Keys”中进行添加：  
 ![](Images/2/gitlab-ssh-1.png)   
 
 验证本地虚拟机与GitLab的SSH连通性：  
@@ -123,7 +123,7 @@
 1）Jenkins Server的访问端口，默认容器端口为8080，图示采用NodePort方式指定对外暴露节点端口为31888；  
 2）Jenkins Master与Slave之间通信所使用的端口，默认容器端口为50000。  
 
-注意：按照前述步骤完成Jenkins Master部署之后，Jenkins Master应用的Pod并不会处于正常Running状态，还需要设置Root用户权限。  
+注意：按照前述步骤完成Jenkins Master部署之后，Jenkins Master应用的Pod并不会处于正常Running状态，还需要进一步设置Root用户权限。  
 具体步骤如下：  
 对Master的部署（Deployment）Yaml模板进行编辑，修改**securityContext**来设置访问/var/jenkins_home的用户为root用户，添加配置**runAsUser: 0**，如下图所示：  
 ![](Images/2/jenkins-yaml-rewrite.png)
@@ -256,7 +256,7 @@ subjects:
 ![](Images/2/jenkins-installed-plugins.png)
 
 > 备注:  
-> 以上Jenkins插件安装过程均需要访问Internet，如果在数据中心内网环境进行操作，则无法正常安装插件。解决方法：离线下载Jenkins插件，并将插件与Jenkins Master镜像（jenkinsci/blueocean:1.5.0）一起打包生成新的镜像。  
+> 以上Jenkins插件安装过程均需要访问Internet，如果在数据中心内网环境进行操作，则无法正常安装插件。解决方法：离线下载Jenkins插件，将插件与Jenkins Master镜像（jenkinsci/blueocean:1.5.0）一起打包生成新的镜像，并将新的镜像上传至EKS平台的镜像仓库。    
 
 ### Step 4: 配置Jenkins   
 在【系统管理】-【系统设置】-【新增一个云】-【Kubernetes】中，完成Jenkins与Kubernetes相关的配置，下图为示例配置：     
@@ -298,7 +298,7 @@ podTemplate(label: 'test', cloud: 'kubernetes') {
 保存流水线配置，随后点击“立即构建”开始执行任务构建：  
 ![](Images/2/jenkins-helloworld-test-3.png)  
 
-> 注：在“hello world”这个Pipeline过程中，Jenkins后台将会自动从Dockerhub镜像仓库中拉取默认的Jenkins Slave镜像jenkins-slave:alpine，拉取镜像过程需要耗费一定时间，且容易由于网络问题拉取失败，建议保持耐心多尝试几次。 
+> 注：在“hello world”这个Pipeline过程中，Jenkins后台将会自动从Dockerhub镜像仓库中拉取默认的Jenkins Slave镜像jenkins-slave:alpine，拉取镜像过程需要耗费一定时间，且容易由于网络问题拉取失败，建议保持耐心多尝试几次。  
 
 可以在EKS界面中观察到后端自动创建的作为Jenkins Slave的Pod： 
 
@@ -310,3 +310,17 @@ podTemplate(label: 'test', cloud: 'kubernetes') {
 ![](Images/2/jenkins-helloworld-test-6.png)
 
 等待任务构建完成之后，可以发现Jenkins Slave Pod被自动删除。    
+
+### Step 6: 添加证书   
+为保证Jenkins和GitLab之间能够正常通信，需要在Jenkins中添加证书（Credential）。证书使用之前GitLab中添加的公玥所对应的私钥，参考“GitLab代码仓库部署与配置”-“Step 3: 设置通过SSH连接GitLab”。  
+在Jenkins界面中点击【Jenkins】-【Credendials】-【System】-【Add domain】，添加一个domain。  
+![](Images/2/jenkins-add-credential-1.png)  
+
+点击【Add Credentials】，添加证书。  
+![](Images/2/jenkins-add-credential-2.png)  
+
+选择“SSH Username with private key”，在编辑框中填入之前GitLab中添加的公玥所对应的私钥，以及私钥的密码。  
+![](Images/2/jenkins-add-credential-3.png)  
+
+可以查看并更新所创建的证书。  
+![](Images/2/jenkins-add-credential-4.png)  

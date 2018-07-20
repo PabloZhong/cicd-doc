@@ -123,13 +123,16 @@
 1）Jenkins Server的访问端口，默认容器端口为8080，图示采用NodePort方式指定对外暴露节点端口为31888；  
 2）Jenkins Master与Slave之间通信所使用的端口，默认容器端口为50000。  
 
-注意：按照前述步骤完成Jenkins Master部署之后，还需要对Master的部署（Deployment）Yaml模板进行编辑，修改**securityContext**来设置访问/var/jenkins_home的用户为root用户，添加配置**runAsUser: 0**，如下图所示：  
+注意：按照前述步骤完成Jenkins Master部署之后，Jenkins Master应用的Pod并不会处于正常Running状态，还需要设置Root用户权限。  
+具体步骤如下：  
+对Master的部署（Deployment）Yaml模板进行编辑，修改**securityContext**来设置访问/var/jenkins_home的用户为root用户，添加配置**runAsUser: 0**，如下图所示：  
 ![](Images/2/jenkins-yaml-rewrite.png)
 
 编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新创建，随后变为正常“运行中”状态，在EKS平台可以查看处于正常“运行中”状态的Jenkins Master：  
 ![](Images/2/jenkins-check-1.png)  
 ![](Images/2/jenkins-check-2.png)  
  
+#### 创建Service Account    
 另外，在本次场景设计中，Jenkins Slave需要在EKS的Kubernetes集群中动态生成/删除，因此需要Jenkins Master能够Kubernetes集群的ApiServer进行通信，并通过权限认证，从而后端动态创建Jenkins Slave。在这里我们使用Kubernetes的Service Account来实现授权功能。  
 
 >  Service Account:
@@ -184,7 +187,8 @@ subjects:
 
 编辑并保持部署Yaml文件后，Jenkins Master的Pod会重新部署，随后再次处于“运行中”状态。   
 
-接下来可以通过Web浏览器访问http://<EKS任意Node的公网IP:Nodeport>，进入Jenkins界面，对于本文档示例即可访问http://172.16.6.28:31888/   
+#### 首次登陆Jenkins  
+通过Web浏览器访问http://<EKS任意Node的公网IP:Nodeport>，进入Jenkins界面，对于本文档示例即可访问http://172.16.6.28:31888/   
 首次登陆Jenkins，需要输入初始密码：   
 ![](Images/2/jenkins-initial-password.png)
 

@@ -286,6 +286,22 @@ snake镜像构建完成后，在EKS平台部署snake应用：
 ![](Images/snakegame.png)
 
 
+step 4:
+
+修改snake代码中食物的颜色，并自动部署新的snake镜像：通过修改snake代码下的css文件中的 main-snake.css中的
+![](Images/foodbody.png)
+来修改食物的颜色，修改成功后，Jenkinsfile中的命令：
+```
+ stage('deploy to k8s') {
 
 
+                sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
+
+            }
+
+
+```
+会修改部署中的镜像，会将snake服务使用新的镜像重新部署。部署完成后，效果如下：
+![](Images/changefoodcolor.png)
+可以看到，食物的颜色由原来的大红色变为了黄色。至此，完成了修改snake源码自动构建snake镜像，并且自动部署snake服务的CICD流程
 

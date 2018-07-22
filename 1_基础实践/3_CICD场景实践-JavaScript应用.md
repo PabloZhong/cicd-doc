@@ -4,7 +4,33 @@
 ## 1）GitLab中创建项目，并上传代码。 
 ## 2）Jenkins中的流水线配置，包括GitLab自动触发Jenkins的CI构建的配置。
 ## 3）CICD场景如何进行演示。  
-  
+
+## 1. 在GitLab中创建项目，并上传源代码  
+
+**Step 1: 在GitLab中创建示例项目。**  
+我们在GitLab中创建一个示例项目（Create a project），名称填入“snake-demo”：  
+![](Images/3/gitlab-create-project-1.png)  
+![](Images/3/gitlab-create-project-2.png)  
+
+
+**Step 2: 上传示例项目的源代码至GitLab。**  
+
+首先需要确认所使用的本地虚拟机环境（可使用之前上传Docker镜像的环境）中已经安装了Git，并完成Git Global Config配置。   
+然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
+```
+[root@docker-ce ~]# git clone https://github.com/PabloZhong/Snake.git
+```
+
+可参考GitLab中界面提示，通过SSH方式将源代码Push到GitLab中：  
+（备注：需要提前在运行Git的虚拟机上修改/etc/hosts文件，加入集群节点NodeIP与域名的映射，如本示例加入172.16.6.48 gitlab.example.org）
+```
+[root@docker-ce ~]# cd Snake/
+[root@docker-ce dubbo]# git init
+[root@docker-ce dubbo]# git remote rename origin old-origin 
+[root@docker-ce dubbo]# git remote add origin ssh://git@gitlab.example.org:30022/root/snake-demo.git  
+[root@docker-ce dubbo]# git push -u origin --all   
+```
+Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代码。  
 
 ## 1. 制作用来编译snake源码的jenkins slave镜像：
 为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：

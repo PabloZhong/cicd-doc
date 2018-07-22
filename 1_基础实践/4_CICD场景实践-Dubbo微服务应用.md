@@ -10,7 +10,7 @@
 ![](Images/4/gitlab-create-project-1.png)  
 ![](Images/4/gitlab-create-project-2.png)  
 
-**Step 5: 推送Dubbo示例源代码至GitLab。**  
+**Step 5: 上传示例项目的源代码至GitLab。**  
 
 首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git Global Config配置。   
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  

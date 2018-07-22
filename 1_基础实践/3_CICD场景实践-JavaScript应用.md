@@ -1,10 +1,5 @@
 # CI/CD场景实践-JavaScript应用 （待修改） 
 
-## 需要分以下几部分，来修改本部分文档：  
-## 1）GitLab中创建项目，并上传代码。 
-## 2）Jenkins中的流水线配置，包括GitLab自动触发Jenkins的CI构建的配置。
-## 3）CICD场景如何进行演示。  
-
 ## 1. 在GitLab中创建项目，并上传源代码  
 
 **Step 1: 在GitLab中创建示例项目。**  

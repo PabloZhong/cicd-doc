@@ -94,7 +94,7 @@
 
 验证本地虚拟机与GitLab的SSH连通性：  
 ![](Images/2/gitlab-ssh-2.png)   
-
+后续将试用SSH方式上传代码至GitLab中。 
 
 ## 2. Jenkins部署与配置  
 
@@ -312,7 +312,7 @@ podTemplate(label: 'test', cloud: 'kubernetes') {
 等待任务构建完成之后，可以发现Jenkins Slave Pod被自动删除。    
 
 ### Step 6: 添加证书   
-为保证Jenkins和GitLab之间能够正常通信，需要在Jenkins中添加证书（Credential）。证书使用之前GitLab中添加的公玥所对应的私钥，参考“GitLab代码仓库部署与配置”-“Step 3: 设置通过SSH连接GitLab”。  
+为保证Jenkins和GitLab之间能够正常通信，需要在Jenkins中添加证书（Credential）。证书使用之前GitLab中添加的公钥所对应的私钥，参考“GitLab代码仓库部署与配置”-“Step 3: 设置通过SSH连接GitLab”。  
 在Jenkins界面中点击【Jenkins】-【Credendials】-【System】-【Add domain】，添加一个domain。  
 ![](Images/2/jenkins-add-credential-1.png)  
 

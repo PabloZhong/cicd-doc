@@ -111,65 +111,19 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 进入BlueOcean：  
 ![](Images/3/jenkins-blue-ocean.png)   
 
-创建流水线Pipeline：  
+点击“创建流水线”：   
 ![](Images/3/jenkins-create-pipeline-1.png)   
+选择代码仓库：  
 ![](Images/3/jenkins-create-pipeline-2.png)  
+需要将Jenkins自动生成的SSH公钥添加到GitLab中：  
 ![](Images/3/gitlab-ssh-key.png)  
 
 
-**Step 3: 配置Webhook。**   （挪到已经创建好jenkins项目之后去）  
+回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，将会自动搜索代码库中的Jenkinsfile，并按照Jenkins执行第一次Pipeline：  
 
-在GitLab的项目中选择【Settings】->[Integrations]，构建webhook
-![](Images/gitlabintegration.png)
-![](Images/gitlabchufa.png)
-添加成功后，点击此webhook后面的test进行测试
-![](Images/test-1.png)
-如果返回Hook successfully executed.表示配置成功。
+![](Images/3/图缺.png)  
 
-![](Images/test-success.png)
-
-这样，下次push代码后，就会自动触发jenkins上相关的构建工程进行自动发布了！无需人工干预~
-
-![](Images/test-success-2.png)
-
-
-
-
-
-
-
-## Gitlab创建project,并配置webhook
-step 1:在gitlab的项目中选择[setting]->[Integrations]，构建webhook
-![](Images/gitlabintegration.png)
-![](Images/gitlabchufa.png)
-添加成功后，点击此webhook后面的test进行测试
-![](Images/test-1.png)
-如果返回Hook successfully executed.表示配置成功。
-
-![](Images/test-success.png)
-
-这样，下次push代码后，就会自动触发jenkins上相关的构建工程进行自动发布了！无需人工干预~
-
-![](Images/test-success-2.png)
-
-**下面这个自由风格的项目，废弃不用**  
-## 创建Jenkins Job，并配置gitlab自动触发
-step 1:设置Jenkins 自由风格的项目：
-![](Images/ziyoufengge.png)
-step 2:选择源码管理：先设置代码的git下载路径，这里通过ssh方式（需要提前将Jenkins本机的key添加到Gitlab上）
-![](Images/yuanmaguanli.png)
-step 3:添加credential:
-![](Images/addcrenditen.png)
-
-![](Images/addcrenditen-2.png)
-在Jenkins中将credential添加完后，需要将credential中的公钥添加到gitlab中去。
-
-step 3:查看jenkin生成回调地址。在任务重构建触发器下获取回调URL。
-
-![](Images/goujianchufaqi.png)
-
-3.2.1 pipeline1:构建snake镜像  
-在jenkins master中构建pipieline如下：
+其中Jenkinsfile如下：
 ```
 podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
   containers: [
@@ -194,7 +148,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
     stage('devops for snake game') {
         container('jnlp') {
             stage("clone snake code") {
-                git 'https://github.com/luluwangwang1989/Snake.git'
+                git 'http://172.16.6.30:30080/easystack/snake-demo1.git'
             }
             
             stage('unit test') {
@@ -209,17 +163,17 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
                 """
             }
             
-            stage('deploy to k8s') {
-                
-                sh """kubectl set image deployment/snake snake=hub.easystack.io/captain/snake:${BUILD_NUMBER}"""
-            }
+            //stage('Deploy to EKS') 
+            //   sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
+            //}
         }
     }
  }
 }
 ```
+
 其中“  image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'”指明我们前面构建的jenkins slave镜像。
-“git 'https://github.com/luluwangwang1989/Snake.git'”将snake源码从github上拉取下来。
+“git 'https://github.com/luluwangwang1989/Snake.git'”将snake源码从github上拉取下来（请按需修改源代码项目地址）。
 使用
 ```
  stage('build docker image') {
@@ -230,25 +184,23 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
                 """
             }
 ```
-这几步将snake build成docker 镜像，并push到我们的harbor中去。
-![](Images/3/snake-image.png) 
+上述几步将snake build成docker 镜像，并push到EKS的镜像仓库中。
+![](Images/3/check-snake-image.png) 
 
-使用EKS将构建成功的snake镜像进行部署：
-![](Images/3/snake-service.png)
+注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 
-snake部署成功，可以正常访问：
+在EKS中进行Snake Demo应用的第一次部署，使用EKS将构建成功的Snake镜像进行部署： 
+（部署图缺） 
+![](Images/3/check-snake-service.png)
+
+访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏：：
 ![](Images/3/visit-snake.png)
 
+    
+请记录部署（Deployment）的名称，后续配置Jenkins自动部署时需要用到。  
 
-**下面这个Jenkins 传统节目创建pipeline的项目，废弃不用**  
-## 使用jenkinsfile来构建jenkins pipeline自动构建：
-
-step 1:
-在gitlab中创建project:snake,并拉取源码
-
-![](Images/pushsnake.png)
-
-![](Images/pushsnake-2.png)
+**Step 3: 配置自动部署。**   
+修改Jenkinsfile源代码，加上自动部署。  
 
 其中snake目录结构以及jenkinsfile如下：
 ```
@@ -303,49 +255,28 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
  }
 }
 ```
-在gitlab中设置webhook:
+
+**Step 4: 配置Webhook实现自动触发构建。**      
+
+在GitLab的项目中选择【Settings】->[Integrations]，构建webhook  
+![](Images/3/gitlab-integration-1.png)
+![](Images/3/gitlab-integration-2.png)
+添加成功后，点击此webhook后面的test进行测试   
+在GitLab中测试连通性：  
+![](Images/3/gitlab-webhook-test-1.png)  
+
+如果返回Hook successfully executed,表示配置成功。
+![](Images/3/gitlab-webhook-test-2.png)  
+
+这样，下次push代码后，就会自动触发Jenkins上相对应的Pipeline进行构建，无需手动启动Jenkins Pipeline。  
 
 
-step 2:
-
-在Jenkins创建流水线项目，并设置如下：
-1.创建一个pipeline项目
-![](Images/general.png)
-2.对此项目构建触发器
-![](Images/trigger.png)
-3.在流水线选项中设置git源
-![](Images/gaojixuanxiang.png)
-
-step 3:
+## 3. CI/CD演示    
 
 在gitlab中修改snake中的文件均会触发Jenkins自动构建snake项目：
 
-![](Images/tihuan1.png)
-
-构建中控制台输出如下：
-![](Images/1.png)
-![](Images/2.png)
-![](Images/3.png)
-![](Images/4.png)
-
-在Jenkins的blueocean中查看pipeline
-
-![](Images/blueoceanbuild.png)
-
-![](Images/blueoceansuccess.png)
-
-snake镜像构建完成后，在EKS平台部署snake应用：
-![](Images/snake-1.png)
-
-部署成功后，就可以玩snake游戏啦
-
-![](Images/snakegame.png)
-
-
-step 4:
-
 修改snake代码中食物的颜色，并自动部署新的snake镜像：通过修改snake代码下的css文件中的 main-snake.css中的
-![](Images/foodbody.png)
+![](Images/3/foodbody.png)
 来修改食物的颜色，修改成功后，Jenkinsfile中的命令：
 ```
  stage('deploy to k8s') {
@@ -357,7 +288,16 @@ step 4:
 
 
 ```
-会修改部署中的镜像，会将snake服务使用新的镜像重新部署。部署完成后，效果如下：
-![](Images/changefoodcolor.png)
-可以看到，食物的颜色由原来的大红色变为了黄色。至此，完成了修改snake源码自动构建snake镜像，并且自动部署snake服务的CICD流程
+
+会修改部署中的镜像，会将snake服务使用新的镜像重新部署。  
+
+在Jenkins的blueocean中查看pipeline
+
+![](Images/3/blueoceanbuild.png)
+
+![](Images/3/blueoceansuccess.png)
+
+部署完成后，效果如下：
+![](Images/3/changefoodcolor.png)
+可以看到，食物的颜色由原来的大红色变为了黄色。至此，完成了修改snake源码自动构建snake镜像，并且自动部署snake服务的CI/CD流程
 

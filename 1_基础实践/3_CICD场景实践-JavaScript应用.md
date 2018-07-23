@@ -209,9 +209,9 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要用到。  
 
 **Step 3: 配置自动部署。**   
-修改Jenkinsfile源代码，加上自动部署。  
+修改Jenkinsfile源代码，增加自动部署。  
 
-其中snake目录结构以及jenkinsfile如下：
+修改之后的Jenkinsfile如下：
 ```
 [root@docker-ce ~]# cd Snake
 [root@docker-ce Snake]# ls
@@ -269,7 +269,8 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 在GitLab的项目中选择【Settings】->[Integrations]，构建Webhook  
 ![](Images/3/gitlab-integration-1.png)
-![](Images/3/gitlab-integration-2.png)
+![](Images/3/gitlab-integration-2.png)  
+
 添加成功后，点击此webhook后面的test进行测试   
 在GitLab中测试连通性：  
 ![](Images/3/gitlab-webhook-test-1.png)  
@@ -282,9 +283,9 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 ## 3. CI/CD演示    
 
-在gitlab中修改snake中的文件均会触发Jenkins自动构建snake项目：
+在gitlab中修改snake中的文件均会触发Jenkins自动构建snake项目： 
 
-修改snake代码中食物的颜色，并自动部署新的snake镜像：通过修改snake代码下的css文件中的 main-snake.css中的
+修改snake代码中食物的颜色，并自动部署新的snake镜像：通过修改snake代码下的css文件中的 main-snake.css中的 
 ![](Images/3/foodbody.png)
 来修改食物的颜色，修改成功后，会自动触发Jenkins Pipeline，执行“代码克隆”->“镜像构建”->“镜像上传”->“自动部署”一整套流程。  
 
@@ -294,6 +295,6 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 ![](Images/3/pipeline-success.png)
 
-部署完成后，效果如下：
+部署完成后，效果如下： 
 ![](Images/3/changefoodcolor.png)
 可以看到，食物的颜色由原来的大红色变为了黄色。至此，完成了修改snake源码自动构建snake镜像，并且自动部署snake服务的CI/CD流程。  

@@ -1,11 +1,11 @@
 # CI/CD场景实践-JavaScript应用 （Ready） 
 
-本文档主要介绍如何在已经部署的CI/CD工具链基础上，实现JavaScript应用的CI/CD配置和演示。  
+本文档主要介绍如何在已完成部署的CI/CD工具链基础上，实现JavaScript应用的CI/CD配置和演示。  
 
 ## 1. 在GitLab中创建项目，并上传源代码  
 
 **Step 1: 在GitLab中创建示例项目。**  
-我们在GitLab中创建一个示例项目（Create a project），填入项目名称如“snake-demo”：  
+在GitLab中创建一个示例项目（Create a project），填入项目名称如“snake-demo”：  
 ![](Images/3/gitlab-create-project-1.png)  
 ![](Images/3/gitlab-create-project-2.png)  
 注：目前只支持Public类型的GitLab项目，还需要研究如何支持Private项目。  
@@ -125,8 +125,8 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 需要将Jenkins自动生成的SSH公钥添加到GitLab中：  
 ![](Images/3/gitlab-ssh-key.png)  
 
-回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，将会自动搜索代码库中的Jenkinsfile，并按照Jenkins执行第一次Pipeline：  
-
+回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，将会自动搜索GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline：  
+图缺  
 ![](Images/3/图缺.png)  
 
 其中Jenkinsfile如下：
@@ -154,7 +154,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
     stage('devops for snake game') {
         container('jnlp') {
             stage("clone snake code") {
-                git 'http://172.16.6.30:30080/easystack/snake-demo1.git'
+                git 'http://172.16.6.30:30080/easystack/snake-demo.git'
             }
             
             stage('unit test') {
@@ -177,12 +177,12 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
  }
 }
 ```
-
-其中“  image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'”指明我们前面构建的jenkins slave镜像。
-“git 'https://github.com/luluwangwang1989/Snake.git'”将snake源码从github上拉取下来（请按需修改源代码项目地址）。
-使用
+其中：
+1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指明之前所构建的Jenkins Slave镜像。  
+2）```git 'http://172.16.6.30:30080/easystack/snake-demo.git'```将Snake Demo源代码从GitLab中拉取下来，注意按需修改源代码项目地址。 
+3）下面的命令分别实现登录镜像仓库、构建Snake Demo镜像以及上传镜像：  
 ```
- stage('build docker image') {
+ stage('Build & push docker image') {
                 sh """
                     docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
                     docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} .
@@ -190,7 +190,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
                 """
             }
 ```
-上述几步将snake build成docker 镜像，并push到EKS的镜像仓库中。
+在EKS的镜像仓库中查看第一次构建的Snake Demo镜像： 
 ![](Images/3/check-snake-image.png) 
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
@@ -200,13 +200,13 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 ![](Images/3/create-initial-snake-2.png)  
 
 部署成功之后，查看对应的服务的端口号：  
-![](Images/3/check-snake-service.png)
+![](Images/3/check-snake-service.png)  
 
-通过NodeIP:Port方式，访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏：：
-![](Images/3/visit-initial-snake.png)
+通过NodeIP:Port方式，访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏： 
+![](Images/3/visit-initial-snake.png) 
 
     
-请记录部署（Deployment）的名称，后续配置Jenkins自动部署时需要用到。  
+请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要用到。  
 
 **Step 3: 配置自动部署。**   
 修改Jenkinsfile源代码，加上自动部署。  

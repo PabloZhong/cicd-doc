@@ -1,4 +1,6 @@
-# CI/CD场景实践-JavaScript应用 （待修改） 
+# CI/CD场景实践-JavaScript应用 （Ready） 
+
+本文档主要介绍如何在已经部署的CI/CD工具链基础上，实现JavaScript应用的CI/CD配置和演示。  
 
 ## 1. 在GitLab中创建项目，并上传源代码  
 

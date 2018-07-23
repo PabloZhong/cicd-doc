@@ -201,7 +201,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 ![](Images/3/check-snake-service.png)
 
 通过NodeIP:Port方式，访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏：：
-![](Images/3/visit-snake.png)
+![](Images/3/visit-initial-snake.png)
 
     
 请记录部署（Deployment）的名称，后续配置Jenkins自动部署时需要用到。  

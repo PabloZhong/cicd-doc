@@ -193,11 +193,14 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 
-在EKS中进行Snake Demo应用的第一次部署，使用EKS将构建成功的Snake镜像进行部署： 
-（部署图缺） 
+在EKS中进行Snake Demo应用的第一次部署，选择第一次执行Pipeline生成的Snake Demo镜像： 
+![](Images/3/create-initial-snake-1.png)  
+![](Images/3/create-initial-snake-2.png)  
+
+部署成功之后，查看对应的服务的端口号：  
 ![](Images/3/check-snake-service.png)
 
-访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏：：
+通过NodeIP:Port方式，访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏：：
 ![](Images/3/visit-snake.png)
 
     

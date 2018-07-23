@@ -225,7 +225,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
     
 请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要使用。  
 
-## 3. 配置自动部署    
+## 3. 配置自动部署（待修改）    
 
 修改Jenkinsfile源代码，增加自动部署。  
 
@@ -296,7 +296,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 后续每次往GitLab的“snake-demo”项目中Push代码后，就会自动触发Jenkins上相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
-## 5. CI/CD效果演示    
+## 5. CI/CD效果演示（待修改）    
 
 在gitlab中修改snake中的文件均会触发Jenkins自动构建Snake Demo项目： 
 

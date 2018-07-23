@@ -3,12 +3,12 @@
 ## 1. 在GitLab中创建项目，并上传源代码  
 
 **Step 1: 在GitLab中创建示例项目。**  
-我们在GitLab中创建一个示例项目（Create a project），名称填入“snake-demo”：  
+我们在GitLab中创建一个示例项目（Create a project），填入项目名称如“snake-demo”：  
 ![](Images/3/gitlab-create-project-1.png)  
 ![](Images/3/gitlab-create-project-2.png)  
+注：目前只支持Public类型的GitLab项目，还需要研究如何支持Private项目。  
 
-
-**Step 2: 上传示例项目的源代码至GitLab。**  
+**Step 2: 上传源代码至GitLab示例项目。**  
 
 首先需要确认所使用的本地虚拟机环境（可使用之前上传Docker镜像的环境）中已经安装了Git，并完成Git Global Config配置。   
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
@@ -20,19 +20,23 @@
 （备注：需要提前在运行Git的虚拟机上修改/etc/hosts文件，加入集群节点NodeIP与域名的映射，如本示例加入172.16.6.48 gitlab.example.org）
 ```
 [root@docker-ce ~]# cd Snake/
-[root@docker-ce dubbo]# git init
-[root@docker-ce dubbo]# git remote rename origin old-origin 
-[root@docker-ce dubbo]# git remote add origin ssh://git@gitlab.example.org:30022/root/snake-demo.git  
-[root@docker-ce dubbo]# git push -u origin --all   
+[root@docker-ce Snake]# git init
+[root@docker-ce Snake]# git remote rename origin old-origin 
+[root@docker-ce Snake]# git remote add origin ssh://git@gitlab.example.org:30022/easystack/snake-demo.git  
+[root@docker-ce Snake]# git push -u origin --all   
 ```
-Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代码。  
+其中GitLab项目地址参考：  
+![](Images/3/gitlab-ssh-url.png)  
+
+Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代码：  
+![](Images/3/gitlab-check-source-code.png)  
 
 ## 2. 创建Jenkins Pipeline，并部署Snake应用    
 
 **Step 1: 制作用于编译Snake源码的Jenkins Slave镜像。**  
-为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到EKS的镜像仓库中去，自己制作jenkins slave镜像步骤如下：
+为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到EKS的镜像仓库中，自己制作jenkins slave镜像步骤如下：
 
-Step1: 编写Dockefile如下：（https://github.com/PabloZhong/jenkins-1/tree/master/slave-base） 
+1） 编写Dockefile如下：（参考https://github.com/PabloZhong/jenkins-1/tree/master/slave-base） 
 ```
 FROM openshift/origin
 
@@ -91,20 +95,21 @@ ADD contrib/bin/* /usr/local/bin/
 # Run the Jenkins JNLP client
 ENTRYPOINT ["/usr/local/bin/run-jnlp-client"]
 ```
-Step 2: 构建Jenkins slave镜像  
 
-在Dockerfile所在的路径下执行以下命令进行镜像构建：
+2）构建Jenkins Slave镜像  
+在Dockerfile所在的路径下执行以下命令进行镜像构建： 
 ```
 [root@docker-ce jenkins-slave]# docker build -t jenkins-slave:v1 .
 ```
 
+3）上传Jenkins Slave镜像  
 Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜像上传到EKS的镜像仓库中。  
 ```
 [root@docker-ce jenkins-slave]# docker push 172.16.0.176/3dc70621b8504c98/jenkins-slave:v1
 ```
-镜像制作成功，并上传后，可查看已上传的镜像如下： 
+上传成功后可查看已上传的镜像： 
 ![](Images/3/jenkins-slave-docker.png) 
-后续步骤中会使用上面的镜像进行源代码编译。  
+后续步骤中会使用上面的镜像执行Jenkins Pipeline。  
 
 **Step 2: 通过Blue Ocean创建Jenkins Pipeline。**  
 
@@ -113,11 +118,10 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 
 点击“创建流水线”：   
 ![](Images/3/jenkins-create-pipeline-1.png)   
-选择代码仓库：  
+填入GitLab代码仓库对应的项目地址：（注：Blue Ocean默认需要使用SSH方式）   
 ![](Images/3/jenkins-create-pipeline-2.png)  
 需要将Jenkins自动生成的SSH公钥添加到GitLab中：  
 ![](Images/3/gitlab-ssh-key.png)  
-
 
 回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，将会自动搜索代码库中的Jenkinsfile，并按照Jenkins执行第一次Pipeline：  
 
@@ -258,7 +262,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 **Step 4: 配置Webhook实现自动触发构建。**      
 
-在GitLab的项目中选择【Settings】->[Integrations]，构建webhook  
+在GitLab的项目中选择【Settings】->[Integrations]，构建Webhook  
 ![](Images/3/gitlab-integration-1.png)
 ![](Images/3/gitlab-integration-2.png)
 添加成功后，点击此webhook后面的test进行测试   
@@ -277,21 +281,9 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 修改snake代码中食物的颜色，并自动部署新的snake镜像：通过修改snake代码下的css文件中的 main-snake.css中的
 ![](Images/3/foodbody.png)
-来修改食物的颜色，修改成功后，Jenkinsfile中的命令：
-```
- stage('deploy to k8s') {
+来修改食物的颜色，修改成功后，会自动触发Jenkins Pipeline，执行“代码克隆”->“镜像构建”->“镜像上传”->“自动部署”一整套流程。  
 
-
-                sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
-
-            }
-
-
-```
-
-会修改部署中的镜像，会将snake服务使用新的镜像重新部署。  
-
-在Jenkins的blueocean中查看pipeline
+在Jenkins Blue Ocean界面中查看Pipeline执行状态：  
 
 ![](Images/3/blueoceanbuild.png)
 
@@ -299,5 +291,4 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 部署完成后，效果如下：
 ![](Images/3/changefoodcolor.png)
-可以看到，食物的颜色由原来的大红色变为了黄色。至此，完成了修改snake源码自动构建snake镜像，并且自动部署snake服务的CI/CD流程
-
+可以看到，食物的颜色由原来的大红色变为了黄色。至此，完成了修改snake源码自动构建snake镜像，并且自动部署snake服务的CI/CD流程。  

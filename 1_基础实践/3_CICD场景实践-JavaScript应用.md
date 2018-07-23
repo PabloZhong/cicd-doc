@@ -287,7 +287,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 ![](Images/3/blueoceanbuild.png)
 
-![](Images/3/blueoceansuccess.png)
+![](Images/3/pipeline-success.png)
 
 部署完成后，效果如下：
 ![](Images/3/changefoodcolor.png)

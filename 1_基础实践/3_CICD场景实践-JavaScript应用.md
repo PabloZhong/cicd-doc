@@ -310,11 +310,11 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 ![](Images/3/pipeline-success.png)
 
-部署完成后，效果如下： 
+自动部署完成后，效果如下： 
 ![](Images/3/change-food-color.png)
 可以看到，食物的颜色由原来的大红色变为了黄色。 
 
-同时，我们也可以查看部署（Deployment）所采用的镜像已经完成更新：   
+同时，我们也可以在EKS界面查看Kubernetes Deployment所采用的镜像已经完成更新：   
 ![](Images/3/deployment-image-update.png)  
 
 至此，完成了修改snake源码自动构建Snake Demo镜像，并且自动部署应用的一整套CI/CD流程。  

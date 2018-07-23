@@ -27,42 +27,40 @@
 ```
 Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代码。  
 
-## 1. 制作用来编译snake源码的jenkins slave镜像：
-为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到我们的172.16.4.176 harbor中去，自己制作jenkins slave镜像步骤如下：
+## 2. 创建Jenkins Pipeline，并部署Snake应用    
 
-step1: 使用openshift参考镜像；  
+**Step 1: 制作用于编译Snake源码的Jenkins Slave镜像。**  
+为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到EKS的镜像仓库中去，自己制作jenkins slave镜像步骤如下：
 
-step2: 编写Dockefile如下：
+Step1: 编写Dockefile如下：（https://github.com/PabloZhong/jenkins-1/tree/master/slave-base） 
 ```
-FROM centos:7
+FROM openshift/origin
 
-MAINTAINER zhangrong <rong.zhang@easystack.cn>
+MAINTAINER Ben Parees <bparees@redhat.com>
 
 ENV HOME=/home/jenkins
 
 USER root
-
-# Add http://mirrors.ustc.edu.cn/ centos7 repo
-RUN  mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup && \
-     mv /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo.backup
-ADD  contrib/repo/*  /etc/yum.repos.d/
-
 # Install headless Java
 RUN yum install -y centos-release-scl-rh && \
-    INSTALL_PKGS="bc gettext git java-1.8.0-openjdk-headless java-1.8.0-openjdk-headless.i686 lsof rsync tar unzip which zip" && \
-    yum install -y --setopt=tsflags=nodocs install $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
+    x86_EXTRA_RPMS=$(if [ "$(uname -m)" == "x86_64" ]; then echo -n java-1.8.0-openjdk-headless.i686 ; fi) && \
+    INSTALL_PKGS="bc gettext git java-1.8.0-openjdk-headless lsof rsync tar unzip which zip bzip2" && \
+    yum install -y --setopt=tsflags=nodocs install $INSTALL_PKGS $x86_EXTRA_RPMS && \
+    # have temporarily removed the validation for java to work around known problem fixed in fedora; jupierce and gmontero are working with
+    # the requisit folks to get that addressed ... will switch back to rpm -V $INSTALL_PKGS when that occurs
+    rpm -V bc gettext git lsof rsync tar unzip which zip bzip2  && \
     yum clean all && \
     mkdir -p /home/jenkins && \
     chown -R 1001:0 /home/jenkins && \
     chmod -R g+w /home/jenkins && \
-    chmod 775 /etc/passwd && \
+    chmod 664 /etc/passwd && \
     chmod -R 775 /etc/alternatives && \
     chmod -R 775 /var/lib/alternatives && \
     chmod -R 775 /usr/lib/jvm && \
     chmod 775 /usr/bin && \
     chmod 775 /usr/lib/jvm-exports && \
     chmod 775 /usr/share/man/man1 && \
+    chmod 775 /var/lib/origin && \    
     unlink /usr/bin/java && \
     unlink /usr/bin/jjs && \
     unlink /usr/bin/keytool && \
@@ -92,19 +90,53 @@ ADD contrib/bin/* /usr/local/bin/
 
 # Run the Jenkins JNLP client
 ENTRYPOINT ["/usr/local/bin/run-jnlp-client"]
-
 ```
-step 3: 使用docker build 构建jenkins slave镜像  
+Step 2: 构建Jenkins slave镜像  
 
-在Dockerfile所在的文件夹下执行
+在Dockerfile所在的路径下执行以下命令进行镜像构建：
 ```
-docker build -t jenkins-slave .
+[root@docker-ce jenkins-slave]# docker build -t jenkins-slave:v1 .
 ```
-这条命令，然后镜像就被构建成功
 
-Jenkins slave镜像制作完成后，使用docker push命令将jenkins slave镜像上传到172.16.4.176镜像仓库中。 
-镜像制作成功，并上传后，效果如下： 
+Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜像上传到EKS的镜像仓库中。  
+```
+[root@docker-ce jenkins-slave]# docker push 172.16.0.176/3dc70621b8504c98/jenkins-slave:v1
+```
+镜像制作成功，并上传后，可查看已上传的镜像如下： 
 ![](Images/3/jenkins-slave-docker.png) 
+后续步骤中会使用上面的镜像进行源代码编译。  
+
+**Step 2: 通过Blue Ocean创建Jenkins Pipeline。**  
+
+进入BlueOcean：  
+![](Images/3/jenkins-blue-ocean.png)   
+
+创建流水线Pipeline：  
+![](Images/3/jenkins-create-pipeline-1.png)   
+![](Images/3/jenkins-create-pipeline-2.png)  
+![](Images/3/gitlab-ssh-key.png)  
+
+
+**Step 3: 配置Webhook。**   （挪到已经创建好jenkins项目之后去）  
+
+在GitLab的项目中选择【Settings】->[Integrations]，构建webhook
+![](Images/gitlabintegration.png)
+![](Images/gitlabchufa.png)
+添加成功后，点击此webhook后面的test进行测试
+![](Images/test-1.png)
+如果返回Hook successfully executed.表示配置成功。
+
+![](Images/test-success.png)
+
+这样，下次push代码后，就会自动触发jenkins上相关的构建工程进行自动发布了！无需人工干预~
+
+![](Images/test-success-2.png)
+
+
+
+
+
+
 
 ## Gitlab创建project,并配置webhook
 step 1:在gitlab的项目中选择[setting]->[Integrations]，构建webhook
@@ -120,6 +152,7 @@ step 1:在gitlab的项目中选择[setting]->[Integrations]，构建webhook
 
 ![](Images/test-success-2.png)
 
+**下面这个自由风格的项目，废弃不用**  
 ## 创建Jenkins Job，并配置gitlab自动触发
 step 1:设置Jenkins 自由风格的项目：
 ![](Images/ziyoufengge.png)
@@ -206,6 +239,8 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 snake部署成功，可以正常访问：
 ![](Images/3/visit-snake.png)
 
+
+**下面这个Jenkins 传统节目创建pipeline的项目，废弃不用**  
 ## 使用jenkinsfile来构建jenkins pipeline自动构建：
 
 step 1:

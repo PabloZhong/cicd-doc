@@ -18,7 +18,7 @@
 [root@docker-ce ~]# git clone https://github.com/PabloZhong/Snake.git
 ```
 
-可参考GitLab中界面提示，通过SSH方式将源代码Push到GitLab中：  
+随后可参考GitLab中界面提示，通过SSH方式将源代码Push到GitLab中：  
 （备注：需要提前在运行Git的虚拟机上修改/etc/hosts文件，加入集群节点NodeIP与域名的映射，如本示例加入172.16.6.48 gitlab.example.org）
 ```
 [root@docker-ce ~]# cd Snake/
@@ -35,13 +35,19 @@ Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代
 
 ## 2. 创建Jenkins Pipeline，并部署Snake应用    
 
-**Step 1: 制作用于编译Snake源码的Jenkins Slave镜像。**  
-为了完成使用jenkins slave来进行CI工作，需要自己制作一个jenkins slave镜像，并上传到EKS的镜像仓库中，自己制作jenkins slave镜像步骤如下：
+**Step 1: 制作Jenkins Slave镜像。**  
+为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave镜像，并上传至EKS的镜像仓库中。   
+具体步骤如下：  
 
-1） 编写Dockefile如下：（参考https://github.com/PabloZhong/jenkins-1/tree/master/slave-base） 
+1） 在本地虚拟机Linux环境中，执行：  
+```
+[root@docker-ce jenkins-slave]# git clone https://github.com/PabloZhong/jenkins-1  
+[root@docker-ce jenkins-slave]# cd jenkins-1/slave-base/  
+```
+
+可以查看到所需要使用到的Dockerfile如下：  
 ```
 FROM openshift/origin
-
 MAINTAINER Ben Parees <bparees@redhat.com>
 
 ENV HOME=/home/jenkins
@@ -101,40 +107,47 @@ ENTRYPOINT ["/usr/local/bin/run-jnlp-client"]
 2）构建Jenkins Slave镜像  
 在Dockerfile所在的路径下执行以下命令进行镜像构建： 
 ```
-[root@docker-ce jenkins-slave]# docker build -t jenkins-slave:v1 .
+[root@docker-ce slave-base]# docker build -t jenkins-slave:v1 .
 ```
 
 3）上传Jenkins Slave镜像  
 Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜像上传到EKS的镜像仓库中。  
 ```
-[root@docker-ce jenkins-slave]# docker push 172.16.0.176/3dc70621b8504c98/jenkins-slave:v1
+[root@docker-ce slave-base]# docker push 172.16.0.176/3dc70621b8504c98/jenkins-slave:v1
 ```
-上传成功后可查看已上传的镜像： 
-![](Images/3/jenkins-slave-docker.png) 
-后续步骤中会使用上面的镜像执行Jenkins Pipeline。  
+注：请按需修改镜像仓库地址和用户名。  
 
-**Step 2: 通过Blue Ocean创建Jenkins Pipeline。**  
+上传成功后，可查看已上传的镜像：  
+![](Images/3/check-jenkins-slave-image.png) 
+后续步骤中会使用这个镜像来执行Jenkins Pipeline。  
 
-进入BlueOcean：  
+**Step 2: 通过Jenkins Blue Ocean创建Jenkins Pipeline。**   
+使用Jenkins Blue Ocean能够实现更丰富、更直观的Pipeline功能。  
+
+在Jenkins主界面点击“Open Blue Ocean”进入Blue Ocean操作界面：   
 ![](Images/3/jenkins-blue-ocean.png)   
 
 点击“创建流水线”：   
 ![](Images/3/jenkins-create-pipeline-1.png)   
-填入GitLab代码仓库对应的项目地址：（注：Blue Ocean默认需要使用SSH方式）   
+
+填入GitLab代码仓库对应的项目地址：（注意：SSH的URL中需要将域名改成NodeIP）   
 ![](Images/3/jenkins-create-pipeline-2.png)  
-需要将Jenkins自动生成的SSH公钥添加到GitLab中：  
+
+Jenkins将自动生成SSH Key Pair，需要将SSH公钥添加到GitLab中，添加路径为【GitLab】-【User Setting】-【SSH Keys】：  
 ![](Images/3/gitlab-ssh-key.png)  
 
-回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，将会自动搜索GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline：  
+回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline：  
 图缺  
-![](Images/3/图缺.png)  
+![](Images/3/jenkins-initial-pipeline-1.png)  
+![](Images/3/jenkins-initial-pipeline-2.png)  
 
-其中Jenkinsfile如下：
+本示例中的Jenkinsfile参考如下：
 ```
 podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
   containers: [
         containerTemplate(
             name: 'jnlp',
+            //请按需修改Jenkins Slave镜像名称
             image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1',
             command: '',
             args: '${computer.jnlpmac} ${computer.name}',
@@ -151,51 +164,56 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
   ) {
 
   node('jnlp') {
-    stage('devops for snake game') {
+    stage('CICD for Snake Game demo') {
         container('jnlp') {
-            stage("clone snake code") {
+            stage("Clone source code of Snake game") {
+                //请按需修改源代码库地址
                 git 'http://172.16.6.30:30080/easystack/snake-demo.git'
             }
-            
-            stage('unit test') {
-                sh 'echo "unit test command"'
-            }
-            
-            stage('build docker image') {
+                      
+            stage('Build & push docker image') {
+                //请按需修改镜像仓库的账号和密码
                 sh """
-                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} .
+                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io  
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} . 
                     docker push hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}
                 """
             }
             
-            //stage('Deploy to EKS') 
-            //   sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
+            //stage('Deploy app to EKS') {
+                //请按需修改Deployment名称和Snake镜像名称
+                //sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
             //}
         }
     }
  }
 }
 ```
-其中：
-1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指明之前所构建的Jenkins Slave镜像。  
+其中： 
+1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指定之前所构建的Jenkins Slave镜像。  
 2）```git 'http://172.16.6.30:30080/easystack/snake-demo.git'```将Snake Demo源代码从GitLab中拉取下来，注意按需修改源代码项目地址。 
 3）下面的命令分别实现登录镜像仓库、构建Snake Demo镜像以及上传镜像：  
 ```
  stage('Build & push docker image') {
+                //请按需修改镜像仓库的账号和密码
                 sh """
                     docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
                     docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} .
                     docker push hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}
                 """
             }
-```
-在EKS的镜像仓库中查看第一次构建的Snake Demo镜像： 
+``` 
+
+在Blue Ocean界面中可以查看Pipeline执行进度：  
+![](Images/3/check-initial-pipeline.png)  
+
+在EKS的镜像仓库中查看第一次构建并上传的Snake Demo镜像： 
 ![](Images/3/check-snake-image.png) 
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 
-在EKS中进行Snake Demo应用的第一次部署，选择第一次执行Pipeline生成的Snake Demo镜像： 
+**Step 3: 在EKS中进行Snake Demo应用的第一次部署。**  
+在EKS中，选择第一次执行Pipeline生成的Snake Demo镜像，进行Snake Demo应用部署： 
 ![](Images/3/create-initial-snake-1.png)  
 ![](Images/3/create-initial-snake-2.png)  
 
@@ -204,23 +222,20 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 通过NodeIP:Port方式，访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏： 
 ![](Images/3/visit-initial-snake.png) 
-
     
-请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要用到。  
+请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要使用。  
 
-**Step 3: 配置自动部署。**   
+## 3. 配置自动部署    
+
 修改Jenkinsfile源代码，增加自动部署。  
 
-修改之后的Jenkinsfile如下：
+修改之后的Jenkinsfile如下：（增加最后的CD部署Stage）  
 ```
-[root@docker-ce ~]# cd Snake
-[root@docker-ce Snake]# ls
-css  Dockerfile  index.html  Jenkinsfile  js  LICENSE  README.md
-[root@docker-ce Snake]# cat Jenkinsfile
 podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
   containers: [
         containerTemplate(
             name: 'jnlp',
+            //请按需修改Jenkins Slave镜像名称
             image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1',
             command: '',
             args: '${computer.jnlpmac} ${computer.name}',
@@ -237,27 +252,25 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
   ) {
 
   node('jnlp') {
-    stage('devops for snake game') {
+    stage('CICD for Snake Game demo') {
         container('jnlp') {
-            stage("clone snake code") {
-                 git 'http://172.16.6.30:30080/easystack/snack-demo.git'
+            stage("Clone source code of Snake game") {
+                //请按需修改源代码库地址
+                git 'http://172.16.6.30:30080/easystack/snake-demo.git'
             }
-            
-            stage('unit test') {
-                sh 'echo "unit test command"'
-            }
-            
-            stage('build docker image') {
+                      
+            stage('Build & push docker image') {
+                //请按需修改镜像仓库的账号和密码
                 sh """
-                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} .
+                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io  
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} . 
                     docker push hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}
                 """
             }
             
-            stage('deploy to k8s') {
-                
-                sh """kubectl set image deployment/snake snake=hub.easystack.io/captain/snake:${BUILD_NUMBER}"""
+            stage('Deploy app to EKS') {
+                //请按需修改Deployment名称和Snake镜像名称
+                sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
             }
         }
     }
@@ -265,25 +278,27 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 }
 ```
 
-**Step 4: 配置Webhook实现自动触发构建。**      
+## 4. 配置自动触发构建    
+为了实现GitLab中更新代码操作能够自动触发Jenkins Pipeline构建，我们需要在GitLab中配置Webhook。     
+具体步骤如下：  
+在GitLab的项目中选择【Settings】->[Integrations]，构建Webhook：  
+![](Images/3/gitlab-add-webhook.png)   
+其中URL需要填写准确，具体的格式可参考：http://<Jenkins user account>:<Jenkins user password>@<NodeIP>:<Jenkins Service NodePort>/project/<Jenkins project name>  
 
-在GitLab的项目中选择【Settings】->[Integrations]，构建Webhook  
-![](Images/3/gitlab-integration-1.png)
-![](Images/3/gitlab-integration-2.png)  
+>注：此处选择的触发方式（Trigger）为“Push events”，代表每次Push代码操作都会触发Webhook，您也可以选择其他触发（Trigger）方式，如“Merge Request events”等。  
 
-添加成功后，点击此webhook后面的test进行测试   
-在GitLab中测试连通性：  
+添加成功后，点击“test”进行测试：   
 ![](Images/3/gitlab-webhook-test-1.png)  
 
-如果返回Hook successfully executed,表示配置成功。
+如果返回“Hook executed successfully: HTTP 200 ”即表示Webhook配置成功：
 ![](Images/3/gitlab-webhook-test-2.png)  
 
-这样，下次push代码后，就会自动触发Jenkins上相对应的Pipeline进行构建，无需手动启动Jenkins Pipeline。  
+后续每次往GitLab的“snake-demo”项目中Push代码后，就会自动触发Jenkins上相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
-## 3. CI/CD演示    
+## 5. CI/CD效果演示    
 
-在gitlab中修改snake中的文件均会触发Jenkins自动构建snake项目： 
+在gitlab中修改snake中的文件均会触发Jenkins自动构建Snake Demo项目： 
 
 修改snake代码中食物的颜色，并自动部署新的snake镜像：通过修改snake代码下的css文件中的 main-snake.css中的 
 ![](Images/3/foodbody.png)

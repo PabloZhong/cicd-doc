@@ -2,7 +2,9 @@
 
 本文档主要介绍如何在已完成部署的CI/CD工具链基础上，实现JavaScript应用的CI/CD配置和演示。  
 
-## 1. 在GitLab中创建项目，并上传源代码  
+## 1. CI/CD配置  
+
+### 1.1 在GitLab中创建项目，并上传源代码  
 
 **Step 1: 在GitLab中创建示例项目。**  
 在GitLab中创建一个示例项目（Create a project），填入项目名称如“snake-demo”：  
@@ -32,8 +34,10 @@
 
 Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代码：  
 ![](Images/3/gitlab-check-source-code.png)  
+其中的Dockerfile和Jenkinsfile后面步骤中都会使用到。
 
-## 2. 创建Jenkins Pipeline，并部署Snake应用    
+
+### 1.2 创建Jenkins Pipeline，并部署Snake应用    
 
 **Step 1: 制作Jenkins Slave镜像。**  
 为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave镜像，并上传至EKS的镜像仓库中。   
@@ -203,6 +207,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
                 """
             }
 ``` 
+其中构建镜像会使用Jenkins Slave从GitLab代码库中拉取的代码中所包含的Dockerfile。  
 
 在Blue Ocean界面中可以查看Pipeline执行进度：  
 ![](Images/3/check-initial-pipeline.png)  
@@ -220,65 +225,26 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 部署成功之后，查看对应的服务的端口号：  
 ![](Images/3/check-snake-service.png)  
 
-通过NodeIP:Port方式，访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏： 
+通过NodeIP:Port方式，通过Web浏览器访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏： 
 ![](Images/3/visit-initial-snake.png) 
     
 请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要使用。  
 
-## 3. 配置自动部署（待修改）    
+### 1.3 配置自动部署    
 
-修改Jenkinsfile源代码，增加自动部署。  
+为了实现应用更新之后的自动部署，我们需要修改Jenkinsfile Pipeline，增加自动部署环节。    
 
-修改之后的Jenkinsfile如下：（增加最后的CD部署Stage）  
+具体而言，需要修改GitLab代码库中的Jenkinsfile，在最后增加一个自动部署的Stage，如下所示：  
+
 ```
-podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
-  containers: [
-        containerTemplate(
-            name: 'jnlp',
-            //请按需修改Jenkins Slave镜像名称
-            image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1',
-            command: '',
-            args: '${computer.jnlpmac} ${computer.name}',
-            privileged: true,
-            alwaysPullImage: false,
-            ttyEnabled: true, 
-        ),
-  ],
-  volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
-            hostPathVolume(hostPath: '/usr/bin/docker', mountPath: '/usr/bin/docker'),
-            hostPathVolume(hostPath: '/usr/bin/docker-current', mountPath: '/usr/bin/docker-current'),
-            hostPathVolume(hostPath: '/etc/sysconfig/docker', mountPath: '/etc/sysconfig/docker'),
-            hostPathVolume(hostPath: '/usr/bin/kubectl', mountPath: '/usr/bin/kubectl')]
-  ) {
-
-  node('jnlp') {
-    stage('CICD for Snake Game demo') {
-        container('jnlp') {
-            stage("Clone source code of Snake game") {
-                //请按需修改源代码库地址
-                git 'http://172.16.6.30:30080/easystack/snake-demo.git'
-            }
-                      
-            stage('Build & push docker image') {
-                //请按需修改镜像仓库的账号和密码
-                sh """
-                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io  
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} . 
-                    docker push hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}
-                """
-            }
-            
             stage('Deploy app to EKS') {
                 //请按需修改Deployment名称和Snake镜像名称
                 sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
             }
-        }
-    }
- }
-}
 ```
+其中kubectl set image命令可以更新Deployment所使用的镜像版本。  
 
-## 4. 配置自动触发构建    
+### 1.4 配置自动触发构建    
 为了实现GitLab中更新代码操作能够自动触发Jenkins Pipeline构建，我们需要在GitLab中配置Webhook。     
 具体步骤如下：  
 在GitLab的项目中选择【Settings】->[Integrations]，构建Webhook：  
@@ -296,25 +262,26 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 后续每次往GitLab的“snake-demo”项目中Push代码后，就会自动触发Jenkins上相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
-## 5. CI/CD效果演示（待修改）    
+## 2. CI/CD效果演示（待修改）    
 
-在gitlab中修改snake中的文件均会触发Jenkins自动构建Snake Demo项目： 
+在完成Snake Demo项目的CI/CD配置之后，我们可以演示CI/CD流程：  
 
-修改snake代码中食物的颜色，并自动部署新的snake镜像：通过修改snake代码下的css文件中的 main-snake.css中的 
+```更新代码```->```自动构建镜像```->```上传镜像```->```自动部署```  
+
+具体操作步骤参考如下：  
+
+修改GitLab中Snake-demo项目的源代码下的css文件中的 main-snake.css中的xxx。 
 ![](Images/3/foodbody.png)
-来修改食物的颜色，修改成功后，会自动触发Jenkins Pipeline，执行“代码克隆”->“镜像构建”->“镜像上传”->“自动部署”一整套流程。  
+修改代码并Commit之后，会自动触发Jenkins Pipeline，执行CI/CD流程。  
 
 在Jenkins Blue Ocean界面中查看Pipeline执行状态：  
 
-![](Images/3/blueoceanbuild.png)
+![](Images/3/blueocean-pipeline-build.png)
 
-![](Images/3/pipeline-success.png)
+![](Images/3/blueocean-pipeline-success.png)
 
-自动部署完成后，效果如下： 
-![](Images/3/change-food-color.png)
-可以看到，食物的颜色由原来的大红色变为了黄色。 
+等待自动部署完成后，刷新Snake Demo的Web页面，可以看到食物的颜色由原来的大红色变为了黄色。 
+![](Images/3/change-food-color.png) 
 
 同时，我们也可以在EKS界面查看Kubernetes Deployment所采用的镜像已经完成更新：   
 ![](Images/3/deployment-image-update.png)  
-
-至此，完成了修改snake源码自动构建Snake Demo镜像，并且自动部署应用的一整套CI/CD流程。  

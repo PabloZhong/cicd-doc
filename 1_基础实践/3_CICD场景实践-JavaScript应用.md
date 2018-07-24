@@ -249,7 +249,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 具体步骤如下：  
 在GitLab的项目中选择【Settings】->[Integrations]，构建Webhook：  
 ![](Images/3/gitlab-add-webhook.png)   
-其中URL需要填写准确，具体的格式可参考：http://<Jenkins user account>:<Jenkins user password>@<NodeIP>:<Jenkins Service NodePort>/project/<Jenkins project name>  
+其中URL需要填写准确，具体的格式可参考```http://<Jenkins user account>:<Jenkins user password>@<NodeIP>:<Jenkins Service NodePort>/project/<Jenkins project name>```  
 
 >注：此处选择的触发方式（Trigger）为“Push events”，代表每次Push代码操作都会触发Webhook，您也可以选择其他触发（Trigger）方式，如“Merge Request events”等。  
 
@@ -262,7 +262,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 后续每次往GitLab的“snake-demo”项目中Push代码后，就会自动触发Jenkins上相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
-## 2. CI/CD效果演示（待修改）    
+## 2. CI/CD演示    
 
 在完成Snake Demo项目的CI/CD配置之后，我们可以演示CI/CD流程：  
 
@@ -271,7 +271,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 具体操作步骤参考如下：  
 
 修改GitLab中Snake-demo项目的源代码下的css目录下的main-snake.css文件，可参考下图所示：    
-![](Images/3/update-code.png)
+![](Images/3/update-code.png)  
 将```.snake-playing-field```的```background-color```参数从```#0000A8```（蓝色）修改为```#008000```（绿色）。 
 修改代码并“Commit change”之后，会自动触发Jenkins Pipeline，执行CI/CD流程。   
 
@@ -284,5 +284,5 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 等待自动部署完成后，刷新Snake Demo的Web页面，可以看到“贪吃蛇”游戏的背景颜色由原来的蓝色变为了绿色。 
 ![](Images/3/check-updated-app.png) 
 
-同时，我们也可以在EKS界面查看Kubernetes Deployment所采用的镜像已经完成更新：   
+同时，我们也可以在EKS界面查看Kubernetes Deployment所采用的镜像已经完成更新。   
 ![](Images/3/deployment-image-update.png)  

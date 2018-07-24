@@ -270,9 +270,10 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 具体操作步骤参考如下：  
 
-修改GitLab中Snake-demo项目的源代码下的css文件中的 main-snake.css中的xxx。 
-![](Images/3/foodbody.png)
-修改代码并Commit之后，会自动触发Jenkins Pipeline，执行CI/CD流程。  
+修改GitLab中Snake-demo项目的源代码下的css目录下的main-snake.css文件，可参考下图所示：    
+![](Images/3/update-code.png)
+将```.snake-playing-field```的```background-color```参数从```#0000A8```（蓝色）修改为```#008000```（绿色）。 
+修改代码并“Commit change”之后，会自动触发Jenkins Pipeline，执行CI/CD流程。   
 
 在Jenkins Blue Ocean界面中查看Pipeline执行状态：  
 
@@ -280,8 +281,8 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 ![](Images/3/blueocean-pipeline-success.png)
 
-等待自动部署完成后，刷新Snake Demo的Web页面，可以看到食物的颜色由原来的大红色变为了黄色。 
-![](Images/3/change-food-color.png) 
+等待自动部署完成后，刷新Snake Demo的Web页面，可以看到“贪吃蛇”游戏的背景颜色由原来的蓝色变为了绿色。 
+![](Images/3/check-updated-app.png) 
 
 同时，我们也可以在EKS界面查看Kubernetes Deployment所采用的镜像已经完成更新：   
 ![](Images/3/deployment-image-update.png)  

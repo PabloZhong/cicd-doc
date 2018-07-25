@@ -216,7 +216,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 可以在EKS界面中看到正在执行Pipeline的Jenkins Slave Pod：   
 ![](Images/3/check-jenkins-slave-pod.png)  
 
-在EKS的镜像仓库中查看第一次构建并上传的Snake Demo镜像：  
+执行完成第一次Pipleline后，可以在EKS的镜像仓库中查看第一次构建并上传的Snake Demo镜像：  
 ![](Images/3/check-snake-image.png)  
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  

@@ -247,7 +247,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 ### 1.4 配置自动触发构建    
 为了实现GitLab中更新代码操作能够自动触发Jenkins Pipeline构建，我们需要在GitLab中配置Webhook。     
 具体步骤如下：  
-在GitLab的项目中选择【Settings】->[Integrations]，构建Webhook：  
+在GitLab的项目中选择【Settings】->【Integrations】，新建Webhook：  
 ![](Images/3/gitlab-add-webhook.png)   
 其中URL需要填写准确，具体的格式可参考```http://<Jenkins user account>:<Jenkins user password>@<NodeIP>:<Jenkins Service NodePort>/project/<Jenkins project name>```  
 

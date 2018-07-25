@@ -171,22 +171,22 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
     stage('CICD for Snake Game demo') {
         container('jnlp') {
             stage("Clone source code of Snake game") {
-                //请按需修改源代码库地址
-                git 'http://172.16.6.30:30080/easystack/snake-demo.git'
+                //请按需修改Git源代码库地址
+                git 'http://172.16.6.28:30080/easystack/snake-demo.git'
             }
                       
             stage('Build & push docker image') {
                 //请按需修改镜像仓库的账号和密码
                 sh """
                     docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io  
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER} . 
-                    docker push hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} . 
+                    docker push hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}
                 """
             }
             
             //stage('Deploy app to EKS') {
                 //请按需修改Deployment名称和Snake镜像名称
-                //sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
+                //sh """kubectl set image deployment/snake-demo-snake-demo-cao7ea5d snake-demo-snake-demo-cao7ea5d=hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}"""
             //}
         }
     }
@@ -196,7 +196,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 其中：  
 
 1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指定之前所构建的Jenkins Slave镜像。  
-2）```git 'http://172.16.6.30:30080/easystack/snake-demo.git'```将Snake Demo源代码从GitLab中拉取到Jenkins Slave Pod中，请注意按需修改源代码项目地址。  
+2）```git 'http://172.16.6.28:30080/easystack/snake-demo.git'```将Snake Demo源代码从GitLab中拉取到Jenkins Slave Pod中，请注意按需修改源代码项目地址。  
 3）下面的命令分别实现登录镜像仓库、构建Snake Demo镜像以及上传镜像：  
 ```
  stage('Build & push docker image') {
@@ -212,6 +212,9 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 
 在Blue Ocean界面中可以查看Pipeline执行进度：  
 ![](Images/3/check-initial-pipeline.png)  
+
+可以在EKS界面中看到正在执行Pipeline的Jenkins Slave Pod：  
+![](Images/3/cxxxx.png)  
 
 在EKS的镜像仓库中查看第一次构建并上传的Snake Demo镜像： 
 ![](Images/3/check-snake-image.png) 
@@ -240,7 +243,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 ```
             stage('Deploy app to EKS') {
                 //请按需修改Deployment名称和Snake镜像名称
-                sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
+                sh """kubectl set image deployment/snake-demo-snake-demo-cao7ea5d snake-demo-snake-demo-cao7ea5d=hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}"""
             }
 ```
 其中kubectl set image命令可以更新Deployment所使用的镜像版本，```deployment```参数需指定为Snake Demo应用的Deployment名称。   
@@ -286,4 +289,4 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 ![](Images/3/check-updated-app.png) 
 
 同时，我们也可以在EKS界面查看Kubernetes Deployment所采用的镜像已经完成更新。   
-![](Images/3/deployment-image-update.png)  
+![](Images/3/check-deployment-image-update.png)  

@@ -208,7 +208,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
                 """
             }
 ``` 
-其中构建镜像会使用Jenkins Slave从GitLab代码库中拉取的代码中所包含的Dockerfile。  
+其中构建镜像会使用Jenkins Slave从GitLab代码库中拉取的代码中所包含的Dockerfile。    
 
 在Blue Ocean界面中可以查看Pipeline执行进度：  
 ![](Images/3/check-initial-pipeline.png)  
@@ -243,7 +243,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
                 sh """kubectl set image deployment/snake-snake-e8fluud7 snake-snake-e8fluud7=hub.easystack.io/3dc70621b8504c98/snake:${BUILD_NUMBER}"""
             }
 ```
-其中kubectl set image命令可以更新Deployment所使用的镜像版本。  
+其中kubectl set image命令可以更新Deployment所使用的镜像版本，```deployment```参数需指定为Snake Demo应用的Deployment名称。   
 
 ### 1.4 配置自动触发构建    
 为了实现GitLab中更新代码操作能够自动触发Jenkins Pipeline构建，我们需要在GitLab中配置Webhook。     

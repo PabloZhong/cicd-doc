@@ -210,14 +210,14 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 ``` 
 其中构建镜像会使用Jenkins Slave从GitLab代码库中拉取的代码中所包含的Dockerfile。    
 
-在Blue Ocean界面中可以查看Pipeline执行进度：  
+在Blue Ocean界面中可以查看Pipeline执行进度：   
 ![](Images/3/check-initial-pipeline.png)  
 
-可以在EKS界面中看到正在执行Pipeline的Jenkins Slave Pod：  
-![](Images/3/cxxxx.png)  
+可以在EKS界面中看到正在执行Pipeline的Jenkins Slave Pod：   
+![](Images/3/check-jenkins-slave-pod.png)  
 
-在EKS的镜像仓库中查看第一次构建并上传的Snake Demo镜像： 
-![](Images/3/check-snake-image.png) 
+在EKS的镜像仓库中查看第一次构建并上传的Snake Demo镜像：  
+![](Images/3/check-snake-image.png)  
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 

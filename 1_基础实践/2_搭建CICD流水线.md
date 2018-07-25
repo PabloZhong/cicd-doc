@@ -64,8 +64,8 @@
 
 下一步，注入环境变量至GitLab容器中，在“高级配置”中进行设置，参考下图：  
 ![](Images/2/gitlab-configuration-3.png)  
-图示中键填入为： GITLAB_OMNIBUS_CONFIG  
-值填入为：  external_url 'http://gitlab.example.org/'; gitlab_rails['gitlab_shell_ssh_port'] = 30022;  
+图示中键填入为： ```GITLAB_OMNIBUS_CONFIG```   
+值填入为：  ```external_url 'http://gitlab.example.org/'; gitlab_rails['gitlab_shell_ssh_port'] = 30022;```  
 分别代表GitLab的外部访问域名和SSH连接端口，其中外部访问域名还需要在接下来的Ingress路由中设置。  
 
 保存上述配置，便可以部署GitLab应用。  

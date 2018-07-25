@@ -259,7 +259,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
 如果返回“Hook executed successfully: HTTP 200 ”即表示Webhook配置成功：
 ![](Images/3/gitlab-webhook-test-2.png)  
 
-后续每次往GitLab的“snake-demo”项目中Push代码后，就会自动触发Jenkins上相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
+后续每次往GitLab的“snake-demo”项目中Push代码后，将会自动触发Jenkins相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
 ## 2. CI/CD演示    

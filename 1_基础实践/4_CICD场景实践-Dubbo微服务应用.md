@@ -117,12 +117,12 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 并通过“docker push”命令推送到镜像仓库中去。
 
 构建成功后控制台结果输出如下：
-![](IMAGES/dubbo-control-1.png)
-![](IMAGES/dubbo-control-2.png)
+![](Images/dubbo-control-1.png)
+![](Images/dubbo-control-2.png)
 
 blueocean输出如下：
 
-![](IMAGES/dubbo-bo.png)
+![](Images/dubbo-bo.png)
 
 其中dubbo-consumer的Dockefile文件如下：
 ```

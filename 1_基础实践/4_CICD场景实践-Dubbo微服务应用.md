@@ -152,7 +152,9 @@ dubbo-consumer,dubbo-provider镜像成功构建并且推送到镜像仓库后，
 
 
 在该场景里面采用ECS里面的大数据组件来实现zookeeper集群的快速部署，提供dubbo应用架构的服务注册中心，采用EKS来部署dubbo应用，dubbo应用分为两类，一类是提供服务的provider，另一类是消费服务的consumer，两类服务均采用容器部署的方式部署，部署步骤如下：
+
 **Step 1 - 部署zookeeper集群作为dubbo应用中的注册中心**
+
 1.创建zookeeper网络
 
 ![](Images/4/zk-network.png)

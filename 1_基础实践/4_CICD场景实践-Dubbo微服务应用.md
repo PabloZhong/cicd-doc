@@ -5,12 +5,13 @@
 ## 2）Jenkins中的流水线配置，包括GitLab自动触发Jenkins的CI构建的配置。
 ## 3）CICD场景如何进行演示。  
 
-**Step 4: 在GitLab中创建示例项目。**  
-我们在GitLab中创建一个示例项目“dubbo-demo”：  
-![](Images/4/gitlab-create-project-1.png)  
-![](Images/4/gitlab-create-project-2.png)  
+**Step 1: 在GitLab中创建示例项目。** 
 
-**Step 5: 上传示例项目的源代码至GitLab。**  
+在GitLab中创建一个示例项目“dubbo-demo”：  
+![](Images/4/gitlab-create-project-1.png)  
+![](Images/4/gitlab-create-project-2.png) 
+
+**Step 2: 上传dubbo项目代码以及pom等文件到Gitlab项目中**
 
 首先需要确认所使用的本地虚拟机环境中已经安装了Git，并完成Git Global Config配置。   
 然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
@@ -40,6 +41,8 @@ dubbo.registry.address=zookeeper://172.16.2.245:2181
 
 （2）dubbo/dubbo-demo/dubbo-demo-provider/src/main/assembly/conf/dubbo.properties
 dubbo.registry.address=zookeeper://172.16.2.245:2181
+
+其中dubbo.registry.address的地址是创建的zookeeper的地址。
 
 3.2.2 构建dubbo镜像
 使用以下pipeline script构建dubbo镜像：
@@ -112,6 +115,15 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 
 使用“docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-provider:v11 /home/jenkins/workspace/dubbo-old/dubbo-demo/dubbo-demo-provider”构建dubbo-provider容器镜像，
 并通过“docker push”命令推送到镜像仓库中去。
+
+构建成功后控制台结果输出如下：
+![](IMAGES/dubbo-control-1.png)
+![](IMAGES/dubbo-control-2.png)
+
+blueocean输出如下：
+
+![](IMAGES/dubbo-bo.png)
+
 其中dubbo-consumer的Dockefile文件如下：
 ```
 FROM openjdk:8-jre

@@ -94,7 +94,15 @@
 
 验证本地虚拟机与GitLab的SSH连通性：  
 ![](Images/2/gitlab-ssh-2.png)   
-后续将试用SSH方式上传代码至GitLab中。 
+后续将使用SSH方式上传（Push）源代码至GitLab中。  
+
+### Step 4：创建Access Token  
+在CI/CD演示中，有可能需要创建Private类型的GitLab项目，在这种情况下建议创建```Access Token```，用于认证。  
+在GitLab界面【GitLab】-【Setting】-【Access Tokens】中创建：    
+![](Images/2/gitlab-create-token.png)  
+
+请妥善保存生成的```Access Token```。 
+![](Images/2/gitlab-private-access-token.png)  
 
 ## 2. Jenkins部署与配置  
 

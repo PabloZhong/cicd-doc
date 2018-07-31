@@ -208,14 +208,15 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 其中有以下几点需要说明：  
 
 1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指定之前Step 1中构建的Jenkins Slave镜像。  
-2）```stage("Clone source code of Snake game")```将Snake Demo源代码从GitLab中拉取到Jenkins Slave Pod中，具体写法如下：    
+2）```stage("Clone source code of Snake game")```将源代码从GitLab中拉取到Jenkins Slave Pod中，具体写法如下：    
    · 如果是Public类型的GitLab项目，直接通过HTTP方式Git clone源代码即可，无需使用用户名+密码或者Access Token；  
    · 如果是Private类型的GitLab项目，则需要使用```用户名+密码```或使用之前在GitLab中生成的```Access Token```，具体格式参考：  
-    ```
-    git clone http://<username>:<password>@<GitLab URL>/<username>/<project name>.git 
-    或：
-    git clone http://oauth2:<access token>@<GitLab URL>/<username>/<project name>.git
-    ```
+
+```
+    git clone http://<username>:<password>@<GitLab URL>/<username>/<project name>.git  
+    或：  
+    git clone http://oauth2:<access token>@<GitLab URL>/<username>/<project name>.git  
+```
 
 3）下面的命令分别实现登录镜像仓库、构建Snake Demo镜像以及上传镜像：  
 ```

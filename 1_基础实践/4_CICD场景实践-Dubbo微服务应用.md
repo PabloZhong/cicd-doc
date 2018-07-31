@@ -18,23 +18,23 @@
 首先需要确认所使用的本地虚拟机环境（可使用之前上传Docker镜像的环境）中已经安装了Git，并完成Git Global Config配置。   
 然后通过公网从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
-[root@docker-ce ~]# git clone https://github.com/PabloZhong/Snake.git
+[root@docker-ce ~]# git clone https://github.com/PabloZhong/dubbo-demo.git
 ```
 
 随后可参考GitLab中界面提示，通过SSH方式将源代码Push到GitLab中（使用[文档2](./2_搭建CICD工具链.md)中的SSH Key）：  
 （备注：需要提前在运行Git的虚拟机上修改/etc/hosts文件，加入集群节点NodeIP与域名的映射，如本示例加入172.16.6.48 gitlab.example.org）
 ```
-[root@docker-ce ~]# cd Snake/
-[root@docker-ce Snake]# git init
-[root@docker-ce Snake]# git remote rename origin old-origin 
-[root@docker-ce Snake]# git remote add origin ssh://git@gitlab.example.org:30022/easystack/snake-demo.git  
-[root@docker-ce Snake]# git push -u origin --all   
+[root@docker-ce ~]# cd dubbo-demo/
+[root@docker-ce dubbo-demo]# git init
+[root@docker-ce dubbo-demo]# git remote rename origin old-origin 
+[root@docker-ce dubbo-demo]# git remote add origin ssh://git@gitlab.example.org:30022/easystack/dubbo-demo.git  
+[root@docker-ce dubbo-demo]# git push -u origin --all   
 ```
 其中GitLab项目URL地址参考：  
-![](Images/3/gitlab-ssh-url.png)  
+![](Images/4/gitlab-ssh-url.png)  
 
 Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代码：  
-![](Images/3/gitlab-check-source-code.png)  
+![](Images/4/gitlab-check-source-code.png)  
 其中的Dockerfile和Jenkinsfile后面步骤中都会使用到。
 
 

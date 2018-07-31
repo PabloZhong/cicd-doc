@@ -22,7 +22,7 @@
 [root@docker-ce ~]# git clone https://github.com/PabloZhong/Snake.git
 ```
 
-随后可参考GitLab中界面提示，通过SSH方式将源代码Push到GitLab中（使用[文档2](./2_搭建CICD工具链)中的SSH Key）：  
+随后可参考GitLab中界面提示，通过SSH方式将源代码Push到GitLab中（使用[文档2](./2_搭建CICD工具链.md)中的SSH Key）：  
 （备注：需要提前在运行Git的虚拟机上修改/etc/hosts文件，加入集群节点NodeIP与域名的映射，如本示例加入172.16.6.48 gitlab.example.org）
 ```
 [root@docker-ce ~]# cd Snake/
@@ -205,7 +205,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指定之前Step 1中构建的Jenkins Slave镜像。  
 2）```stage("Clone source code of Snake game")```将源代码从GitLab中拉取到Jenkins Slave Pod中，具体写法如下：    
    · 如果是Public类型的GitLab项目，直接通过HTTP方式Git clone源代码即可，无需使用用户名+密码或者Access Token；  
-   · 如果是Private类型的GitLab项目，则需要使用```用户名+密码```或使用[文档2](./2_搭建CICD工具链)]中生成的GitLab ```Access Token```，具体格式参考：  
+   · 如果是Private类型的GitLab项目，则需要使用```用户名+密码```或使用[文档2](./2_搭建CICD工具链.md)]中生成的GitLab ```Access Token```，具体格式参考：  
 
 ```
     git clone http://<username>:<password>@<GitLab URL>/<username>/<project name>.git  

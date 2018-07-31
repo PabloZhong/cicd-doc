@@ -311,3 +311,5 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 
 同时，我们也可以在EKS界面查看Kubernetes Deployment所采用的镜像已经完成更新。   
 ![](Images/3/check-deployment-image-update.png)  
+
+后续每次更新GitLab中的源代码，均会重复上述CI/CD流程。  

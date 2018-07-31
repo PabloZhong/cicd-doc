@@ -7,15 +7,22 @@
 ### 1.1 在GitLab中创建项目，并上传源代码  
 
 **Step 1: 在GitLab中创建示例项目。**  
-在GitLab中创建一个示例项目（Create a project），填入项目名称如“snake-demo”：  
+在GitLab中创建一个示例项目（Create a project）：  
 ![](Images/3/gitlab-create-project-1.png)  
+
+填入项目名称如“snake-demo”，选择项目类型（Private或者Public均可）：  
 ![](Images/3/gitlab-create-project-2.png)  
-注：目前只支持Public类型的GitLab项目，还需要研究如何支持Private项目。  
+
+如果选择Private类型的项目，建议创建```Access Token```，在【GitLab】-【Setting】-【Access Tokens】中创建：  
+![](Images/3/gitlab-create-token.png)  
+
+请妥善保存生成的```Access Token```。 
+![](Images/3/gitlab-private-access-token.png)  
 
 **Step 2: 上传源代码至GitLab示例项目。**  
 
 首先需要确认所使用的本地虚拟机环境（可使用之前上传Docker镜像的环境）中已经安装了Git，并完成Git Global Config配置。   
-然后从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
+然后通过公网从GitHub上将示例项目的源代码克隆（Clone）到本地虚拟机中：  
 ```
 [root@docker-ce ~]# git clone https://github.com/PabloZhong/Snake.git
 ```
@@ -147,7 +154,7 @@ Jenkins将自动生成SSH Key Pair，需要将SSH公钥添加到GitLab中，添�
 
 本示例中的Jenkinsfile参考如下：
 ```
-podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernetes',
+podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernetes',
   containers: [
         containerTemplate(
             name: 'jnlp',
@@ -172,14 +179,19 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
         container('jnlp') {
             stage("Clone source code of Snake game") {
                 //请按需修改Git源代码库地址
-                git 'http://172.16.6.28:30080/easystack/snake-demo.git'
+                //如果是Private项目，使用如下命令（需使用GitLab Access Token）
+                sh """
+                    git clone http://oauth2:E8azoQ6QSTpmvyzEeJzc@172.16.6.28:30080/easystack/snake-demo.git
+                """
+                //如果是Public项目，使用如下命令
+                //git 'http://172.16.6.28:30080/easystack/snake-demo.git'
             }
                       
             stage('Build & push docker image') {
-                //请按需修改镜像仓库的账号和密码
+                //请按需修改镜像仓库的账号和密码，并注意docker build命令中Dockerfile所在路径
                 sh """
                     docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io  
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} . 
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} ./snake-demo
                     docker push hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}
                 """
             }
@@ -193,22 +205,30 @@ podTemplate(name: 'jnlp', label: 'jnlp', namesapce: 'default', cloud: 'kubernete
  }
 }
 ```
-其中：  
+其中有以下几点需要说明：  
 
-1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指定之前所构建的Jenkins Slave镜像。  
-2）```git 'http://172.16.6.28:30080/easystack/snake-demo.git'```将Snake Demo源代码从GitLab中拉取到Jenkins Slave Pod中，请注意按需修改源代码项目地址。  
+1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指定之前Step 1中构建的Jenkins Slave镜像。  
+2）```stage("Clone source code of Snake game")```将Snake Demo源代码从GitLab中拉取到Jenkins Slave Pod中，具体写法如下：    
+   · 如果是Public类型的GitLab项目，直接通过HTTP方式Git clone源代码即可，无需使用用户名+密码或者Access Token；  
+   · 如果是Private类型的GitLab项目，则需要使用```用户名+密码```或使用之前在GitLab中生成的```Access Token```，具体格式参考：  
+    ```
+    git clone http://<username>:<password>@<GitLab URL>/<username>/<project name>.git 
+    或：
+    git clone http://oauth2:<access token>@<GitLab URL>/<username>/<project name>.git
+    ```
+
 3）下面的命令分别实现登录镜像仓库、构建Snake Demo镜像以及上传镜像：  
 ```
  stage('Build & push docker image') {
-                //请按需修改镜像仓库的账号和密码
+                //请按需修改镜像仓库的账号和密码，并注意docker build命令中Dockerfile所在路径
                 sh """
                     docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} .
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} ./snake-demo
                     docker push hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}
                 """
             }
 ``` 
-其中构建镜像会使用Jenkins Slave从GitLab代码库中拉取的代码中所包含的Dockerfile。    
+其中docker build构建镜像步骤，会使用Jenkins Slave从GitLab代码库中拉取的代码中所包含的Dockerfile。    
 
 在Blue Ocean界面中可以查看Pipeline执行进度：   
 ![](Images/3/check-initial-pipeline.png)  

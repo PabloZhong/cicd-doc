@@ -313,6 +313,7 @@ podTemplate(label: 'test', cloud: 'kubernetes') {
 
 ### Step 6: 添加证书（可选）   
 >注：如果后续CI/CD演示项目均采用Blue Ocean方式构建，则无需此步配置。    
+
 为保证Jenkins和GitLab之间能够使用SSH通信，需要在Jenkins中添加证书（Credential）。证书使用之前GitLab中添加的公钥所对应的私钥，参考“GitLab代码仓库部署与配置”-“Step 3: 设置通过SSH连接GitLab”。  
 在Jenkins界面中点击【Jenkins】-【Credendials】-【System】-【Add domain】，添加一个domain。  
 ![](Images/2/jenkins-add-credential-1.png)  

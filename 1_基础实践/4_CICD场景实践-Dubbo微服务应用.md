@@ -22,7 +22,7 @@
 ```
 
 随后可参考GitLab中界面提示，通过SSH方式将源代码Push到GitLab中（使用[文档2](./2_搭建CICD工具链.md)中的SSH Key）：  
-（备注：需要提前在运行Git的虚拟机上修改/etc/hosts文件，加入集群节点NodeIP与域名的映射，如本示例加入172.16.6.48 gitlab.example.org）
+（备注：需要提前在运行Git的虚拟机上修改/etc/hosts文件，加入集群节点NodeIP与域名的映射，如本示例加入172.16.6.28 gitlab.example.org）
 ```
 [root@docker-ce ~]# cd dubbo-demo/
 [root@docker-ce dubbo-demo]# git init

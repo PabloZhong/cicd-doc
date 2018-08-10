@@ -140,11 +140,11 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 填入GitLab代码仓库对应的项目地址：（注意：SSH的URL中需要将域名改成NodeIP）   
 ![](Images/3/jenkins-create-pipeline-2.png)  
 
-Jenkins将自动生成SSH Key Pair，需要将SSH公钥添加到GitLab中，添加路径为【GitLab】-【User Setting】-【SSH Keys】：  
+Jenkins将自动生成SSH Key Pair，在创建Pipeline之前，需要将SSH公钥添加到GitLab中，添加路径为【GitLab】-【User Setting】-【SSH Keys】：  
 ![](Images/3/gitlab-ssh-key.png)  
 
 回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline：  
-图缺  
+
 ![](Images/3/jenkins-initial-pipeline-1.png)  
 ![](Images/3/jenkins-initial-pipeline-2.png)  
 

@@ -126,9 +126,10 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 Jenkins将自动生成SSH Key Pair，在创建Pipeline之前，需要将SSH公钥添加到GitLab中，添加路径为【GitLab】-【User Setting】-【SSH Keys】：  
 ![](Images/4/gitlab-ssh-key.png)  
 
-回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline：  
-
+回到Jenkins Blue Ocean界面，点击“创建Pipeline”:    
 ![](Images/4/jenkins-initial-pipeline-1.png)  
+
+Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline： 
 ![](Images/4/jenkins-initial-pipeline-2.png)  
 
 本示例中的Jenkinsfile参考如下：
@@ -137,8 +138,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
   containers: [
         containerTemplate(
             name: 'jnlp',
-            //请按需修改Jenkins Slave镜像名称
-            image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1',
+            image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:v1',
             command: '',
             args: '${computer.jnlpmac} ${computer.name}',
             privileged: true,
@@ -154,31 +154,38 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
   ) {
 
   node('jnlp') {
-    stage('CICD for Snake Game demo') {
+    stage('CICD for Dubbo Demo') {
         container('jnlp') {
-            stage("Clone source code of Snake game") {
+            stage("Clone source code of Dubbo Demo") {
                 //请按需修改Git源代码库地址
                 //如果是Private项目，参考示例如下（需使用GitLab Access Token）
                 sh """
-                    git clone http://oauth2:E8azoQ6QSTpmvyzEeJzc@172.16.6.28:30080/easystack/snake-demo.git
+                    git clone http://oauth2:QK6YdGhk3muxTPzAQC1B@172.16.6.28:30080/easystack/dubbo-demo.git
                 """
                 //如果是Public项目，参考示例如下
-                //git 'http://172.16.6.28:30080/easystack/snake-demo.git'
+                //git 'http://172.16.6.28:30080/easystack/dubbo-demo.git'
             }
-                      
+            
+            stage('Compile') {
+                echo 'Hello, Maven!'
+                sh 'java -version'
+                dir('./dubbo-demo/dubbo-demo')
+                {
+                    sh '/opt/rh/rh-maven33/root/usr/bin/mvn clean install'
+                }
+            }
+            
             stage('Build & push docker image') {
                 //请按需修改镜像仓库的账号和密码，并注意docker build命令中Dockerfile所在路径
                 sh """
-                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io  
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} ./snake-demo
-                    docker push hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}
+                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
+                    docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v${BUILD_NUMBER} ./dubbo-demo/dubbo-demo/dubbo-demo-consumer
+                    docker push hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v${BUILD_NUMBER}
+                    docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-provider:v${BUILD_NUMBER} ./dubbo-demo/dubbo-demo/dubbo-demo-provider
+                    docker push hub.easystack.io/3dc70621b8504c98/dubbo-provider:v${BUILD_NUMBER}
                 """
             }
             
-            //stage('Deploy app to EKS') {
-                //请按需修改Deployment名称和Snake镜像名称
-                //sh """kubectl set image deployment/snake-demo-snake-demo-cao7ea5d snake-demo-snake-demo-cao7ea5d=hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}"""
-            //}
         }
     }
  }
@@ -186,7 +193,8 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 ```
 其中有以下几点需要说明：  
 
-1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave:v1'```指定之前Step 1中构建的Jenkins Slave镜像。  
+1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:v1'```指定之前Step 1中构建的Jenkins Slave镜像。   
+
 2）```stage("Clone source code of Snake game")```将源代码从GitLab中拉取到Jenkins Slave Pod中，具体写法如下：    
    · 如果是Public类型的GitLab项目，直接通过HTTP方式Git clone源代码即可，无需使用用户名+密码或者Access Token；  
    · 如果是Private类型的GitLab项目，则需要使用```用户名+密码```或使用[文档2](./2_搭建CICD工具链.md)中生成的GitLab ```Access Token```，具体格式参考：  
@@ -195,33 +203,38 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
     git clone http://<username>:<password>@<GitLab URL>/<username>/<project name>.git  
     或：  
     git clone http://oauth2:<access token>@<GitLab URL>/<username>/<project name>.git  
-```
+```  
 
-3）下面的命令分别实现登录镜像仓库、构建Snake Demo镜像以及上传镜像：  
+3）```stage('Compile')```执行Maven编译，这个过程中需要拉取依赖包，因此耗时比较长（10-20分钟左右），编译成功后将生成应用包。  
+
+4）下面的命令分别实现登录镜像仓库、构建Dubbo Demo镜像（分为Dubbo comsumer镜像和Dubbo Provider镜像），以及上传镜像：  
 ```
- stage('Build & push docker image') {
-                //请按需修改镜像仓库的账号和密码，并注意docker build命令中Dockerfile所在路径
-                sh """
-                    docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} ./snake-demo
-                    docker push hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}
-                """
-            }
+stage('Build & push docker image') {
+    //请按需修改镜像仓库的账号和密码，并注意docker build命令中Dockerfile所在路径
+    sh """
+        docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io
+        docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v${BUILD_NUMBER} ./dubbo-demo/dubbo-demo/dubbo-demo-consumer
+        docker push hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v${BUILD_NUMBER}
+        docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-provider:v${BUILD_NUMBER} ./dubbo-demo/dubbo-demo/dubbo-demo-provider
+        docker push hub.easystack.io/3dc70621b8504c98/dubbo-provider:v${BUILD_NUMBER}
+    """
+}
 ``` 
-其中docker build构建镜像步骤，会使用Jenkins Slave从GitLab代码库中拉取的代码中所包含的Dockerfile。    
+其中docker build构建镜像步骤，会使用Jenkins Slave从GitLab代码库中拉取的源代码中所包含的Dockerfile。    
 
 在Blue Ocean界面中可以查看Pipeline执行进度：   
-![](Images/3/check-initial-pipeline.png)  
+![](Images/4/check-initial-pipeline.png)  
 
 可以在EKS界面中看到正在执行Pipeline的Jenkins Slave Pod：   
-![](Images/3/check-jenkins-slave-pod.png)  
+![](Images/4/check-jenkins-slave-pod.png)  
 
-执行完成第一次Pipleline后，可以在EKS的镜像仓库中查看第一次构建并上传的Snake Demo镜像：  
-![](Images/3/check-snake-image.png)  
+执行完成第一次Pipleline后，可以在EKS的镜像仓库中查看第一次构建并上传的Dubbo comsumer和Dubbo provider镜像：  
+![](Images/4/check-demo-image-1.png)  
+![](Images/4/check-demo-image-2.png)  
 
-注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
+注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Dubbo Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 
-**Step 3: 在EKS中进行Snake Demo应用的第一次部署。**  
+**Step 3: 在EKS中进行Dubbo Demo应用的第一次部署。**  
 在EKS中，选择第一次执行Pipeline生成的Snake Demo镜像，进行Snake Demo应用部署： 
 ![](Images/3/create-initial-snake-1.png)  
 ![](Images/3/create-initial-snake-2.png)  

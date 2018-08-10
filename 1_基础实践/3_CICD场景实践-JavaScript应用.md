@@ -143,9 +143,10 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 Jenkins将自动生成SSH Key Pair，在创建Pipeline之前，需要将SSH公钥添加到GitLab中，添加路径为【GitLab】-【User Setting】-【SSH Keys】：  
 ![](Images/3/gitlab-ssh-key.png)  
 
-回到Jenkins Blue Ocean界面，点击“创建Pipeline”之后，Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline：  
-
+回到Jenkins Blue Ocean界面，点击“创建Pipeline”:    
 ![](Images/3/jenkins-initial-pipeline-1.png)  
+
+Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline：  
 ![](Images/3/jenkins-initial-pipeline-2.png)  
 
 本示例中的Jenkinsfile参考如下：
@@ -225,7 +226,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
                 """
             }
 ``` 
-其中docker build构建镜像步骤，会使用Jenkins Slave从GitLab代码库中拉取的代码中所包含的Dockerfile。    
+其中docker build构建镜像步骤，会使用Jenkins Slave从GitLab代码库中拉取的源代码中所包含的Dockerfile。    
 
 在Blue Ocean界面中可以查看Pipeline执行进度：   
 ![](Images/3/check-initial-pipeline.png)  
@@ -234,7 +235,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 ![](Images/3/check-jenkins-slave-pod.png)  
 
 执行完成第一次Pipleline后，可以在EKS的镜像仓库中查看第一次构建并上传的Snake Demo镜像：  
-![](Images/3/check-snake-image.png)  
+![](Images/3/check-demo-image.png)  
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 

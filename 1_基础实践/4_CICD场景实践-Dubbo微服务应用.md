@@ -33,97 +33,82 @@
 其中GitLab项目URL地址参考：  
 ![](Images/4/gitlab-ssh-url.png)  
 
-Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代码：  
+Push成功后即可在GitLab的“dubbo-demo”项目中看到已上传的源代码：  
 ![](Images/4/gitlab-check-source-code.png)  
 其中的Dockerfile和Jenkinsfile后面步骤中都会使用到。
 
 
-### 1.2 创建Jenkins Pipeline，并部署Snake应用    
+### 1.2 创建Jenkins Pipeline，并部署Dubbo-demo应用    
 
 **Step 1: 制作Jenkins Slave镜像。**  
-为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave镜像，并上传至EKS的镜像仓库中。   
+为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave所使用的Docker镜像，并上传至EKS的镜像仓库中。   
 具体步骤如下：  
 
 1） 在本地虚拟机Linux环境中，执行：  
 ```
-[root@docker-ce jenkins-slave]# git clone https://github.com/PabloZhong/jenkins-1  
-[root@docker-ce jenkins-slave]# cd jenkins-1/slave-base/  
+[root@docker-ce jenkins-slave]# git clone https://github.com/PabloZhong/jenkins-1.git (或者git clone https://github.com/PabloZhong/jenkins.git)  
+[root@docker-ce jenkins-slave]# cd jenkins-1/slave-maven/   (或者cd jenkins/slave-maven)
 ```
 
 可以查看到所需要使用到的Dockerfile如下：  
 ```
-FROM openshift/origin
+FROM openshift/jenkins-slave-base-centos7
+
 MAINTAINER Ben Parees <bparees@redhat.com>
 
-ENV HOME=/home/jenkins
+ENV MAVEN_VERSION=3.3 \
+    GRADLE_VERSION=4.2.1 \
+    BASH_ENV=/usr/local/bin/scl_enable \
+    ENV=/usr/local/bin/scl_enable \
+    PROMPT_COMMAND=". /usr/local/bin/scl_enable" \
+    PATH=$PATH:/opt/gradle/bin
 
-USER root
-# Install headless Java
-RUN yum install -y centos-release-scl-rh && \
-    x86_EXTRA_RPMS=$(if [ "$(uname -m)" == "x86_64" ]; then echo -n java-1.8.0-openjdk-headless.i686 ; fi) && \
-    INSTALL_PKGS="bc gettext git java-1.8.0-openjdk-headless lsof rsync tar unzip which zip bzip2" && \
-    yum install -y --setopt=tsflags=nodocs install $INSTALL_PKGS $x86_EXTRA_RPMS && \
+# Install Maven
+RUN INSTALL_PKGS="java-1.8.0-openjdk-devel.x86_64 rh-maven33*" && \
+    x86_EXTRA_RPMS=$(if [ "$(uname -m)" == "x86_64" ]; then echo -n java-1.8.0-openjdk-devel.i686 ; fi) && \
+    yum install -y centos-release-scl-rh && \
+    yum install -y --enablerepo=centosplus $INSTALL_PKGS $x86_EXTRA_RPMS && \
+    curl -LOk https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip && \
+    unzip gradle-${GRADLE_VERSION}-bin.zip -d /opt && \
+    rm -f gradle-${GRADLE_VERSION}-bin.zip && \
+    ln -s /opt/gradle-${GRADLE_VERSION} /opt/gradle && \
     # have temporarily removed the validation for java to work around known problem fixed in fedora; jupierce and gmontero are working with
     # the requisit folks to get that addressed ... will switch back to rpm -V $INSTALL_PKGS when that occurs
-    rpm -V bc gettext git lsof rsync tar unzip which zip bzip2  && \
-    yum clean all && \
-    mkdir -p /home/jenkins && \
-    chown -R 1001:0 /home/jenkins && \
-    chmod -R g+w /home/jenkins && \
-    chmod 664 /etc/passwd && \
-    chmod -R 775 /etc/alternatives && \
-    chmod -R 775 /var/lib/alternatives && \
-    chmod -R 775 /usr/lib/jvm && \
-    chmod 775 /usr/bin && \
-    chmod 775 /usr/lib/jvm-exports && \
-    chmod 775 /usr/share/man/man1 && \
-    chmod 775 /var/lib/origin && \    
-    unlink /usr/bin/java && \
-    unlink /usr/bin/jjs && \
-    unlink /usr/bin/keytool && \
-    unlink /usr/bin/orbd && \
-    unlink /usr/bin/pack200 && \
-    unlink /usr/bin/policytool && \
-    unlink /usr/bin/rmid && \
-    unlink /usr/bin/rmiregistry && \
-    unlink /usr/bin/servertool && \
-    unlink /usr/bin/tnameserv && \
-    unlink /usr/bin/unpack200 && \
-    unlink /usr/lib/jvm-exports/jre && \
-    unlink /usr/share/man/man1/java.1.gz && \
-    unlink /usr/share/man/man1/jjs.1.gz && \
-    unlink /usr/share/man/man1/keytool.1.gz && \
-    unlink /usr/share/man/man1/orbd.1.gz && \
-    unlink /usr/share/man/man1/pack200.1.gz && \
-    unlink /usr/share/man/man1/policytool.1.gz && \
-    unlink /usr/share/man/man1/rmid.1.gz && \
-    unlink /usr/share/man/man1/rmiregistry.1.gz && \
-    unlink /usr/share/man/man1/servertool.1.gz && \
-    unlink /usr/share/man/man1/tnameserv.1.gz && \
-    unlink /usr/share/man/man1/unpack200.1.gz
+    rpm -V  rh-maven33 && \
+    yum clean all -y && \
+    mkdir -p $HOME/.m2 && \
+    mkdir -p $HOME/.gradle
 
-# Copy the entrypoint
-ADD contrib/bin/* /usr/local/bin/
+# When bash is started non-interactively, to run a shell script, for example it
+# looks for this variable and source the content of this file. This will enable
+# the SCL for all scripts without need to do 'scl enable'.
+ADD contrib/bin/scl_enable /usr/local/bin/scl_enable
+ADD contrib/bin/configure-slave /usr/local/bin/configure-slave
+ADD ./contrib/settings.xml $HOME/.m2/
+ADD ./contrib/init.gradle $HOME/.gradle/
 
-# Run the Jenkins JNLP client
-ENTRYPOINT ["/usr/local/bin/run-jnlp-client"]
+RUN chown -R 1001:0 $HOME && \
+    chmod -R g+rw $HOME
+
+USER 1001
 ```
 
 2）构建Jenkins Slave镜像  
 在Dockerfile所在的路径下执行以下命令进行镜像构建： 
 ```
-[root@docker-ce slave-base]# docker build -t jenkins-slave:v1 .
+[root@docker-ce slave-maven]# docker build -t jenkins-slave-maven:v1 .  
 ```
 
 3）上传Jenkins Slave镜像  
 Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜像上传到EKS的镜像仓库中。  
 ```
-[root@docker-ce slave-base]# docker push 172.16.0.176/3dc70621b8504c98/jenkins-slave:v1
+[root@docker-ce slave-maven]# docker tag jenkins-slave-maven:v1 172.16.0.176/3dc70621b8504c98/jenkins-slave-maven:v1  
+[root@docker-ce slave-maven]# docker push 172.16.0.176/3dc70621b8504c98/jenkins-slave-maven:v1  
 ```
-注：请按需修改镜像仓库地址和用户名。  
+注：请按需修改上述命令行中的镜像仓库地址和用户名。  
 
 上传成功后，可查看已上传的镜像：  
-![](Images/3/check-jenkins-slave-image.png) 
+![](Images/4/check-jenkins-slave-image.png) 
 后续步骤中会使用这个镜像来执行Jenkins Pipeline。  
 
 **Step 2: 通过Jenkins Blue Ocean创建Jenkins Pipeline。**   

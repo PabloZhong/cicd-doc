@@ -42,12 +42,12 @@ Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代
 ### 1.2 创建Jenkins Pipeline，并部署Snake应用    
 
 **Step 1: 制作Jenkins Slave镜像。**  
-为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave镜像，并上传至EKS的镜像仓库中。   
+为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave所使用的Docker镜像，并上传至EKS的镜像仓库中。   
 具体步骤如下：  
 
 1） 在本地虚拟机Linux环境中，执行：  
 ```
-[root@docker-ce jenkins-slave]# git clone https://github.com/PabloZhong/jenkins-1  
+[root@docker-ce jenkins-slave]# git clone https://github.com/PabloZhong/jenkins-1.git  
 [root@docker-ce jenkins-slave]# cd jenkins-1/slave-base/  
 ```
 
@@ -119,9 +119,10 @@ ENTRYPOINT ["/usr/local/bin/run-jnlp-client"]
 3）上传Jenkins Slave镜像  
 Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜像上传到EKS的镜像仓库中。  
 ```
+[root@docker-ce slave-base]# docker tag jenkins-slave:v1 172.16.0.176/3dc70621b8504c98/jenkins-slave:v1
 [root@docker-ce slave-base]# docker push 172.16.0.176/3dc70621b8504c98/jenkins-slave:v1
 ```
-注：请按需修改镜像仓库地址和用户名。  
+注：请按需修改上述命令行中的镜像仓库地址和用户名。  
 
 上传成功后，可查看已上传的镜像：  
 ![](Images/3/check-jenkins-slave-image.png) 

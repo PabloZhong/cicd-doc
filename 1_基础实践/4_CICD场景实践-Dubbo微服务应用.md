@@ -38,7 +38,7 @@ Push成功后即可在GitLab的“dubbo-demo”项目中看到已上传的源代
 其中的Dockerfile和Jenkinsfile后面步骤中都会使用到。
 
 
-### 1.2 创建Jenkins Pipeline，并部署Dubbo-demo应用    
+### 1.2 创建Jenkins Pipeline    
 
 **Step 1: 制作Jenkins Slave镜像。**  
 为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave所使用的Docker镜像，并上传至EKS的镜像仓库中。   
@@ -111,7 +111,7 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 ![](Images/4/check-jenkins-slave-image.png) 
 后续步骤中会使用这个镜像来执行Jenkins Pipeline。  
 
-**Step 2: 通过Jenkins Blue Ocean创建Jenkins Pipeline。**   
+**Step 2: 通过Jenkins Blue Ocean创建Jenkins Pipeline，并执行第一次Pipeline。**   
 使用Jenkins Blue Ocean能够实现更丰富、更直观的Pipeline功能。  
 
 在Jenkins主界面点击“Open Blue Ocean”进入Blue Ocean操作界面：   
@@ -220,7 +220,24 @@ stage('Build & push docker image') {
     """
 }
 ``` 
-其中docker build构建镜像步骤，会使用Jenkins Slave从GitLab代码库中拉取的源代码中所包含的Dockerfile。    
+上面的docker build构建镜像步骤，需要使用Jenkins Slave从GitLab代码库中拉取的源代码中所包含的Dockerfile。    
+其中生成```dubbo-consumer```镜像的Dockefile文件如下：
+```
+FROM docker.io/busybox:latest 
+ADD target/dubbo-demo-consumer-2.5.7-assembly.tar.gz .
+RUN mv dubbo-demo-consumer-2.5.7/ dubbo-demo-consumer/
+COPY start-docker.sh dubbo-demo-consumer/bin/
+CMD "tail" "-f" "/dev/null"
+```
+
+而生成```dubbo-provider```镜像的Dockfile文件如下：
+```
+FROM docker.io/busybox:latest 
+ADD target/dubbo-demo-provider-2.5.7-assembly.tar.gz .
+RUN mv dubbo-demo-provider-2.5.7/ dubbo-demo-provider/
+COPY start-docker.sh dubbo-demo-provider/bin/
+CMD "tail" "-f" "/dev/null"
+```
 
 在Blue Ocean界面中可以查看Pipeline执行进度：   
 ![](Images/4/check-initial-pipeline.png)  
@@ -234,20 +251,211 @@ stage('Build & push docker image') {
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Dubbo Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 
-**Step 3: 在EKS中进行Dubbo Demo应用的第一次部署。**  
-在EKS中，选择第一次执行Pipeline生成的Snake Demo镜像，进行Snake Demo应用部署： 
-![](Images/3/create-initial-snake-1.png)  
-![](Images/3/create-initial-snake-2.png)  
+### 1.3 在EKS中完成Dubbo Demo应用的首次部署   
+**Step 1: 部署Zookeeper集群作为Dubbo微服务应用注册中心。**   
+我们可以使用ECS云平台中的Zookeeper集群服务，作为Dubbo微服务应用的注册中心。  
+按照ECS界面提示完成创建Zookeeper集群前的准备工作：【创建私有网络】-【创建路由器】-【连接私有网络至路由器】-【设置路由器网关】。    
+![](Images/4/create-zk-1.png)  
 
-部署成功之后，查看对应的服务的端口号：  
-![](Images/3/check-snake-service.png)  
+创建Zookeeper集群服务：  
+![](Images/4/create-zk-2.png)  
 
-通过NodeIP:Port方式，通过Web浏览器访问初次部署的Snake Demo应用，可以发现是一个“贪吃蛇”游戏： 
-![](Images/3/visit-initial-snake.png) 
-    
-请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要使用。  
+等待Zookeeper集群服务正常运行：  
+![](Images/4/create-zk-3.png)  
 
-### 1.3 配置自动部署    
+记录Zookeeper实例的管理网络IP：  
+![](Images/4/create-zk-4.png)  
+
+**Step 2: 创建应用依赖配置文件。**  
+本示例中Dubbo-demo应用所需要的配置文件```dubbo.properties```如下：  
+```
+dubbo.container=log4j,spring
+dubbo.application.name=demo-provider
+dubbo.application.owner=
+dubbo.registry.address=zookeeper://172.16.7.44:2181?backup=172.16.7.45:2181,172.16.7.46:2181
+dubbo.monitor.protocol=registry
+dubbo.protocol.name=dubbo
+dubbo.protocol.port=20880
+dubbo.service.loadbalance=roundrobin
+dubbo.log4j.file=logs/dubbo-demo-provider.log
+dubbo.log4j.level=WARN
+``` 
+使用SSH私钥登录EKS集群Master节点，创建```dubbo.properties```配置文件：  
+![](Images/4/create-dubbo-config.png)  
+
+使用```dubbo.properties```配置文件创建Kubernetes Configmap，命名为“dubbo-config”：  
+```
+[root@ci-ebapjqyquc-0-us73jutasdon-kube-master-vpstuakkzsnl escore]# kubectl create configmap dubbo-config --from-file=dubbo.properties
+```  
+
+查看已创建的Configmap：  
+![](Images/4/check-dubbo-configmap.png)  
+
+**Step 3: 在EKS中部署Dubbo-demo-provider应用。**  
+采用Sidecar模式部署Dubbo-demo-provider应用，需要直接通过Yaml文件部署。  
+在ESK界面点击【创建应用】：  
+![](Images/4/create-dubbo-demo-app-1.png)  
+
+选择通过“编排模板”创建应用：  
+![](Images/4/create-dubbo-demo-app-2.png)  
+
+接下来我们需要在编辑框中填入Dubbo-demo-provider应用的Deployment编排文件，如下：（注：其中```dubbo-provider```镜像名称请按需修改）   
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dubbo-demo-provider
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dubbo-demo-provider
+    spec:
+      containers:
+      - image: hub.easystack.io/3dc70621b8504c98/dubbo-provider:v1
+        resources:
+          limits:
+            cpu: 400m
+            memory: 400Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        imagePullPolicy: Always
+        name: dubbo-demo-jar
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - "mv"
+                - "/dubbo-demo-provider"
+                - "/app"
+        volumeMounts:
+        - mountPath: /app
+          name: app-volume    
+      - image: openjdk:8-jre
+        resources:
+          limits:
+            cpu: 400m
+            memory: 400Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        imagePullPolicy: Always
+        name: dubbo-demo-jdk
+        command: ["sh","-c","/app/dubbo-demo-provider/bin/start-docker.sh"]
+        volumeMounts:
+        - mountPath: /app
+          name: app-volume
+        - mountPath: /mnt
+          name: config-volume
+        ports:
+        - containerPort: 8080        
+      volumes:
+      - name: app-volume
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: dubbo-config
+```
+其中需要挂载之前创建的```dubbo-config```配置文件。  
+
+点击“创建”开始部署应用：  
+![](Images/4/create-dubbo-demo-app-3.png)  
+
+可以查看处于“运行中”状态的Dubbo-demo-provider应用：  
+![](Images/4/create-dubbo-demo-app-4.png)  
+
+**Step 4: 在EKS中部署Dubbo-demo-consumer应用。**  
+
+创建部署与上同，其中使用的Deployment编排模板如下： （注：其中```dubbo-consumer```镜像名称请按需修改） 
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dubbo-demo-consumer
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dubbo-demo-consumer
+    spec:
+      containers:
+      - image: hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v1
+        resources:
+          limits:
+            cpu: 400m
+            memory: 400Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        imagePullPolicy: Always
+        name: dubbo-demo-jar
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - "mv"
+                - "/dubbo-demo-consumer"
+                - "/app"
+        volumeMounts:
+        - mountPath: /app
+          name: app-volume    
+      - image: openjdk:8-jre
+        resources:
+          limits:
+            cpu: 400m
+            memory: 400Mi
+          requests:
+            cpu: 200m
+            memory: 200Mi
+        imagePullPolicy: Always
+        name: dubbo-demo-jdk
+        command: ["sh","-c","/app/dubbo-demo-consumer/bin/start-docker.sh"]
+        volumeMounts:
+        - mountPath: /app
+          name: app-volume
+        - mountPath: /mnt
+          name: config-volume
+        ports:
+        - containerPort: 8080        
+      volumes:
+      - name: app-volume
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: dubbo-config
+```
+可以查看处于“运行中”状态的Dubbo-demo-consumer应用：  
+![](Images/4/create-dubbo-demo-app-5.png)  
+
+**Step 5: 查看服务注册情况。**  
+首先通过创建Zookeeper集群服务时使用的SSH密钥，登录Zookeeper后台：  
+```
+[root@docker-ce ~]# ssh -i ~/.ssh/id_rsa_zk ubuntu@172.16.7.44
+``` 
+执行以下命令行：  
+```
+ubuntu@dubbo-zk-dubbo-zkwrk-1:~$ cd /opt/zookeeper/zookeeper/bin/
+ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
+```
+通过Zookeeper命令行查看服务注册情况：  
+![](Images/4/check-dubbo-service-registration.png)  
+
+**Step 6: 查看Dubbo-demo微服务应用运行情况。**  
+查看Dubbo provider输出日志：  
+![](Images/4/check-provider-logs.png)  
+可以看到容器输出“Hello world”。  
+
+查看Dubbo consumer输出日志：  
+![](Images/4/check-consumer-logs.png)  
+可以看到容器输出“Hello world”。  
+
+
+### 1.4 配置自动部署（待修改）    
 
 为了实现应用更新之后的自动部署，我们需要修改Jenkinsfile Pipeline，增加自动部署环节。    
 
@@ -261,7 +469,7 @@ stage('Build & push docker image') {
 ```
 其中kubectl set image命令可以更新Deployment所使用的镜像版本，```deployment```参数需指定为Snake Demo应用的Deployment名称。   
 
-### 1.4 配置自动触发构建    
+### 1.5 配置自动触发构建（待修改）    
 为了实现GitLab中更新代码操作能够自动触发Jenkins Pipeline构建，我们需要在GitLab中配置Webhook。     
 具体步骤如下：  
 在GitLab的项目中选择【Settings】->【Integrations】，新建Webhook：  
@@ -279,7 +487,7 @@ stage('Build & push docker image') {
 后续每次往GitLab的“snake-demo”项目中Push代码后，将会自动触发Jenkins相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
-## 2. CI/CD演示    
+## 2. CI/CD演示（待修改）    
 
 在完成Snake Demo项目的CI/CD配置之后，我们可以演示CI/CD流程：  
 

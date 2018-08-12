@@ -39,7 +39,7 @@ Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代
 其中的Dockerfile和Jenkinsfile后面步骤中都会使用到。
 
 
-### 1.2 创建Jenkins Pipeline，并部署Snake应用    
+### 1.2 创建Jenkins Pipeline    
 
 **Step 1: 制作Jenkins Slave镜像。**  
 为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave所使用的Docker镜像，并上传至EKS的镜像仓库中。   
@@ -128,7 +128,7 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 ![](Images/3/check-jenkins-slave-image.png) 
 后续步骤中会使用这个镜像来执行Jenkins Pipeline。  
 
-**Step 2: 通过Jenkins Blue Ocean创建Jenkins Pipeline。**   
+**Step 2: 通过Jenkins Blue Ocean创建Jenkins Pipeline，并执行第一次Pipeline。**   
 使用Jenkins Blue Ocean能够实现更丰富、更直观的Pipeline功能。  
 
 在Jenkins主界面点击“Open Blue Ocean”进入Blue Ocean操作界面：   
@@ -239,7 +239,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 
-**Step 3: 在EKS中进行Snake Demo应用的第一次部署。**  
+### 1.3 在EKS中完成Snake Demo应用的首次部署  
 在EKS中，选择第一次执行Pipeline生成的Snake Demo镜像，进行Snake Demo应用部署： 
 ![](Images/3/create-initial-snake-1.png)  
 ![](Images/3/create-initial-snake-2.png)  
@@ -252,7 +252,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
     
 请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要使用。  
 
-### 1.3 配置自动部署    
+### 1.4 配置自动部署    
 
 为了实现应用更新之后的自动部署，我们需要修改Jenkinsfile Pipeline，增加自动部署环节。    
 
@@ -266,7 +266,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 ```
 其中kubectl set image命令可以更新Deployment所使用的镜像版本，```deployment```参数需指定为Snake Demo应用的Deployment名称。   
 
-### 1.4 配置自动触发构建    
+### 1.5 配置自动触发构建    
 为了实现GitLab中更新代码操作能够自动触发Jenkins Pipeline构建，我们需要在GitLab中配置Webhook。     
 具体步骤如下：  
 在GitLab的项目中选择【Settings】->【Integrations】，新建Webhook：  

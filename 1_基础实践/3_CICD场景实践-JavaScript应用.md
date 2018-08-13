@@ -1,6 +1,7 @@
 # CI/CD场景实践-JavaScript应用 （Ready） 
 
 本文档主要介绍如何在已完成部署的CI/CD工具链基础上，实现JavaScript应用的CI/CD配置和演示。  
+**耗时：约30-40分钟**  
 
 ## 1. CI/CD配置  
 

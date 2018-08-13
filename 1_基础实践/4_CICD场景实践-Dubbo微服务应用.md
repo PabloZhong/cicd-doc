@@ -1,11 +1,23 @@
 # CI/CD场景实践-Dubbo微服务应用 (Ready)  
 
-本文档主要介绍如何在已完成部署的CI/CD工具链基础上，实现基于Dubbo框架的微服务应用的CI/CD配置和演示。  
-**耗时：约40-50分钟**  
+## 1. 概述
+Dubbo是目前流行的开源分布式微服务框架，其最大的特点是方便开发人员按照解耦的方式来开发应用，使用该框架可以使各个服务之间解耦合。从服务模型的角度，Dubbo采用的是一种非常简单的模型，由提供方提
+供服务，由消费方消费服务，基于这点可以抽象出服务提供方（Provider）和服务消费方（Consumer）两个角色。   
 
-## 1. CI/CD配置  
+本文档主要介绍如何在已完成部署的CI/CD工具链基础上，实现基于Dubbo框架的微服务应用的CI/CD配置和演示。 
 
-### 1.1 在GitLab中创建项目，并上传源代码  
+**应用架构描述**  
+Dubbo微服务场景涉及的应用架构如下图所示：    
+![](Images/4/dubbo-demo-architecture.png)  
+
+其中Zookeeper集群作为服务注册中心。Dubbo应用分为两类，一类是提供服务的Provider，另一类是消费服务的Consumer。两类服务均采用Sidecar模式的Pod进行部署，也就是将应用程序与运行环境进行分离部署至同一个Pod的两个容器中。这样设计的好处是能够减小应用程序容器镜像的大小，同时可以复用运行环境容器镜像，因此在对应用变更时，可以只变更应用程序所使用的镜像，实现快速分发，提升CI/CD效率。   
+
+**预计实操时间：约40-50分钟**   
+**环境要求： ECS 4.0.2、EKS 4.0.2**   
+
+## 2. CI/CD配置  
+
+### 2.1 在GitLab中创建项目，并上传源代码  
 
 **Step 1: 在GitLab中创建示例项目。**  
 在GitLab中创建一个示例项目（Create a project）：  
@@ -39,7 +51,7 @@ Push成功后即可在GitLab的“dubbo-demo”项目中看到已上传的源代
 其中的Dockerfile和Jenkinsfile后面步骤中都会使用到。
 
 
-### 1.2 创建Jenkins Pipeline    
+### 2.2 创建Jenkins Pipeline    
 
 **Step 1: 制作Jenkins Slave镜像。**  
 为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave所使用的Docker镜像，并上传至EKS的镜像仓库中。   
@@ -252,7 +264,7 @@ CMD "tail" "-f" "/dev/null"
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Dubbo Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 
-### 1.3 在EKS中完成Dubbo Demo应用的首次部署   
+### 2.3 在EKS中完成Dubbo Demo应用的首次部署   
 **Step 1: 部署Zookeeper集群作为Dubbo微服务应用注册中心。**   
 我们可以使用ECS云平台中的Zookeeper集群服务，作为Dubbo微服务应用的注册中心。  
 按照ECS界面提示完成创建Zookeeper集群前的准备工作：【创建私有网络】-【创建路由器】-【连接私有网络至路由器】-【设置路由器网关】。    
@@ -352,7 +364,7 @@ spec:
         volumeMounts:
         - mountPath: /app
           name: app-volume
-        - mountPath: /mnt
+        - mountPath: /app/dubbo-demo-provider/conf
           name: config-volume
         ports:
         - containerPort: 8080        
@@ -422,7 +434,7 @@ spec:
         volumeMounts:
         - mountPath: /app
           name: app-volume
-        - mountPath: /mnt
+        - mountPath: /app/dubbo-demo-provider/conf
           name: config-volume
         ports:
         - containerPort: 8080        
@@ -450,16 +462,23 @@ ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
 ![](Images/4/check-dubbo-service-registration.png)  
 
 **Step 6: 查看Dubbo-demo微服务应用运行情况。**  
-查看Dubbo provider输出日志：  
+可以通过EKS界面查看Dubbo-demo-provider Pod中的```dubbo-demo-jdk```容器输出日志：  
 ![](Images/4/check-provider-logs.png)  
 可以看到容器输出“Hello world”。  
 
-查看Dubbo consumer输出日志：  
+可以通过EKS界面查看Dubbo-demo-consumer Pod中的```dubbo-demo-jdk```容器输出日志： 
 ![](Images/4/check-consumer-logs.png)  
 可以看到容器输出“Hello world”。  
 
+当然也可以通过SSH密钥登录EKS的Master节点，使用后台命令行查看容器输出日志，如：  
+```
+[root@ci-ebapjqyquc-0-us73jutasdon-kube-master-vpstuakkzsnl escore]# kubectl get pod  
+[root@ci-ebapjqyquc-0-us73jutasdon-kube-master-vpstuakkzsnl escore]# kubectl logs -f dubbo-demo-consumer-3082437851-chzxv  -c dubbo-demo-jdk  
+``` 
+查看容器日志输出：  
+![](Images/4/check-initial-app.png) 
 
-### 1.4 配置自动部署    
+### 2.4 配置自动部署    
 
 为了实现应用更新之后的自动部署，我们需要修改Jenkinsfile Pipeline，增加自动部署环节。    
 
@@ -475,7 +494,7 @@ ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
 其中kubectl set image命令可以更新Deployment所使用的镜像版本，```deployment```参数需指定为Dubbo-demo应用的Deployment名称。
 >注：采用Sidecar类型的Pod进行dubbo-demo-provider和dubbo-demo-consumer部署后，后续更新版本的自动部署，只需要更新Pod中的dubbo-demo-jar这一个容器即可，而Dubbo基础环境容器（即dubbo-demo-jdk）无需更新。通过这种方式可以达到提升更新效率的目的。     
 
-### 1.5 配置自动触发构建    
+### 2.5 配置自动触发构建    
 为了实现GitLab中更新代码操作能够自动触发Jenkins Pipeline构建，我们需要在GitLab中配置Webhook。     
 具体步骤如下：  
 在GitLab的项目中选择【Settings】->【Integrations】，新建Webhook：  
@@ -493,7 +512,7 @@ ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
 后续每次往GitLab的“dubbo-demo”项目中Push代码后，将会自动触发Jenkins相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
-## 2. CI/CD演示（待修改）    
+## 3. CI/CD演示（待修改）    
 
 在完成Dubbo Demo项目的首次部署和CI/CD配置之后，我们可以演示CI/CD流程：  
 
@@ -503,7 +522,7 @@ ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
 
 修改GitLab中Dubbo-demo-consumer源代码下的```dubbo-demo/dubbo-demo-provider/src/main/java/com/alibaba/dubbo/demo/consumer/Consumer.java```文件，可参考下图所示：    
 ![](Images/4/update-code.png)  
-将```String hello = demoService.sayHello("world");```修改为```String hello = demoService.sayHello("world V2");```。 
+将```String hello = demoService.sayHello("world");```修改为```String hello = demoService.sayHello("world v2");```。 
 修改代码并“Commit change”之后，会自动触发Jenkins Pipeline，执行CI/CD流程。   
 
 在Jenkins Blue Ocean界面中查看Pipeline执行状态：  
@@ -513,7 +532,12 @@ ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
 CI/CD执行完毕：
 ![](Images/4/blueocean-pipeline-success.png)
 
-等待自动部署完成后，查看Dubbo-demo-consumer Pod中的```dubbo-demo-jdk```容器输出日志。 
+等待自动部署完成后，使用SSH私钥登录EKS集群Master节点，输入命令查看Dubbo-demo-consumer Pod中的```dubbo-demo-jdk```容器输出日志： 
+```
+[root@ci-ebapjqyquc-0-us73jutasdon-kube-master-vpstuakkzsnl escore]# kubectl get pod  
+[root@ci-ebapjqyquc-0-us73jutasdon-kube-master-vpstuakkzsnl escore]# kubectl logs -f dubbo-demo-consumer-1847343400-v8vq9  -c dubbo-demo-jdk  
+``` 
+可以看到输出已经变为“Hello world v2”：  
 ![](Images/4/check-updated-app.png) 
 
 同时，我们也可以在EKS界面查看Kubernetes Deployment所采用的镜像已经完成更新。   

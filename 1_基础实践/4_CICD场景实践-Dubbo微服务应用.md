@@ -197,8 +197,11 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
                     docker build -t hub.easystack.io/3dc70621b8504c98/dubbo-provider:v${BUILD_NUMBER} ./dubbo-demo/dubbo-demo/dubbo-demo-provider
                     docker push hub.easystack.io/3dc70621b8504c98/dubbo-provider:v${BUILD_NUMBER}
                 """
-            }
-            
+            //stage('Deploy app to EKS') {
+                //更新包含应用程序jar包在内的dubbo-demo-jar容器所使用镜像
+                //sh """kubectl set image deployment/dubbo-demo-provider dubbo-demo-jar=hub.easystack.io/3dc70621b8504c98/dubbo-provider:v${BUILD_NUMBER}"""
+                //sh """kubectl set image deployment/dubbo-demo-consumer dubbo-demo-jar=hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v${BUILD_NUMBER}"""
+            //}           
         }
     }
  }
@@ -375,7 +378,7 @@ spec:
         configMap:
           name: dubbo-config
 ```
-其中需要挂载之前创建的```dubbo-config```配置文件。  
+其中需要通过Configmap挂载之前创建的```dubbo-config```配置文件。  
 
 点击“创建”开始部署应用：  
 ![](Images/4/create-dubbo-demo-app-3.png)  
@@ -434,7 +437,7 @@ spec:
         volumeMounts:
         - mountPath: /app
           name: app-volume
-        - mountPath: /app/dubbo-demo-provider/conf
+        - mountPath: /app/dubbo-demo-consumer/conf
           name: config-volume
         ports:
         - containerPort: 8080        
@@ -473,7 +476,7 @@ ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
 当然也可以通过SSH密钥登录EKS的Master节点，使用后台命令行查看容器输出日志，如：  
 ```
 [root@ci-ebapjqyquc-0-us73jutasdon-kube-master-vpstuakkzsnl escore]# kubectl get pod  
-[root@ci-ebapjqyquc-0-us73jutasdon-kube-master-vpstuakkzsnl escore]# kubectl logs -f dubbo-demo-consumer-3082437851-chzxv  -c dubbo-demo-jdk  
+[root@ci-ebapjqyquc-0-us73jutasdon-kube-master-vpstuakkzsnl escore]# kubectl logs -f dubbo-demo-consumer-3861726430-j0kkw  -c dubbo-demo-jdk  
 ``` 
 查看容器日志输出：  
 ![](Images/4/check-initial-app.png) 
@@ -486,7 +489,7 @@ ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
 
 ```
       stage('Deploy app to EKS') {
-          //请按需修改Deployment名称和dubbo-demo-provider、dubbo-demo-consumer的镜像名称
+          //更新包含应用程序jar包在内的dubbo-demo-jar容器所使用镜像 
           sh """kubectl set image deployment/dubbo-demo-provider dubbo-demo-jar=hub.easystack.io/3dc70621b8504c98/dubbo-provider:v${BUILD_NUMBER}"""
           sh """kubectl set image deployment/dubbo-demo-consumer dubbo-demo-jar=hub.easystack.io/3dc70621b8504c98/dubbo-consumer:v${BUILD_NUMBER}"""
       }
@@ -512,7 +515,7 @@ ubuntu@dubbo-zk-dubbo-zkwrk-1:/opt/zookeeper/zookeeper/bin$ ./zkCli.sh
 后续每次往GitLab的“dubbo-demo”项目中Push代码后，将会自动触发Jenkins相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
-## 3. CI/CD演示（待修改）    
+## 3. CI/CD演示    
 
 在完成Dubbo Demo项目的首次部署和CI/CD配置之后，我们可以演示CI/CD流程：  
 

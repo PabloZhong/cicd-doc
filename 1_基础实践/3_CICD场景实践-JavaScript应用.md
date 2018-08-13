@@ -286,7 +286,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 
 ## 2. CI/CD演示    
 
-在完成Snake Demo项目的CI/CD配置之后，我们可以演示CI/CD流程：  
+在完成Snake Demo项目的首次部署的CI/CD配置之后，我们可以演示CI/CD流程：  
 
 ```更新代码```->```自动构建镜像```->```上传镜像```->```自动部署```  
 
@@ -301,6 +301,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 
 ![](Images/3/blueocean-pipeline-build.png)
 
+CI/CD执行完毕：  
 ![](Images/3/blueocean-pipeline-success.png)
 
 等待自动部署完成后，刷新Snake Demo的Web页面，可以看到“贪吃蛇”游戏的背景颜色由原来的蓝色变为了绿色。 

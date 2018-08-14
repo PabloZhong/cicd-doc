@@ -1,13 +1,14 @@
 # CI/CD场景实践-JavaScript应用 （Ready） 
 
+## 1. 概述  
 本文档主要介绍如何在已完成部署的CI/CD工具链基础上，实现JavaScript应用的CI/CD配置和演示。  
 
 **预计实操时间：约40-50分钟**  
 **环境要求： EKS 4.0.2**
 
-## 1. CI/CD配置  
+## 2. CI/CD配置  
 
-### 1.1 在GitLab中创建项目，并上传源代码  
+### 2.1 在GitLab中创建项目，并上传源代码  
 
 **Step 1: 在GitLab中创建示例项目。**  
 在GitLab中创建一个示例项目（Create a project）：  
@@ -42,7 +43,7 @@ Push成功后即可在GitLab的“snake-demo”项目中看到已上传的源代
 其中的Dockerfile和Jenkinsfile后面步骤中都会使用到。
 
 
-### 1.2 创建Jenkins Pipeline    
+### 2.2 创建Jenkins Pipeline    
 
 **Step 1: 制作Jenkins Slave镜像。**  
 为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave所使用的Docker镜像，并上传至EKS的镜像仓库中。   
@@ -242,7 +243,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 
 注：按照上面所示的Jenkinsfile执行的Pipeline，第一次构建只会完成Snake Demo镜像构建并上传到EKS镜像仓库，下一步需要手动进行第一次应用部署。  
 
-### 1.3 在EKS中完成Snake Demo应用的首次部署  
+### 2.3 在EKS中完成Snake Demo应用的首次部署  
 在EKS中，选择第一次执行Pipeline生成的Snake Demo镜像，进行Snake Demo应用部署： 
 ![](Images/3/create-initial-snake-1.png)  
 ![](Images/3/create-initial-snake-2.png)  
@@ -255,7 +256,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
     
 请记录Snake Demo应用的部署（Deployment）的名称，后续配置Jenkins自动部署时需要使用。  
 
-### 1.4 配置自动部署    
+### 2.4 配置自动部署    
 
 为了实现应用更新之后的自动部署，我们需要修改Jenkinsfile Pipeline，增加自动部署环节。    
 
@@ -269,7 +270,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 ```
 其中kubectl set image命令可以更新Deployment所使用的镜像版本，```deployment```参数需指定为Snake Demo应用的Deployment名称。   
 
-### 1.5 配置自动触发构建    
+### 2.5 配置自动触发构建    
 为了实现GitLab中更新代码操作能够自动触发Jenkins Pipeline构建，我们需要在GitLab中配置Webhook。     
 具体步骤如下：  
 在GitLab的项目中选择【Settings】->【Integrations】，新建Webhook：  
@@ -287,7 +288,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
 后续每次往GitLab的“snake-demo”项目中Push代码后，将会自动触发Jenkins相对应的Pipeline进行构建，而无需手动启动Jenkins Pipeline。  
 
 
-## 2. CI/CD演示    
+## 3. CI/CD演示    
 
 在完成Snake Demo项目的首次部署的CI/CD配置之后，我们可以演示CI/CD流程：  
 

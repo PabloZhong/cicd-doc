@@ -278,7 +278,7 @@ subjects:
 ![](Images/2/jenkins-check-k8s-url-1.png)  
 ![](Images/2/jenkins-check-k8s-url-2.png)  
 
-点击“Test Connection”进行Jenkins与EKS Kubernetes集群ApiServer的连通性测试，如果配置正确则会提示“Connection test successful”：  
+使用HTTPS协议，点击“Test Connection”进行Jenkins与EKS Kubernetes集群ApiServer的连通性测试，如果配置正确则会提示“Connection test successful”：  
 
 ![](Images/2/jenkins-k8s-connection-test.png)
 

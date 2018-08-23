@@ -237,16 +237,16 @@ subjects:
    </tr>
    <tr>
       <td>2</td>
-      <td>Git</td>
+      <td>Git plugin</td>
    <tr>
       <td>3</td>
-      <td>GitLab</td>
+      <td>GitLab plugin</td>
    <tr>
       <td>4</td>
-      <td>GitLab Hook</td>
+      <td>GitLab Hook plugin</td>
    <tr>
       <td>5</td>
-      <td>Kubernetes</td>
+      <td>Kubernetes plugin</td>
    </tr>
 </table>  
 

@@ -58,7 +58,7 @@
 填写“服务名称”，选择上一步所上传的GitLab镜像，填入Pod的基本配置：  
 ![](Images/2/gitlab-configuration-1.png)  
 注意：  
-1）GitLab容器消耗计算资源比较多，因此图示中分配了4Cores/4096MiB计算资源；  
+1）GitLab容器消耗计算资源比较多，建议至少分配4Cores/4096MiB以上的计算资源；  
 2）需要配置持久化存储，将容器的3个目录/var/opt/gitlab （存储应用数据)、 /var/log/gitlab （存储log文件）、 /etc/gitlab（存储配置文件）挂载出来。  
 
 下一步，填写服务（即Kubernetes Service）访问设置，在这里我们选取NodePort方式，将GitLab容器的3个端口（80、22和443）暴露出来，映射服务端口也设为80、22和443，另外，指定对应的节点暴露端口30080、30022和30443，如图示例：

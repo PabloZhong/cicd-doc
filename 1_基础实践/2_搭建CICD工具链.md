@@ -95,6 +95,10 @@
 ![](Images/2/gitlab-ssh-1.png)   
 
 验证本地虚拟机与GitLab的SSH连通性：  
+```
+[root@docker-ce .ssh]# ssh -T git@<Node IP> -p 30022
+``` 
+如下图所示即表示验证成功。  
 ![](Images/2/gitlab-ssh-2.png)   
 后续将使用SSH方式上传（Push）源代码至GitLab中。  
 

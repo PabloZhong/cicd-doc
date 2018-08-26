@@ -146,7 +146,7 @@ Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenki
 
 本示例中的Jenkinsfile参考如下：
 ```
-podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernetes',
+podTemplate(name: 'jnlp', label: 'jnlp', cloud: 'kubernetes',
   containers: [
         containerTemplate(
             name: 'jnlp',

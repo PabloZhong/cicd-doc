@@ -155,7 +155,7 @@ Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenki
 
 本示例中的Jenkinsfile参考如下：
 ```
-podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernetes',
+podTemplate(name: 'jnlp', label: 'jnlp', cloud: 'kubernetes',
   containers: [
         containerTemplate(
             name: 'jnlp',
@@ -181,11 +181,11 @@ podTemplate(name: 'jnlp', label: 'jnlp', namespace: 'default', cloud: 'kubernete
             stage("Clone source code of Snake game") {
                 //请按需修改Git源代码库地址
                 //如果是Private项目，参考示例如下（需使用GitLab Access Token）
-                sh """
-                    git clone http://oauth2:E8azoQ6QSTpmvyzEeJzc@172.16.6.28:30080/easystack/snake-demo.git
-                """
+                //sh """
+                    //git clone http://oauth2:E8azoQ6QSTpmvyzEeJzc@172.16.6.28:30080/easystack/snake-demo.git
+                //"""
                 //如果是Public项目，参考示例如下
-                //git 'http://172.16.6.28:30080/easystack/snake-demo.git'
+                git 'http://172.16.6.28:30080/easystack/snake-demo.git'
             }
                       
             stage('Build & push docker image') {

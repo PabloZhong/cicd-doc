@@ -60,8 +60,8 @@ Push成功后即可在GitLab的“dubbo-demo”项目中看到已上传的源代
 
 1） 在本地虚拟机Linux环境中，执行：  
 ```
-[root@docker-ce jenkins-slave]# git clone https://github.com/PabloZhong/jenkins-1.git (或者git clone https://github.com/PabloZhong/jenkins.git)  
-[root@docker-ce jenkins-slave]# cd jenkins-1/slave-maven/   (或者cd jenkins/slave-maven)
+[root@docker-ce jenkins-slave]# git clone https://github.com/PabloZhong/jenkins.git    
+[root@docker-ce jenkins-slave]# cd jenkins/slave-maven/   
 ```
 
 可以查看到所需要使用到的Dockerfile如下：  

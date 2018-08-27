@@ -192,7 +192,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', cloud: 'kubernetes',
                 //请按需修改镜像仓库的账号和密码，并注意docker build命令中Dockerfile所在路径
                 sh """
                     docker login -u 3dc70621b8504c98 -p Tcdf4f05247d79dd7 hub.easystack.io  
-                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} ./snake-demo
+                    docker build -t hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER} ./
                     docker push hub.easystack.io/3dc70621b8504c98/snake:v${BUILD_NUMBER}
                 """
             }

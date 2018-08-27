@@ -187,7 +187,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', cloud: 'kubernetes',
  }
 }
 ```
-其中有以下几点需要说明，其中2）和4）请按照实际环境做适当的修改：  
+下面对Jenkinsfile定义的Stage进行说明，其中2）和4）请按照实际环境做适当的修改：  
 
 1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:v1'```指定之前Step 1中构建的Jenkins Slave镜像。   
 

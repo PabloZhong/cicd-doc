@@ -187,9 +187,9 @@ podTemplate(name: 'jnlp', label: 'jnlp', cloud: 'kubernetes',
  }
 }
 ```
-下面对Jenkinsfile定义的Stage进行说明，其中2）和4）请按照实际环境做适当的修改：  
+下面对Jenkinsfile定义的Stage进行说明，其中1)、2)和4)请按照实际环境做适当的修改：  
 
-1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:v1'```指定之前Step 1中构建的Jenkins Slave镜像。   
+1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:v1'```指定之前Step 1中构建的Jenkins Slave镜像，请按需修改镜像名称。   
 
 2）```stage("Clone source code of Snake game")```将源代码从GitLab中拉取到Jenkins Slave Pod中，请按需修改。具体写法如下：    
    · 如果是Public类型的GitLab项目，直接通过HTTP方式Git clone源代码即可，无需使用用户名+密码或者Access Token；  

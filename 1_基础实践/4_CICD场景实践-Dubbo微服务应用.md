@@ -123,28 +123,9 @@ Jenkins Slave镜像制作完成后，使用docker push命令将Jenkins Slave镜�
 ![](Images/4/check-jenkins-slave-image.png) 
 后续步骤中会使用这个镜像来执行Jenkins Pipeline。  
 
-**Step 2: 通过Jenkins Blue Ocean创建Jenkins Pipeline，并执行第一次Pipeline。**   
-使用Jenkins Blue Ocean能够实现更丰富、更直观的Pipeline功能。  
-
-在Jenkins主界面点击“Open Blue Ocean”进入Blue Ocean操作界面：   
-![](Images/4/jenkins-blue-ocean.png)   
-
-点击“创建流水线”：   
-![](Images/4/jenkins-create-pipeline-1.png)   
-
-填入GitLab代码仓库对应的项目地址：（注意：SSH的URL中需要将域名改成NodeIP）   
-![](Images/4/jenkins-create-pipeline-2.png)  
-
-Jenkins将自动生成SSH Key Pair，在创建Pipeline之前，需要将SSH公钥添加到GitLab中，添加路径为【GitLab】-【User Setting】-【SSH Keys】：  
-![](Images/4/gitlab-ssh-key.png)  
-
-回到Jenkins Blue Ocean界面，点击“创建Pipeline”:    
-![](Images/4/jenkins-initial-pipeline-1.png)  
-
-Jenkins首先将会自动拉取GitLab代码库中的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline： 
-![](Images/4/jenkins-initial-pipeline-2.png)  
-
-本示例中的Jenkinsfile参考如下：
+**Step 2: 修改Jenkinsfile。**   
+在GitLab的Dubbo-demo项目源代码中，包含有定义Jenkins Pipeline的Jenkinsfile，在第一次执行Pipeline之前，需要按照实际环境对Jenkinsfile做必要的修改。  
+本示例源代码中的Jenkinsfile参考如下：
 ```
 podTemplate(name: 'jnlp', label: 'jnlp', cloud: 'kubernetes',
   containers: [
@@ -206,11 +187,11 @@ podTemplate(name: 'jnlp', label: 'jnlp', cloud: 'kubernetes',
  }
 }
 ```
-其中有以下几点需要说明：  
+其中有以下几点需要说明，其中2）和4）请按照实际环境做适当的修改：  
 
 1）```image: 'hub.easystack.io/3dc70621b8504c98/jenkins-slave-maven:v1'```指定之前Step 1中构建的Jenkins Slave镜像。   
 
-2）```stage("Clone source code of Snake game")```将源代码从GitLab中拉取到Jenkins Slave Pod中，具体写法如下：    
+2）```stage("Clone source code of Snake game")```将源代码从GitLab中拉取到Jenkins Slave Pod中，请按需修改。具体写法如下：    
    · 如果是Public类型的GitLab项目，直接通过HTTP方式Git clone源代码即可，无需使用用户名+密码或者Access Token；  
    · 如果是Private类型的GitLab项目，则需要使用```用户名+密码```或使用[文档2](./2_搭建CICD工具链.md)中生成的GitLab ```Access Token```，具体格式参考：  
 
@@ -222,7 +203,7 @@ podTemplate(name: 'jnlp', label: 'jnlp', cloud: 'kubernetes',
 
 3）```stage('Compile')```执行Maven编译，这个过程中需要拉取依赖包，因此耗时比较长（10-20分钟左右），编译成功后将生成应用包。  
 
-4）下面的命令分别实现登录镜像仓库、构建Dubbo Demo镜像（分为Dubbo comsumer镜像和Dubbo Provider镜像），以及上传镜像：  
+4）下面的命令分别实现登录镜像仓库、构建Dubbo Demo镜像（分为Dubbo comsumer镜像和Dubbo Provider镜像），以及上传镜像，请按需修改：  
 ```
 stage('Build & push docker image') {
     //请按需修改镜像仓库的账号和密码，并注意docker build命令中Dockerfile所在路径
@@ -253,6 +234,27 @@ RUN mv dubbo-demo-provider-2.5.7/ dubbo-demo-provider/
 COPY start-docker.sh dubbo-demo-provider/bin/
 CMD "tail" "-f" "/dev/null"
 ```
+
+**Step 3: 通过Jenkins Blue Ocean创建Jenkins Pipeline，并执行第一次Pipeline。**   
+使用Jenkins Blue Ocean能够实现更丰富、更直观的Pipeline功能。  
+
+在Jenkins主界面点击“Open Blue Ocean”进入Blue Ocean操作界面：   
+![](Images/4/jenkins-blue-ocean.png)   
+
+点击“创建流水线”：   
+![](Images/4/jenkins-create-pipeline-1.png)   
+
+填入GitLab代码仓库对应的项目地址：（注意：SSH的URL中需要将域名改成NodeIP）   
+![](Images/4/jenkins-create-pipeline-2.png)  
+
+Jenkins将自动生成SSH Key Pair，在创建Pipeline之前，需要将SSH公钥添加到GitLab中，添加路径为【GitLab】-【User Setting】-【SSH Keys】：  
+![](Images/4/gitlab-ssh-key.png)  
+
+回到Jenkins Blue Ocean界面，点击“创建Pipeline”:    
+![](Images/4/jenkins-initial-pipeline-1.png)  
+
+Jenkins首先将会自动拉取GitLab代码库中已经完成修改的Jenkinsfile，并按照Jenkinsfile执行第一次Pipeline： 
+![](Images/4/jenkins-initial-pipeline-2.png)  
 
 在Blue Ocean界面中可以查看Pipeline执行进度：   
 ![](Images/4/check-initial-pipeline.png)  

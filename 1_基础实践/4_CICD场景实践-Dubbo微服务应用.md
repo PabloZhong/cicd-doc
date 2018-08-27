@@ -53,6 +53,8 @@ Push成功后即可在GitLab的“dubbo-demo”项目中看到已上传的源代
 ### 2.2 创建Jenkins Pipeline    
 
 **Step 1: 制作Jenkins Slave镜像。**  
+>注：为节约时间，你也可以选择不通过Dockerfile从头开始构建Jenkins Slave镜像，而直接从Dockerhub中pull，即```docker pull docker.io/pablozhong/jenkins-slave-maven:v1```。  
+
 为了使用Jenkins Slave来执行Pipeline，首先需要制作Jenkins Slave所使用的Docker镜像，并上传至EKS的镜像仓库中。   
 具体步骤如下：  
 
